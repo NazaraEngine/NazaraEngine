@@ -148,7 +148,7 @@ namespace Nz
 
 	OpenGLDevice::~OpenGLDevice()
 	{
-		OnRenderDeviceRelease(this);
+		OnGpuDeviceRelease(this);
 
 		for (auto& asyncTransfer : m_activeAsyncTransfer)
 			m_referenceContext->glDeleteSync(asyncTransfer.completionFence);
@@ -229,7 +229,7 @@ namespace Nz
 		return std::make_shared<OpenGLComputePipeline>(*this, std::move(pipelineInfo));
 	}
 
-	std::shared_ptr<Framebuffer> OpenGLDevice::InstantiateFramebuffer(unsigned int /*width*/, unsigned int /*height*/, const std::shared_ptr<GpuRenderPass>& /*renderPass*/, const std::vector<std::shared_ptr<Texture>>& attachments)
+	std::shared_ptr<GpuFramebuffer> OpenGLDevice::InstantiateFramebuffer(unsigned int /*width*/, unsigned int /*height*/, const std::shared_ptr<GpuRenderPass>& /*renderPass*/, const std::vector<std::shared_ptr<Texture>>& attachments)
 	{
 		return std::make_shared<OpenGLFboFramebuffer>(*this, attachments);
 	}

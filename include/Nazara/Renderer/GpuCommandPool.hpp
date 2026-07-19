@@ -4,12 +4,12 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_COMMANDPOOL_HPP
-#define NAZARA_RENDERER_COMMANDPOOL_HPP
+#ifndef NAZARA_RENDERER_GPUCOMMANDPOOL_HPP
+#define NAZARA_RENDERER_GPUCOMMANDPOOL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Renderer/GpuCommandBuffer.hpp>
 #include <Nazara/Renderer/Export.hpp>
+#include <Nazara/Renderer/GpuCommandBuffer.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 
 namespace Nz
@@ -36,4 +36,4 @@ namespace Nz
 
 #include <Nazara/Renderer/GpuCommandPool.inl>
 
-#endif // NAZARA_RENDERER_COMMANDPOOL_HPP
+#endif // NAZARA_RENDERER_GPUCOMMANDPOOL_HPP

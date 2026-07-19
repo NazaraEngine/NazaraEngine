@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_ASYNCRENDERCOMMANDS_HPP
-#define NAZARA_RENDERER_ASYNCRENDERCOMMANDS_HPP
+#ifndef NAZARA_RENDERER_GPUASYNCCOMMANDS_HPP
+#define NAZARA_RENDERER_GPUASYNCCOMMANDS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/Export.hpp>
@@ -43,4 +43,4 @@ namespace Nz
 
 #include <Nazara/Renderer/GpuAsyncCommands.inl>
 
-#endif // NAZARA_RENDERER_ASYNCRENDERCOMMANDS_HPP
+#endif // NAZARA_RENDERER_GPUASYNCCOMMANDS_HPP

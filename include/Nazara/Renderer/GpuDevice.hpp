@@ -4,21 +4,21 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_RENDERDEVICE_HPP
-#define NAZARA_RENDERER_RENDERDEVICE_HPP
+#ifndef NAZARA_RENDERER_GPUDEVICE_HPP
+#define NAZARA_RENDERER_GPUDEVICE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/PixelFormat.hpp>
-#include <Nazara/Renderer/GpuAsyncCommands.hpp>
-#include <Nazara/Renderer/GpuComputePipeline.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Export.hpp>
-#include <Nazara/Renderer/Framebuffer.hpp>
+#include <Nazara/Renderer/GpuAsyncCommands.hpp>
 #include <Nazara/Renderer/GpuBuffer.hpp>
+#include <Nazara/Renderer/GpuComputePipeline.hpp>
 #include <Nazara/Renderer/GpuDeviceInfo.hpp>
+#include <Nazara/Renderer/GpuFramebuffer.hpp>
+#include <Nazara/Renderer/GpuPipelineLayout.hpp>
 #include <Nazara/Renderer/GpuRenderPass.hpp>
 #include <Nazara/Renderer/GpuRenderPipeline.hpp>
-#include <Nazara/Renderer/GpuPipelineLayout.hpp>
 #include <Nazara/Renderer/Swapchain.hpp>
 #include <Nazara/Renderer/SwapchainParameters.hpp>
 #include <Nazara/Renderer/Texture.hpp>
@@ -52,7 +52,7 @@ namespace Nz
 			virtual std::shared_ptr<GpuBuffer> InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData = nullptr) = 0;
 			virtual std::shared_ptr<GpuCommandPool> InstantiateCommandPool(QueueType queueType) = 0;
 			virtual std::shared_ptr<GpuComputePipeline> InstantiateComputePipeline(GpuComputePipelineInfo pipelineInfo) = 0;
-			virtual std::shared_ptr<Framebuffer> InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<GpuRenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) = 0;
+			virtual std::shared_ptr<GpuFramebuffer> InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<GpuRenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) = 0;
 			virtual std::shared_ptr<GpuRenderPass> InstantiateRenderPass(std::vector<GpuRenderPass::Attachment> attachments, std::vector<GpuRenderPass::SubpassDescription> subpassDescriptions, std::vector<GpuRenderPass::SubpassDependency> subpassDependencies) = 0;
 			virtual std::shared_ptr<GpuRenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) = 0;
 			virtual std::shared_ptr<GpuPipelineLayout> InstantiateRenderPipelineLayout(GpuPipelineLayoutInfo pipelineLayoutInfo) = 0;
@@ -71,10 +71,10 @@ namespace Nz
 
 			static void ValidateFeatures(const GpuDeviceFeatures& supportedFeatures, GpuDeviceFeatures& enabledFeatures);
 
-			NazaraSignal(OnRenderDeviceRelease, GpuDevice* /*device*/);
+			NazaraSignal(OnGpuDeviceRelease, GpuDevice* /*device*/);
 	};
 }
 
 #include <Nazara/Renderer/GpuDevice.inl>
 
-#endif // NAZARA_RENDERER_RENDERDEVICE_HPP
+#endif // NAZARA_RENDERER_GPUDEVICE_HPP

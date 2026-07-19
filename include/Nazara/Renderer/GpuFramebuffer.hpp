@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_FRAMEBUFFER_HPP
-#define NAZARA_RENDERER_FRAMEBUFFER_HPP
+#ifndef NAZARA_RENDERER_GPUFRAMEBUFFER_HPP
+#define NAZARA_RENDERER_GPUFRAMEBUFFER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
@@ -14,26 +14,26 @@
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API Framebuffer
+	class NAZARA_RENDERER_API GpuFramebuffer
 	{
 		public:
-			inline Framebuffer(FramebufferType type);
-			Framebuffer(const Framebuffer&) = delete;
-			Framebuffer(Framebuffer&&) noexcept = default;
-			virtual ~Framebuffer();
+			inline GpuFramebuffer(FramebufferType type);
+			GpuFramebuffer(const GpuFramebuffer&) = delete;
+			GpuFramebuffer(GpuFramebuffer&&) noexcept = default;
+			virtual ~GpuFramebuffer();
 
 			inline FramebufferType GetType() const;
 
 			virtual void UpdateDebugName(std::string_view name) = 0;
 
-			Framebuffer& operator=(const Framebuffer&) = delete;
-			Framebuffer& operator=(Framebuffer&&) noexcept = default;
+			GpuFramebuffer& operator=(const GpuFramebuffer&) = delete;
+			GpuFramebuffer& operator=(GpuFramebuffer&&) noexcept = default;
 
 		private:
 			FramebufferType m_type;
 	};
 }
 
-#include <Nazara/Renderer/Framebuffer.inl>
+#include <Nazara/Renderer/GpuFramebuffer.inl>
 
-#endif // NAZARA_RENDERER_FRAMEBUFFER_HPP
+#endif // NAZARA_RENDERER_GPUFRAMEBUFFER_HPP

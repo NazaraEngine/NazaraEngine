@@ -14,7 +14,7 @@
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
 #include <Nazara/Renderer/GpuCommandPool.hpp>
-#include <Nazara/Renderer/Framebuffer.hpp>
+#include <Nazara/Renderer/GpuFramebuffer.hpp>
 #include <Nazara/Renderer/GpuRenderPass.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <span>
@@ -65,7 +65,7 @@ namespace Nz
 
 			struct PassData
 			{
-				std::shared_ptr<Framebuffer> framebuffer;
+				std::shared_ptr<GpuFramebuffer> framebuffer;
 				std::shared_ptr<GpuRenderPass> renderPass;
 				std::string name;
 				std::vector<std::size_t> outputTextureIndices;

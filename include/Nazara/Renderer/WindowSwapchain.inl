@@ -24,7 +24,7 @@ namespace Nz
 		m_renderOnlyIfFocused = enable;
 	}
 
-	inline const Framebuffer& WindowSwapchain::GetFramebuffer(std::size_t i) const
+	inline const GpuFramebuffer& WindowSwapchain::GetFramebuffer(std::size_t i) const
 	{
 		assert(m_swapchain);
 		return m_swapchain->GetFramebuffer(i);
@@ -36,7 +36,7 @@ namespace Nz
 		return m_swapchain->GetFramebufferCount();
 	}
 
-	inline const std::shared_ptr<GpuDevice>& WindowSwapchain::GetRenderDevice() const
+	inline const std::shared_ptr<GpuDevice>& WindowSwapchain::GetGpuDevice() const
 	{
 		return m_renderDevice;
 	}

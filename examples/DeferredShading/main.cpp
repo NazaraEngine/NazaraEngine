@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
 	meshParams.vertexScale = Nz::Vector3f(0.002f);
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
-	std::shared_ptr<Nz::GpuDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Graphics::Instance()->GetGpuDevice();
 	const Nz::GpuDeviceInfo& deviceInfo = device->GetDeviceInfo();
 
 	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();

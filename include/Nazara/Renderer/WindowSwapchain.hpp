@@ -16,7 +16,7 @@
 
 namespace Nz
 {
-	class Framebuffer;
+	class GpuFramebuffer;
 	class GpuDevice;
 	class Window;
 
@@ -34,9 +34,9 @@ namespace Nz
 
 			inline void EnableRenderOnlyIfFocused(bool enable = true);
 
-			inline const Framebuffer& GetFramebuffer(std::size_t i) const;
+			inline const GpuFramebuffer& GetFramebuffer(std::size_t i) const;
 			inline std::size_t GetFramebufferCount() const;
-			inline const std::shared_ptr<GpuDevice>& GetRenderDevice() const;
+			inline const std::shared_ptr<GpuDevice>& GetGpuDevice() const;
 			inline const GpuRenderPass& GetRenderPass() const;
 			const Vector2ui& GetSize() const;
 			inline Swapchain* GetSwapchain();

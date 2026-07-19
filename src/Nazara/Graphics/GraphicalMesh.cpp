@@ -12,7 +12,7 @@ namespace Nz
 {
 	std::shared_ptr<GraphicalMesh> GraphicalMesh::BuildFromMesh(const Mesh& mesh)
 	{
-		const std::shared_ptr<GpuDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
+		const std::shared_ptr<GpuDevice>& renderDevice = Graphics::Instance()->GetGpuDevice();
 		std::unique_ptr<GpuAsyncCommands> asyncTransfer = renderDevice->InstantiateAsyncCommands(QueueType::Transfer);
 		std::shared_ptr<GraphicalMesh> gfxMesh = BuildFromMesh(*asyncTransfer, mesh);
 		renderDevice->SubmitAsyncCommands(std::move(asyncTransfer), true);
@@ -22,7 +22,7 @@ namespace Nz
 
 	std::shared_ptr<Nz::GraphicalMesh> GraphicalMesh::BuildFromMesh(GpuAsyncCommands& asyncTransfer, const Mesh& mesh)
 	{
-		const std::shared_ptr<GpuDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
+		const std::shared_ptr<GpuDevice>& renderDevice = Graphics::Instance()->GetGpuDevice();
 
 		std::shared_ptr<GraphicalMesh> gfxMesh = std::make_shared<GraphicalMesh>();
 

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_RENDERBUFFER_HPP
-#define NAZARA_RENDERER_RENDERBUFFER_HPP
+#ifndef NAZARA_RENDERER_GPUBUFFER_HPP
+#define NAZARA_RENDERER_GPUBUFFER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Buffer.hpp>
@@ -30,8 +30,8 @@ namespace Nz
 			using Buffer::Fill;
 			virtual bool Fill(GpuAsyncCommands& asyncTransfer, const void* data, UInt64 offset, UInt64 size) = 0;
 
-			inline GpuDevice& GetRenderDevice();
-			inline const GpuDevice& GetRenderDevice() const;
+			inline GpuDevice& GetGpuDevice();
+			inline const GpuDevice& GetGpuDevice() const;
 
 			virtual void UpdateDebugName(std::string_view name) = 0;
 
@@ -49,4 +49,4 @@ namespace Nz
 
 #include <Nazara/Renderer/GpuBuffer.inl>
 
-#endif // NAZARA_RENDERER_RENDERBUFFER_HPP
+#endif // NAZARA_RENDERER_GPUBUFFER_HPP

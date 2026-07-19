@@ -17,7 +17,7 @@
 
 namespace Nz
 {
-	class NAZARA_VULKANRENDERER_API VulkanCommandPool final : public CommandPool
+	class NAZARA_VULKANRENDERER_API VulkanCommandPool final : public GpuCommandPool
 	{
 		friend VulkanCommandBuffer;
 

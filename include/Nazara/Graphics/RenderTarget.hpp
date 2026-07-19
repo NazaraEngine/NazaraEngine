@@ -16,7 +16,7 @@ namespace Nz
 {
 	class BakedFrameGraph;
 	class GpuCommandBufferBuilder;
-	class Framebuffer;
+	class GpuFramebuffer;
 	class FrameGraph;
 	class GpuRenderPass;
 	class GpuResources;

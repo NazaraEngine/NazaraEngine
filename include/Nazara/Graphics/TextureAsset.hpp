@@ -137,7 +137,7 @@ namespace Nz
 				std::shared_ptr<Texture> texture;
 				MovablePtr<GpuDevice> device;
 
-				NazaraSlot(GpuDevice, OnRenderDeviceRelease, onDeviceRelease);
+				NazaraSlot(GpuDevice, OnGpuDeviceRelease, onDeviceRelease);
 			};
 
 			std::variant<NoSource, ImageBuilder, ImageSource, StreamSource, TextureBuilder, TextureViewSource> m_source;

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_UPLOADPOOL_HPP
-#define NAZARA_RENDERER_UPLOADPOOL_HPP
+#ifndef NAZARA_RENDERER_GPUUPLOADPOOL_HPP
+#define NAZARA_RENDERER_GPUUPLOADPOOL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/Export.hpp>
@@ -48,4 +48,4 @@ namespace Nz
 
 #include <Nazara/Renderer/GpuUploadPool.inl>
 
-#endif // NAZARA_RENDERER_UPLOADPOOL_HPP
+#endif // NAZARA_RENDERER_GPUUPLOADPOOL_HPP

@@ -597,7 +597,7 @@ namespace Nz
 			bool used = false; //< has the attachment already been used in a previous subpass
 			TextureLayout currentLayout = renderPassAttachments[attachmentIndex].initialLayout;
 
-			auto FindColor = [&](std::size_t subpassIndex) -> RenderPass::AttachmentReference*
+			auto FindColor = [&](std::size_t subpassIndex) -> GpuRenderPass::AttachmentReference*
 			{
 				auto& subpassDesc = subpasses[subpassIndex];
 				for (auto& colorReference : subpassDesc.colorAttachment)
@@ -609,7 +609,7 @@ namespace Nz
 				return nullptr;
 			};
 
-			auto FindDepthStencil = [&](std::size_t subpassIndex) -> RenderPass::AttachmentReference*
+			auto FindDepthStencil = [&](std::size_t subpassIndex) -> GpuRenderPass::AttachmentReference*
 			{
 				auto& subpassDesc = subpasses[subpassIndex];
 				if (subpassDesc.depthStencilAttachment && subpassDesc.depthStencilAttachment->attachmentIndex == attachmentIndex)
@@ -833,7 +833,7 @@ namespace Nz
 			return attachmentIndex;
 		};
 
-		auto RegisterDepthStencil = [&](std::size_t attachmentId, TextureLayout textureLayout, bool* first) -> RenderPass::Attachment*
+		auto RegisterDepthStencil = [&](std::size_t attachmentId, TextureLayout textureLayout, bool* first) -> GpuRenderPass::Attachment*
 		{
 			if (depthStencilAttachmentIndex)
 			{

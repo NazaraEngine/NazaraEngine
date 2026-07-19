@@ -10,15 +10,15 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/Export.hpp>
-#include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/GpuRenderPass.hpp>
+#include <Nazara/Renderer/RenderFrame.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <vector>
 
 namespace Nz
 {
 	class GpuCommandPool;
-	class Framebuffer;
+	class GpuFramebuffer;
 	class GpuDevice;
 	class GpuResources;
 
@@ -32,7 +32,7 @@ namespace Nz
 
 			virtual std::shared_ptr<GpuCommandPool> CreateCommandPool(QueueType queueType) = 0;
 
-			virtual const Framebuffer& GetFramebuffer(std::size_t i) const = 0;
+			virtual const GpuFramebuffer& GetFramebuffer(std::size_t i) const = 0;
 			virtual std::size_t GetFramebufferCount() const = 0;
 			virtual PresentMode GetPresentMode() const = 0;
 			virtual const GpuRenderPass& GetRenderPass() const = 0;

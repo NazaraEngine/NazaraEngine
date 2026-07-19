@@ -31,7 +31,7 @@ namespace Nz
 		m_device.reset();
 	}
 
-	std::shared_ptr<GpuDevice> OpenGLRenderer::InstanciateRenderDevice([[maybe_unused]] std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures)
+	std::shared_ptr<GpuDevice> OpenGLRenderer::InstanciateGpuDevice([[maybe_unused]] std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures)
 	{
 		assert(deviceIndex == 0);
 
@@ -123,7 +123,7 @@ namespace Nz
 		return 300;
 	}
 
-	const std::vector<GpuDeviceInfo>& OpenGLRenderer::QueryRenderDevices() const
+	const std::vector<GpuDeviceInfo>& OpenGLRenderer::QueryGpuDevices() const
 	{
 		return m_deviceInfos;
 	}

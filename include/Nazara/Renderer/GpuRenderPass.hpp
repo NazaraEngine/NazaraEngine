@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_RENDERPASS_HPP
-#define NAZARA_RENDERER_RENDERPASS_HPP
+#ifndef NAZARA_RENDERER_GPURENDERPASS_HPP
+#define NAZARA_RENDERER_GPURENDERPASS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/PixelFormat.hpp>
@@ -88,4 +88,4 @@ namespace Nz
 
 #include <Nazara/Renderer/GpuRenderPass.inl>
 
-#endif // NAZARA_RENDERER_RENDERPASS_HPP
+#endif // NAZARA_RENDERER_GPURENDERPASS_HPP

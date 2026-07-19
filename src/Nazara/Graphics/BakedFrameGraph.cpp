@@ -15,7 +15,7 @@ namespace Nz
 	m_attachmentToTextureMapping(std::move(attachmentIdToTextureMapping)),
 	m_passIdToPhysicalPassMapping(std::move(passIdToPhysicalPassMapping))
 	{
-		const std::shared_ptr<GpuDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
+		const std::shared_ptr<GpuDevice>& renderDevice = Graphics::Instance()->GetGpuDevice();
 		m_commandPool = renderDevice->InstantiateCommandPool(QueueType::Graphics);
 	}
 
@@ -130,7 +130,7 @@ namespace Nz
 		if (std::equal(m_viewerSizes.begin(), m_viewerSizes.end(), viewerTargetSizes.begin(), viewerTargetSizes.end()))
 			return false;
 
-		const std::shared_ptr<GpuDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
+		const std::shared_ptr<GpuDevice>& renderDevice = Graphics::Instance()->GetGpuDevice();
 
 		auto ComputeTextureSize = [&](TextureData& textureData) -> Vector2ui32
 		{

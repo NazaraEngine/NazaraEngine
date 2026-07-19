@@ -11,12 +11,12 @@ namespace Nz
 	{
 	}
 
-	inline GpuDevice& GpuBuffer::GetRenderDevice()
+	inline GpuDevice& GpuBuffer::GetGpuDevice()
 	{
 		return m_renderDevice;
 	}
 
-	inline const GpuDevice& GpuBuffer::GetRenderDevice() const
+	inline const GpuDevice& GpuBuffer::GetGpuDevice() const
 	{
 		return m_renderDevice;
 	}

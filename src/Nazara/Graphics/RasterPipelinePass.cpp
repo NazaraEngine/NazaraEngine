@@ -287,7 +287,7 @@ namespace Nz
 	void RasterPipelinePass::BuildCullingPipeline()
 	{
 		Graphics* graphics = Graphics::Instance();
-		auto& renderDevice = *graphics->GetRenderDevice();
+		auto& renderDevice = *graphics->GetGpuDevice();
 
 		m_frustumCullingShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Compute, "Compute.FrustumCulling");
 

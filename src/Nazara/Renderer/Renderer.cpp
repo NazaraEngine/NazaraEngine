@@ -53,9 +53,9 @@ namespace Nz
 		m_rendererImpl.reset();
 	}
 
-	std::shared_ptr<GpuDevice> Renderer::InstanciateRenderDevice(std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures)
+	std::shared_ptr<GpuDevice> Renderer::InstanciateGpuDevice(std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures)
 	{
-		return m_rendererImpl->InstanciateRenderDevice(deviceIndex, enabledFeatures);
+		return m_rendererImpl->InstanciateGpuDevice(deviceIndex, enabledFeatures);
 	}
 
 	GpuBackend Renderer::QueryAPI() const
@@ -73,9 +73,9 @@ namespace Nz
 		return m_rendererImpl->QueryAPIVersion();
 	}
 
-	const std::vector<GpuDeviceInfo>& Renderer::QueryRenderDevices() const
+	const std::vector<GpuDeviceInfo>& Renderer::QueryGpuDevices() const
 	{
-		return m_rendererImpl->QueryRenderDevices();
+		return m_rendererImpl->QueryGpuDevices();
 	}
 
 	void Renderer::LoadBackend(const Config& config)

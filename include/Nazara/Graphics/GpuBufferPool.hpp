@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_GRAPHICS_RENDERBUFFERPOOL_HPP
-#define NAZARA_GRAPHICS_RENDERBUFFERPOOL_HPP
+#ifndef NAZARA_GRAPHICS_GPUBUFFERPOOL_HPP
+#define NAZARA_GRAPHICS_GPUBUFFERPOOL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Export.hpp>
@@ -51,4 +51,4 @@ namespace Nz
 
 #include <Nazara/Graphics/GpuBufferPool.inl>
 
-#endif // NAZARA_GRAPHICS_RENDERBUFFERPOOL_HPP
+#endif // NAZARA_GRAPHICS_GPUBUFFERPOOL_HPP

@@ -36,7 +36,7 @@ namespace Nz
 			Vulkan() = delete;
 			~Vulkan() = delete;
 
-			static GpuDeviceInfo BuildRenderDeviceInfo(const Vk::PhysicalDevice& physDevice);
+			static GpuDeviceInfo BuildGpuDeviceInfo(const Vk::PhysicalDevice& physDevice);
 
 			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const GpuDeviceFeatures& enabledFeatures);
 			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const GpuDeviceFeatures& enabledFeatures, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex);

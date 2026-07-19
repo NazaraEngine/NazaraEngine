@@ -2,9 +2,16 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Renderer/Framebuffer.hpp>
 
 namespace Nz
 {
-	Framebuffer::~Framebuffer() = default;
+	inline GpuFramebuffer::GpuFramebuffer(FramebufferType type) :
+	m_type(type)
+	{
+	}
+
+	inline FramebufferType GpuFramebuffer::GetType() const
+	{
+		return m_type;
+	}
 }

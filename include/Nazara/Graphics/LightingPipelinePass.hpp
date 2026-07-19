@@ -12,8 +12,8 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Math/Frustum.hpp>
-#include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Renderer/GpuUploadPool.hpp>
+#include <Nazara/Renderer/ShaderBinding.hpp>
 #include <NazaraUtils/FixedVector.hpp>
 #include <memory>
 

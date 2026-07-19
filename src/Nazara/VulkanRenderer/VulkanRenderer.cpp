@@ -18,7 +18,7 @@ namespace Nz
 		Vulkan::Uninitialize();
 	}
 
-	std::shared_ptr<GpuDevice> VulkanRenderer::InstanciateRenderDevice(std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures)
+	std::shared_ptr<GpuDevice> VulkanRenderer::InstanciateGpuDevice(std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures)
 	{
 		const auto& physDevices = Vulkan::GetPhysicalDevices();
 
@@ -35,7 +35,7 @@ namespace Nz
 
 		m_deviceInfos.reserve(physDevices.size());
 		for (const Vk::PhysicalDevice& physDevice : physDevices)
-			m_deviceInfos.push_back(Vulkan::BuildRenderDeviceInfo(physDevice));
+			m_deviceInfos.push_back(Vulkan::BuildGpuDeviceInfo(physDevice));
 
 		return true;
 	}
@@ -58,7 +58,7 @@ namespace Nz
 		return APIVersion;
 	}
 
-	const std::vector<GpuDeviceInfo>& VulkanRenderer::QueryRenderDevices() const
+	const std::vector<GpuDeviceInfo>& VulkanRenderer::QueryGpuDevices() const
 	{
 		return m_deviceInfos;
 	}

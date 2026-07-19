@@ -54,7 +54,7 @@ int main()
 	enabledFeatures.storageBuffers = true;
 	enabledFeatures.textureReadWrite = true;
 
-	std::shared_ptr<Nz::GpuDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0, enabledFeatures);
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Renderer::Instance()->InstanciateGpuDevice(0, enabledFeatures);
 
 	nzsl::FieldOffsets particleLayout(nzsl::StructLayout::Std430);
 	std::size_t particleColorOffset = particleLayout.AddField(nzsl::StructFieldType::Float3);

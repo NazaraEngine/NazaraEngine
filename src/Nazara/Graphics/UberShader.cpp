@@ -112,7 +112,7 @@ namespace Nz
 
 			try
 			{
-				stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStages, *m_shaderModule, std::move(states));
+				stage = Graphics::Instance()->GetGpuDevice()->InstantiateShaderModule(m_shaderStages, *m_shaderModule, std::move(states));
 			}
 			catch (const std::exception& e)
 			{

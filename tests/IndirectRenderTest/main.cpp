@@ -188,7 +188,7 @@ int main()
 	Nz::Application<Nz::Renderer> app(rendererConfig);
 	auto& windowingApp = app.AddComponent<Nz::WindowingAppComponent>();
 
-	std::shared_ptr<Nz::GpuDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0, {
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Renderer::Instance()->InstanciateGpuDevice(0, {
 		.computeShaders = true,
 		.multiDrawIndirect = true
 	});

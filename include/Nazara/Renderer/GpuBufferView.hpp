@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_RENDERBUFFERVIEW_HPP
-#define NAZARA_RENDERER_RENDERBUFFERVIEW_HPP
+#ifndef NAZARA_RENDERER_GPUBUFFERVIEW_HPP
+#define NAZARA_RENDERER_GPUBUFFERVIEW_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/GpuBuffer.hpp>
@@ -44,4 +44,4 @@ namespace Nz
 
 #include <Nazara/Renderer/GpuBufferView.inl>
 
-#endif // NAZARA_RENDERER_RENDERBUFFERVIEW_HPP
+#endif // NAZARA_RENDERER_GPUBUFFERVIEW_HPP

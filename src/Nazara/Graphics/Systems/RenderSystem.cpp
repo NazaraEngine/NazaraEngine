@@ -54,7 +54,7 @@ namespace Nz
 
 	WindowSwapchain& RenderSystem::CreateSwapchain(Window& window, const SwapchainParameters& parameters)
 	{
-		return *m_windowSwapchains.emplace_back(std::make_unique<WindowSwapchain>(Graphics::Instance()->GetRenderDevice(), window, parameters));
+		return *m_windowSwapchains.emplace_back(std::make_unique<WindowSwapchain>(Graphics::Instance()->GetGpuDevice(), window, parameters));
 	}
 
 	void RenderSystem::DestroySwapchain(WindowSwapchain& swapchain)

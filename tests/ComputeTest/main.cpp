@@ -46,7 +46,7 @@ int main()
 	enabledFeatures.computeShaders = true;
 	enabledFeatures.textureReadWrite = true;
 
-	std::shared_ptr<Nz::GpuDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0, enabledFeatures);
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Renderer::Instance()->InstanciateGpuDevice(0, enabledFeatures);
 
 	// Source texture
 	Nz::TextureParams texParams;

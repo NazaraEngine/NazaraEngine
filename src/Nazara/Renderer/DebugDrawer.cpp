@@ -7,8 +7,8 @@
 #include <Nazara/Core/Skeleton.hpp>
 #include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
 #include <Nazara/Renderer/GpuDevice.hpp>
-#include <Nazara/Renderer/GpuRenderPipeline.hpp>
 #include <Nazara/Renderer/GpuPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
 #include <Nazara/Renderer/GpuResources.hpp>
 #include <NZSL/Serializer.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>

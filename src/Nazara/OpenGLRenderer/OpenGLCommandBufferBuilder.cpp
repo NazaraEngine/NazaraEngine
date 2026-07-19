@@ -19,7 +19,7 @@ namespace Nz
 		m_commandBuffer.BeginDebugRegion(regionName, color);
 	}
 
-	void OpenGLCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& /*renderRect*/, const ClearValues* clearValues, std::size_t clearValueCount)
+	void OpenGLCommandBufferBuilder::BeginRenderPass(const GpuFramebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& /*renderRect*/, const ClearValues* clearValues, std::size_t clearValueCount)
 	{
 		m_commandBuffer.SetFramebuffer(SafeCast<const OpenGLFramebuffer&>(framebuffer), SafeCast<const OpenGLRenderPass&>(renderPass), clearValues, clearValueCount);
 	}

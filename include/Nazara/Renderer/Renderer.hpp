@@ -35,13 +35,13 @@ namespace Nz
 
 			inline RendererImpl* GetRendererImpl();
 
-			std::shared_ptr<GpuDevice> InstanciateRenderDevice(std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures = {});
+			std::shared_ptr<GpuDevice> InstanciateGpuDevice(std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures = {});
 
 			GpuBackend QueryAPI() const;
 			std::string QueryAPIString() const;
 			UInt32 QueryAPIVersion() const;
 
-			const std::vector<GpuDeviceInfo>& QueryRenderDevices() const;
+			const std::vector<GpuDeviceInfo>& QueryGpuDevices() const;
 
 			struct NAZARA_RENDERER_API Config
 			{

@@ -4,12 +4,12 @@
 
 namespace Nz
 {
-	inline void GpuCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect)
+	inline void GpuCommandBufferBuilder::BeginRenderPass(const GpuFramebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect)
 	{
 		return BeginRenderPass(framebuffer, renderPass, renderRect, nullptr, 0);
 	}
 
-	inline void GpuCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, std::initializer_list<ClearValues> clearValues)
+	inline void GpuCommandBufferBuilder::BeginRenderPass(const GpuFramebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, std::initializer_list<ClearValues> clearValues)
 	{
 		return BeginRenderPass(framebuffer, renderPass, renderRect, clearValues.begin(), clearValues.size());
 	}

@@ -170,7 +170,7 @@ namespace Nz
 
 		// Textures
 		const auto& defaultTextures = Graphics::Instance()->GetDefaultTextures();
-		const auto& renderDevice = Graphics::Instance()->GetRenderDevice();
+		const auto& renderDevice = Graphics::Instance()->GetGpuDevice();
 		auto& samplerCache = Graphics::Instance()->GetSamplerCache();
 
 		// Storage buffer
@@ -231,7 +231,7 @@ namespace Nz
 
 	void MaterialInstance::FillRenderResourceReferences(RenderResourceReferences& resourceReferences) const
 	{
-		const auto& renderDevice = Graphics::Instance()->GetRenderDevice();
+		const auto& renderDevice = Graphics::Instance()->GetGpuDevice();
 
 		for (const auto& storageInfo : m_storageBufferBindings)
 			resourceReferences.renderBuffers.emplace(storageInfo.renderBuffer);

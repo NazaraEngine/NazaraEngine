@@ -25,7 +25,7 @@ namespace Nz
 			~OpenGLCommandBufferBuilder() = default;
 
 			void BeginDebugRegion(std::string_view regionName, const Color& color) override;
-			void BeginRenderPass(const Framebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) override;
+			void BeginRenderPass(const GpuFramebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) override;
 
 			void BindComputePipeline(const GpuComputePipeline& pipeline) override;
 			void BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) override;

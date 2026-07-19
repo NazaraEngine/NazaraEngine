@@ -16,9 +16,9 @@
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Export.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <Nazara/Renderer/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
-#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <memory>
 #include <span>
 #include <vector>

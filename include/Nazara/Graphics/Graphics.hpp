@@ -17,8 +17,8 @@
 #include <Nazara/Graphics/PipelinePassList.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
 #include <Nazara/Renderer/GpuDevice.hpp>
-#include <Nazara/Renderer/GpuRenderPassCache.hpp>
 #include <Nazara/Renderer/GpuPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuRenderPassCache.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/TextRenderer/TextRenderer.hpp>
 #include <NZSL/FilesystemModuleResolver.hpp>
@@ -65,7 +65,7 @@ namespace Nz
 			inline const PipelinePassListLoader& GetPipelinePassListLoader() const;
 			inline PixelFormat GetPreferredDepthFormat() const;
 			inline PixelFormat GetPreferredDepthStencilFormat() const;
-			inline const std::shared_ptr<GpuDevice>& GetRenderDevice() const;
+			inline const std::shared_ptr<GpuDevice>& GetGpuDevice() const;
 			inline const GpuRenderPassCache& GetRenderPassCache() const;
 			inline NameRegistry& GetRenderQueueRegistry();
 			inline const NameRegistry& GetRenderQueueRegistry() const;
@@ -78,7 +78,7 @@ namespace Nz
 				void Override(const CommandLineParameters& parameters);
 
 				GpuDeviceFeatures forceDisableFeatures;
-				bool useDedicatedRenderDevice = true;
+				bool useDedicatedGpuDevice = true;
 			};
 
 			struct DefaultMaterials

@@ -94,7 +94,7 @@ namespace Nz
 		return m_preferredDepthStencilFormat;
 	}
 
-	inline const std::shared_ptr<GpuDevice>& Graphics::GetRenderDevice() const
+	inline const std::shared_ptr<GpuDevice>& Graphics::GetGpuDevice() const
 	{
 		return m_renderDevice;
 	}

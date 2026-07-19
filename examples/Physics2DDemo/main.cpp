@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 	Nz::Window& window = windowing.CreateWindow(Nz::VideoMode(1920, 1080, 32), windowTitle);
 	Nz::WindowSwapchain& windowSwapchain = renderSystem.CreateSwapchain(window);
 
-	std::shared_ptr<Nz::GpuDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Graphics::Instance()->GetGpuDevice();
 
 	Nz::Vector2f windowSize = Nz::Vector2f(window.GetSize());
 

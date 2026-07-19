@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_RENDERRESOURCES_HPP
-#define NAZARA_RENDERER_RENDERRESOURCES_HPP
+#ifndef NAZARA_RENDERER_GPURESOURCES_HPP
+#define NAZARA_RENDERER_GPURESOURCES_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
@@ -37,7 +37,7 @@ namespace Nz
 			inline void FlushReleaseQueue();
 
 			virtual UInt32 GetImageIndex() const = 0;
-			inline GpuDevice& GetRenderDevice();
+			inline GpuDevice& GetGpuDevice();
 			virtual GpuUploadPool& GetUploadPool() = 0;
 
 			template<typename T> void PushForRelease(const T& value) = delete;
@@ -114,4 +114,4 @@ namespace Nz
 
 #include <Nazara/Renderer/GpuResources.inl>
 
-#endif // NAZARA_RENDERER_RENDERRESOURCES_HPP
+#endif // NAZARA_RENDERER_GPURESOURCES_HPP

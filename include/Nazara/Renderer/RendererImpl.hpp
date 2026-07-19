@@ -34,13 +34,13 @@ namespace Nz
 			RendererImpl() = default;
 			virtual ~RendererImpl();
 
-			virtual std::shared_ptr<GpuDevice> InstanciateRenderDevice(std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures) = 0;
+			virtual std::shared_ptr<GpuDevice> InstanciateGpuDevice(std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures) = 0;
 
 			virtual GpuBackend QueryAPI() const = 0;
 			virtual std::string QueryAPIString() const = 0;
 			virtual UInt32 QueryAPIVersion() const = 0;
 
-			virtual const std::vector<GpuDeviceInfo>& QueryRenderDevices() const = 0;
+			virtual const std::vector<GpuDeviceInfo>& QueryGpuDevices() const = 0;
 
 			virtual bool Prepare(const Renderer::Config& config) = 0;
 	};

@@ -41,7 +41,7 @@ namespace Nz
 	m_rebuildLights(false)
 	{
 		Graphics* graphics = Graphics::Instance();
-		const auto& renderDevice = graphics->GetRenderDevice();
+		const auto& renderDevice = graphics->GetGpuDevice();
 
 		UInt64 uboAlignment = renderDevice->GetDeviceInfo().limits.minUniformBufferOffsetAlignment;
 		m_directionalLightSize = SafeCaster(AlignPow2<UInt64>(PredefinedDirectionalLightOffsets.totalSize, uboAlignment));
@@ -64,7 +64,7 @@ namespace Nz
 		if (m_lastVisibilityHash != lightVisibilityHash || m_rebuildLights)*/
 		{
 			Graphics* graphics = Graphics::Instance();
-			const auto& renderDevice = graphics->GetRenderDevice();
+			const auto& renderDevice = graphics->GetGpuDevice();
 
 			ReleaseLights(m_lightBufferPool->directionalLightPool, frameData.renderResources, m_directionalLights);
 			ReleaseLights(m_lightBufferPool->pointLightPool, frameData.renderResources, m_pointLights);

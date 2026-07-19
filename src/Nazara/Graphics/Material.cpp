@@ -36,7 +36,7 @@ namespace Nz
 
 		Graphics* graphics = Graphics::Instance();
 
-		const std::shared_ptr<GpuDevice>& renderDevice = graphics->GetRenderDevice();
+		const std::shared_ptr<GpuDevice>& renderDevice = graphics->GetGpuDevice();
 
 		nzsl::Ast::TransformerExecutor executor;
 		executor.AddPass<nzsl::Ast::ResolveTransformer>({ .moduleResolver = graphics->GetShaderModuleResolver() });

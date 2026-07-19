@@ -652,7 +652,7 @@ namespace NzImGui
 				ImGuiRendererBackend* backend = static_cast<ImGuiRendererBackend*>(io.BackendRendererUserData);
 				backend->pool = std::make_shared<ImGuiPool>();
 				backend->windowSwapchain = &windowSwapchain;
-				backend->device = backend->windowSwapchain->GetRenderDevice();
+				backend->device = backend->windowSwapchain->GetGpuDevice();
 				if (backend->device->GetEnabledFeatures().drawBaseVertex)
 					io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
 

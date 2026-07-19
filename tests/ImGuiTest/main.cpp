@@ -103,7 +103,7 @@ int main()
 	auto& pluginManager = app.AddComponent<Nz::PluginManagerAppComponent>();
 	Nz::ImGuiPlugin& imgui = pluginManager.Load<Nz::ImGuiPlugin>();
 
-	std::shared_ptr<Nz::GpuDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0);
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Renderer::Instance()->InstanciateGpuDevice(0);
 
 	std::string windowTitle = "Render Test";
 	Nz::Window& window = windowingApp.CreateWindow(Nz::VideoMode(1280, 720), windowTitle);

@@ -47,7 +47,7 @@ namespace Nz
 		Texture,
 		Window
 	};
-	
+
 	enum class GpuBackend
 	{
 		Direct3D,  //< Microsoft Render API, only works on MS platforms

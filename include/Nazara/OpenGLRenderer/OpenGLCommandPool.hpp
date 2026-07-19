@@ -15,7 +15,7 @@
 
 namespace Nz
 {
-	class NAZARA_OPENGLRENDERER_API OpenGLCommandPool final : public CommandPool
+	class NAZARA_OPENGLRENDERER_API OpenGLCommandPool final : public GpuCommandPool
 	{
 		friend OpenGLCommandBuffer;
 

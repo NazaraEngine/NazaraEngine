@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_RENDERPIPELINELAYOUT_HPP
-#define NAZARA_RENDERER_RENDERPIPELINELAYOUT_HPP
+#ifndef NAZARA_RENDERER_GPUPIPELINELAYOUT_HPP
+#define NAZARA_RENDERER_GPUPIPELINELAYOUT_HPP
 
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
@@ -46,4 +46,4 @@ namespace Nz
 
 #include <Nazara/Renderer/GpuPipelineLayout.inl>
 
-#endif // NAZARA_RENDERER_RENDERPIPELINELAYOUT_HPP
+#endif // NAZARA_RENDERER_GPUPIPELINELAYOUT_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_COMMANDBUFFERBUILDER_HPP
-#define NAZARA_RENDERER_COMMANDBUFFERBUILDER_HPP
+#ifndef NAZARA_RENDERER_GPUCOMMANDBUFFERBUILDER_HPP
+#define NAZARA_RENDERER_GPUCOMMANDBUFFERBUILDER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
@@ -23,7 +23,7 @@ namespace Nz
 {
 	class GpuCommandBuffer;
 	class GpuComputePipeline;
-	class Framebuffer;
+	class GpuFramebuffer;
 	class GpuRenderPass;
 	class GpuRenderPipeline;
 	class GpuPipelineLayout;
@@ -45,9 +45,9 @@ namespace Nz
 			virtual ~GpuCommandBufferBuilder();
 
 			virtual void BeginDebugRegion(std::string_view regionName, const Color& color) = 0;
-			virtual void BeginRenderPass(const Framebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) = 0;
-			inline void BeginRenderPass(const Framebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect);
-			inline void BeginRenderPass(const Framebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, std::initializer_list<ClearValues> clearValues);
+			virtual void BeginRenderPass(const GpuFramebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) = 0;
+			inline void BeginRenderPass(const GpuFramebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect);
+			inline void BeginRenderPass(const GpuFramebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, std::initializer_list<ClearValues> clearValues);
 
 			virtual void BindComputePipeline(const GpuComputePipeline& pipeline) = 0;
 			virtual void BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
@@ -142,4 +142,4 @@ namespace Nz
 
 #include <Nazara/Renderer/GpuCommandBufferBuilder.inl>
 
-#endif // NAZARA_RENDERER_COMMANDBUFFERBUILDER_HPP
+#endif // NAZARA_RENDERER_GPUCOMMANDBUFFERBUILDER_HPP

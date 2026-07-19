@@ -64,7 +64,7 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	std::shared_ptr<Nz::OpenGLDevice> device = std::static_pointer_cast<Nz::OpenGLDevice>(Nz::Renderer::Instance()->InstanciateRenderDevice(0));
+	std::shared_ptr<Nz::OpenGLDevice> device = std::static_pointer_cast<Nz::OpenGLDevice>(Nz::Renderer::Instance()->InstanciateGpuDevice(0));
 
 	std::string err;
 

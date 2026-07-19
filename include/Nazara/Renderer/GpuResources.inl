@@ -28,7 +28,7 @@ namespace Nz
 			memoryblock.clear();
 	}
 
-	inline GpuDevice& GpuResources::GetRenderDevice()
+	inline GpuDevice& GpuResources::GetGpuDevice()
 	{
 		return m_renderDevice;
 	}

@@ -50,7 +50,7 @@ namespace Nz
 		}
 	}
 
-	GpuDeviceInfo Vulkan::BuildRenderDeviceInfo(const Vk::PhysicalDevice& physDevice)
+	GpuDeviceInfo Vulkan::BuildGpuDeviceInfo(const Vk::PhysicalDevice& physDevice)
 	{
 		GpuDeviceInfo deviceInfo;
 		deviceInfo.name = physDevice.properties.deviceName;
@@ -687,7 +687,7 @@ namespace Nz
 			(deviceInfo.properties.apiVersion <= VK_API_VERSION_1_1) ? &deviceFeatures10.features : nullptr
 		};
 
-		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance, enabledFeatures, BuildRenderDeviceInfo(deviceInfo));
+		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance, enabledFeatures, BuildGpuDeviceInfo(deviceInfo));
 		if (!device->Create(deviceInfo, createInfo))
 		{
 			NazaraError("failed to create Vulkan Device: {0}", TranslateVulkanError(device->GetLastErrorCode()));

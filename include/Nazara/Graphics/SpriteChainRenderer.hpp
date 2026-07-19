@@ -12,8 +12,8 @@
 #include <Nazara/Graphics/RenderResourceReferences.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Math/Rect.hpp>
-#include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Renderer/GpuUploadPool.hpp>
+#include <Nazara/Renderer/ShaderBinding.hpp>
 #include <memory>
 #include <unordered_map>
 #include <vector>

@@ -17,7 +17,7 @@ namespace Nz
 {
 	ShadowAtlasPipelinePass::ShadowAtlasPipelinePass(PassData& passData, const std::vector<std::string_view>& renderQueueNames) :
 	m_renderQueueHash(0),
-	m_shadowAtlas(*Graphics::Instance()->GetRenderDevice(), 8192),
+	m_shadowAtlas(*Graphics::Instance()->GetGpuDevice(), 8192),
 	m_elementRegistry(passData.elementRegistry),
 	m_pipeline(passData.pipeline),
 	m_renderMask(MaxValue())
@@ -305,7 +305,7 @@ namespace Nz
 	void ShadowAtlasPipelinePass::BuildCullingPipeline()
 	{
 		Graphics* graphics = Graphics::Instance();
-		auto& renderDevice = *graphics->GetRenderDevice();
+		auto& renderDevice = *graphics->GetGpuDevice();
 
 		m_frustumCullingShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Compute, "Compute.FrustumCulling");
 

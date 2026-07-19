@@ -35,9 +35,9 @@ namespace Nz
 		return m_size;
 	}
 
-	inline GpuDevice& RenderFrame::GetRenderDevice()
+	inline GpuDevice& RenderFrame::GetGpuDevice()
 	{
-		return m_image->GetRenderDevice();
+		return m_image->GetGpuDevice();
 	}
 
 	inline GpuResources& RenderFrame::GetTransientResources()

@@ -10,14 +10,14 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/OpenGLRenderer/Export.hpp>
-#include <Nazara/Renderer/Framebuffer.hpp>
+#include <Nazara/Renderer/GpuFramebuffer.hpp>
 
 namespace Nz
 {
-	class NAZARA_OPENGLRENDERER_API OpenGLFramebuffer : public Framebuffer
+	class NAZARA_OPENGLRENDERER_API OpenGLFramebuffer : public GpuFramebuffer
 	{
 		public:
-			using Framebuffer::Framebuffer;
+			using GpuFramebuffer::GpuFramebuffer;
 
 			virtual void Activate() const = 0;
 

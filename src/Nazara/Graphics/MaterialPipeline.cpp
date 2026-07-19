@@ -68,7 +68,7 @@ namespace Nz
 			}
 		}
 
-		return m_renderPipelines.emplace_back(Graphics::Instance()->GetRenderDevice()->InstantiateRenderPipeline(std::move(renderPipelineInfo)));
+		return m_renderPipelines.emplace_back(Graphics::Instance()->GetGpuDevice()->InstantiateRenderPipeline(std::move(renderPipelineInfo)));
 	}
 
 	/*!

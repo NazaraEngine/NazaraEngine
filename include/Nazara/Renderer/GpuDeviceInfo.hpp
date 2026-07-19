@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_RENDERDEVICEINFO_HPP
-#define NAZARA_RENDERER_RENDERDEVICEINFO_HPP
+#ifndef NAZARA_RENDERER_GPUDEVICEINFO_HPP
+#define NAZARA_RENDERER_GPUDEVICEINFO_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -54,4 +54,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_RENDERER_RENDERDEVICEINFO_HPP
+#endif // NAZARA_RENDERER_GPUDEVICEINFO_HPP

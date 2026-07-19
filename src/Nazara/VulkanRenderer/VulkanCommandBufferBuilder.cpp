@@ -31,7 +31,7 @@ namespace Nz
 		m_commandBuffer.BeginDebugRegion(regionNameEOS.data(), color);
 	}
 
-	void VulkanCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount)
+	void VulkanCommandBufferBuilder::BeginRenderPass(const GpuFramebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount)
 	{
 		const VulkanRenderPass& vkRenderPass = SafeCast<const VulkanRenderPass&>(renderPass);
 		const VulkanFramebuffer& vkFramebuffer = SafeCast<const VulkanFramebuffer&>(framebuffer);

@@ -19,13 +19,13 @@
 namespace Nz
 {
 	DefaultFramePipeline::DefaultFramePipeline(ElementRendererRegistry& elementRegistry) :
-	m_directionalLights(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedDirectionalLightOffsets.totalSize), 16, SafeCaster(PredefinedDirectionalLightsOffsets.totalSize)),
-	m_directionalShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedDirectionalShadowAtlasEntryOffsets.totalSize), 16),
-	m_instanceBuffer(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedInstanceOffsets.totalSize), 512),
-	m_pointLights(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedPointLightOffsets.totalSize), 128, SafeCaster(PredefinedPointLightsOffsets.totalSize)),
-	m_pointShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedPointShadowAtlasEntryOffsets.totalSize), 128),
-	m_spotLights(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedSpotLightOffsets.totalSize), 128, SafeCaster(PredefinedSpotLightsOffsets.totalSize)),
-	m_spotShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedSpotShadowAtlasEntryOffsets.totalSize), 128),
+	m_directionalLights(*Graphics::Instance()->GetGpuDevice(), SafeCaster(PredefinedDirectionalLightOffsets.totalSize), 16, SafeCaster(PredefinedDirectionalLightsOffsets.totalSize)),
+	m_directionalShadowAtlasEntries(*Graphics::Instance()->GetGpuDevice(), SafeCaster(PredefinedDirectionalShadowAtlasEntryOffsets.totalSize), 16),
+	m_instanceBuffer(*Graphics::Instance()->GetGpuDevice(), SafeCaster(PredefinedInstanceOffsets.totalSize), 512),
+	m_pointLights(*Graphics::Instance()->GetGpuDevice(), SafeCaster(PredefinedPointLightOffsets.totalSize), 128, SafeCaster(PredefinedPointLightsOffsets.totalSize)),
+	m_pointShadowAtlasEntries(*Graphics::Instance()->GetGpuDevice(), SafeCaster(PredefinedPointShadowAtlasEntryOffsets.totalSize), 128),
+	m_spotLights(*Graphics::Instance()->GetGpuDevice(), SafeCaster(PredefinedSpotLightOffsets.totalSize), 128, SafeCaster(PredefinedSpotLightsOffsets.totalSize)),
+	m_spotShadowAtlasEntries(*Graphics::Instance()->GetGpuDevice(), SafeCaster(PredefinedSpotShadowAtlasEntryOffsets.totalSize), 128),
 	m_elementRegistry(elementRegistry),
 	m_renderablePool(4096),
 	m_lightPool(64),
@@ -141,7 +141,7 @@ namespace Nz
 		if (!m_shadowAtlasPipelinePass)
 		{
 			Graphics* graphics = Graphics::Instance();
-			return graphics->GetDefaultTextures().depthTextures[ImageType::E2D]->GetOrCreateTexture(*graphics->GetRenderDevice());
+			return graphics->GetDefaultTextures().depthTextures[ImageType::E2D]->GetOrCreateTexture(*graphics->GetGpuDevice());
 		}
 
 		return m_shadowAtlasPipelinePass->GetAtlas().GetTexture();

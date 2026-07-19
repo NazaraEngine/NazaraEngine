@@ -38,7 +38,7 @@
 #include <Nazara/Renderer/DrawIndirect.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Export.hpp>
-#include <Nazara/Renderer/Framebuffer.hpp>
+#include <Nazara/Renderer/GpuFramebuffer.hpp>
 #include <Nazara/Renderer/GpuSwitch.hpp>
 #include <Nazara/Renderer/PredefinedShaderStructBuilder.hpp>
 #include <Nazara/Renderer/PredefinedShaderStructs.hpp>

@@ -560,7 +560,7 @@ namespace Nz
 
 			entry = &m_entries.emplace_back();
 			entry->device = &device;
-			entry->onDeviceRelease.Connect(device.OnRenderDeviceRelease, [this](GpuDevice* device)
+			entry->onDeviceRelease.Connect(device.OnGpuDeviceRelease, [this](GpuDevice* device)
 			{
 				// Destroy texture before the device is released and free the slot
 				auto it = std::find_if(m_entries.begin(), m_entries.end(), [device](const TextureEntry& entry) { return entry.device == device; });

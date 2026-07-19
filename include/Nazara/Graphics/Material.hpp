@@ -15,8 +15,8 @@
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Export.hpp>
-#include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/GpuBufferPool.hpp>
+#include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/ShaderReflection.hpp>
 #include <NazaraUtils/StringHash.hpp>
 #include <NZSL/Ast/Module.hpp>

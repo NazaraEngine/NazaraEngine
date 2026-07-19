@@ -20,7 +20,7 @@ namespace Nz
 	{
 		NazaraAssertMsg(m_skeleton, "invalid skeleton");
 
-		m_skeletalDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(PredefinedSkeletalOffsets.totalSize, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal);
+		m_skeletalDataBuffer = Graphics::Instance()->GetGpuDevice()->InstantiateBuffer(PredefinedSkeletalOffsets.totalSize, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal);
 		m_skeletalDataBuffer->UpdateDebugName("Skeletal data");
 
 		m_onSkeletonJointsInvalidated.Connect(m_skeleton->OnSkeletonJointsInvalidated, [this](const Skeleton*)

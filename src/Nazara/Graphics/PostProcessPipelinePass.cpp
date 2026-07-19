@@ -25,7 +25,7 @@ namespace Nz
 			});
 		}
 
-		std::shared_ptr<GpuDevice> renderDevice = Graphics::Instance()->GetRenderDevice();
+		std::shared_ptr<GpuDevice> renderDevice = Graphics::Instance()->GetGpuDevice();
 		m_renderPipelineLayout = renderDevice->InstantiateRenderPipelineLayout(std::move(layoutInfo));
 		if (!m_renderPipelineLayout)
 			throw std::runtime_error("failed to instantiate post-process RenderPipelineLayout");
@@ -149,7 +149,7 @@ namespace Nz
 
 	void PostProcessPipelinePass::BuildPipeline()
 	{
-		std::shared_ptr<GpuDevice> renderDevice = Graphics::Instance()->GetRenderDevice();
+		std::shared_ptr<GpuDevice> renderDevice = Graphics::Instance()->GetGpuDevice();
 
 		RenderPipelineInfo pipelineInfo;
 		pipelineInfo.pipelineLayout = m_renderPipelineLayout;

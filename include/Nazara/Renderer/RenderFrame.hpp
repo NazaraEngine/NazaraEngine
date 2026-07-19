@@ -35,7 +35,7 @@ namespace Nz
 
 			inline std::size_t GetImageIndex() const;
 			const Vector2ui& GetSize() const;
-			inline GpuDevice& GetRenderDevice();
+			inline GpuDevice& GetGpuDevice();
 			inline GpuResources& GetTransientResources();
 			inline GpuUploadPool& GetUploadPool();
 

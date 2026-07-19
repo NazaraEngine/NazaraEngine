@@ -27,7 +27,7 @@ int main()
 	Nz::Application<Nz::Graphics> app(rendererConfig);
 	auto& windowingApp = app.AddComponent<Nz::WindowingAppComponent>();
 
-	std::shared_ptr<Nz::GpuDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Graphics::Instance()->GetGpuDevice();
 
 	std::string windowTitle = "Graphics Test";
 	Nz::Window& window = windowingApp.CreateWindow(Nz::VideoMode(1280, 720), windowTitle);
