@@ -17,7 +17,7 @@
 
 namespace Nz
 {
-	class RenderPipeline;
+	class GpuRenderPipeline;
 	class ShaderBinding;
 
 	class NAZARA_GRAPHICS_API SubmeshRenderer final : public ElementRenderer

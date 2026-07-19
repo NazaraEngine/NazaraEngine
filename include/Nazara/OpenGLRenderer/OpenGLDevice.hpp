@@ -43,11 +43,11 @@ namespace Nz
 			std::unique_ptr<AsyncRenderCommands> InstantiateAsyncCommands(QueueType queueType) override;
 			std::shared_ptr<GpuBuffer> InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData = nullptr) override;
 			std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) override;
-			std::shared_ptr<ComputePipeline> InstantiateComputePipeline(ComputePipelineInfo pipelineInfo) override;
+			std::shared_ptr<GpuComputePipeline> InstantiateComputePipeline(GpuComputePipelineInfo pipelineInfo) override;
 			std::shared_ptr<Framebuffer> InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) override;
 			std::shared_ptr<RenderPass> InstantiateRenderPass(std::vector<RenderPass::Attachment> attachments, std::vector<RenderPass::SubpassDescription> subpassDescriptions, std::vector<RenderPass::SubpassDependency> subpassDependencies) override;
-			std::shared_ptr<RenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) override;
-			std::shared_ptr<RenderPipelineLayout> InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo) override;
+			std::shared_ptr<GpuRenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) override;
+			std::shared_ptr<GpuPipelineLayout> InstantiateRenderPipelineLayout(GpuPipelineLayoutInfo pipelineLayoutInfo) override;
 			std::shared_ptr<ShaderModule> InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::BackendParameters& states) override;
 			std::shared_ptr<ShaderModule> InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::BackendParameters& states) override;
 			std::shared_ptr<Swapchain> InstantiateSwapchain(WindowHandle windowHandle, const Vector2ui& windowSize, const SwapchainParameters& parameters) override;

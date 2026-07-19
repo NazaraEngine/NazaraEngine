@@ -4,12 +4,12 @@
 
 namespace Nz
 {
-	inline const RenderPipelineLayoutInfo& ShaderReflection::GetPipelineLayoutInfo() const&
+	inline const GpuPipelineLayoutInfo& ShaderReflection::GetPipelineLayoutInfo() const&
 	{
 		return m_pipelineLayoutInfo;
 	}
 
-	inline RenderPipelineLayoutInfo&& ShaderReflection::GetPipelineLayoutInfo() &&
+	inline GpuPipelineLayoutInfo&& ShaderReflection::GetPipelineLayoutInfo() &&
 	{
 		return std::move(m_pipelineLayoutInfo);
 	}

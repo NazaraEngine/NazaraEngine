@@ -309,7 +309,7 @@ namespace Nz
 
 		m_frustumCullingShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Compute, "Compute.FrustumCulling");
 
-		RenderPipelineLayoutInfo cullingPipelineLayoutInfo;
+		GpuPipelineLayoutInfo cullingPipelineLayoutInfo;
 		cullingPipelineLayoutInfo.pushConstantSize = 6 * sizeof(Nz::Planef);
 		cullingPipelineLayoutInfo.bindings.push_back({
 			.bindingIndex = 0,

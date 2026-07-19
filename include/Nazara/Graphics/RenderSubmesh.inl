@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline RenderSubmesh::RenderSubmesh(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<GpuBuffer> indexBuffer, std::shared_ptr<GpuBuffer> vertexBuffer, const Recti& scissorBox, const Spheref& boundingSphere, UInt32 renderMask) :
+	inline RenderSubmesh::RenderSubmesh(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<GpuRenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<GpuBuffer> indexBuffer, std::shared_ptr<GpuBuffer> vertexBuffer, const Recti& scissorBox, const Spheref& boundingSphere, UInt32 renderMask) :
 	RenderElement(BasicRenderElement::Submesh, instanceIndex, renderLayer, renderMask),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer)),
@@ -47,7 +47,7 @@ namespace Nz
 		return *m_materialProxy;
 	}
 
-	inline const RenderPipeline* RenderSubmesh::GetRenderPipeline() const
+	inline const GpuRenderPipeline* RenderSubmesh::GetRenderPipeline() const
 	{
 		return m_renderPipeline.get();
 	}

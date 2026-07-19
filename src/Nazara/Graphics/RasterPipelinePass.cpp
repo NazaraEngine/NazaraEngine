@@ -291,7 +291,7 @@ namespace Nz
 
 		m_frustumCullingShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Compute, "Compute.FrustumCulling");
 
-		RenderPipelineLayoutInfo cullingPipelineLayoutInfo;
+		GpuPipelineLayoutInfo cullingPipelineLayoutInfo;
 		cullingPipelineLayoutInfo.bindings.push_back({
 			.bindingIndex = 0,
 			.type = ShaderBindingType::StorageBuffer,

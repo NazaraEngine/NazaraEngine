@@ -9,7 +9,7 @@
 
 namespace Nz
 {
-	OpenGLRenderPipelineLayout::OpenGLRenderPipelineLayout(RenderPipelineLayoutInfo layoutInfo) :
+	OpenGLRenderPipelineLayout::OpenGLRenderPipelineLayout(GpuPipelineLayoutInfo layoutInfo) :
 	m_maxDescriptorCount(0),
 	m_layoutInfo(std::move(layoutInfo))
 	{

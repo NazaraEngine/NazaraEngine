@@ -28,8 +28,8 @@ namespace Nz
 	class CommandBufferBuilder;
 	class GpuBuffer;
 	class RenderDevice;
-	class RenderPipeline;
-	class RenderPipelineLayout;
+	class GpuRenderPipeline;
+	class GpuPipelineLayout;
 	class RenderResources;
 	class Skeleton;
 
@@ -95,8 +95,8 @@ namespace Nz
 
 			std::array<UInt8, PredefinedDebugDrawerOffsets.totalSize> m_viewerData;
 			std::shared_ptr<DataPool> m_dataPool;
-			std::shared_ptr<RenderPipeline> m_renderPipeline;
-			std::shared_ptr<RenderPipelineLayout> m_renderPipelineLayout;
+			std::shared_ptr<GpuRenderPipeline> m_renderPipeline;
+			std::shared_ptr<GpuPipelineLayout> m_renderPipelineLayout;
 			std::size_t m_vertexPerBlock;
 			std::vector<DrawCall> m_drawCalls;
 			std::vector<PendingUpload> m_pendingUploads;

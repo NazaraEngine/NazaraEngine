@@ -344,7 +344,7 @@ int main()
 
 	Nz::UInt32 uniformSize = sizeof(ubo);
 
-	Nz::RenderPipelineLayoutInfo pipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo pipelineLayoutInfo;
 	{
 		pipelineLayoutInfo.bindings.push_back({
 			.bindingIndex = 0,
@@ -365,7 +365,7 @@ int main()
 		});
 	}
 
-	std::shared_ptr<Nz::RenderPipelineLayout> basePipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
+	std::shared_ptr<Nz::GpuPipelineLayout> basePipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
 
 	auto& pipelineTextureBinding = pipelineLayoutInfo.bindings.emplace_back();
 	pipelineTextureBinding.setIndex = 1;
@@ -373,7 +373,7 @@ int main()
 	pipelineTextureBinding.shaderStageFlags = nzsl::ShaderStageType::Fragment;
 	pipelineTextureBinding.type = Nz::ShaderBindingType::Sampler;
 
-	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
+	std::shared_ptr<Nz::GpuPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 
 	std::shared_ptr<Nz::GpuBuffer> uniformBuffer = device->InstantiateBuffer(uniformSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal);
 
@@ -389,12 +389,12 @@ int main()
 	pipelineVertexBuffer.binding = 0;
 	pipelineVertexBuffer.declaration = meshParams.vertexDeclaration;
 
-	std::shared_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(renderPipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> pipeline = device->InstantiateRenderPipeline(renderPipelineInfo);
 
 	Nz::RenderPipelineInfo cullPipelineInfo;
 	renderPipelineInfo.pipelineLayout = renderPipelineLayout;
 
-	std::shared_ptr<Nz::ComputePipeline> cullPipeline = device->InstantiateComputePipeline({
+	std::shared_ptr<Nz::GpuComputePipeline> cullPipeline = device->InstantiateComputePipeline({
 		.pipelineLayout = basePipelineLayout,
 		.shaderModule = cullingShader
 	});

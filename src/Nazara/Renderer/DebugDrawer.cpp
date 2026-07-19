@@ -7,8 +7,8 @@
 #include <Nazara/Core/Skeleton.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
-#include <Nazara/Renderer/RenderPipeline.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
+#include <Nazara/Renderer/GpuPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderResources.hpp>
 #include <NZSL/Serializer.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
@@ -35,7 +35,7 @@ namespace Nz
 		if (!debugDrawShader)
 			throw std::runtime_error("failed to instantiate debug draw shader");
 
-		RenderPipelineLayoutInfo layoutInfo;
+		GpuPipelineLayoutInfo layoutInfo;
 		layoutInfo.bindings.assign({
 			{
 				0, 0, 1,

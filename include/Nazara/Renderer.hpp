@@ -33,7 +33,7 @@
 #include <Nazara/Renderer/CommandBuffer.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
-#include <Nazara/Renderer/ComputePipeline.hpp>
+#include <Nazara/Renderer/GpuComputePipeline.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/DrawIndirect.hpp>
 #include <Nazara/Renderer/Enums.hpp>
@@ -52,8 +52,8 @@
 #include <Nazara/Renderer/RenderImage.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <Nazara/Renderer/RenderPassCache.hpp>
-#include <Nazara/Renderer/RenderPipeline.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
+#include <Nazara/Renderer/GpuPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderResources.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>

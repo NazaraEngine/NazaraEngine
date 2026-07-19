@@ -2,17 +2,17 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Renderer/RenderPipeline.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 
 namespace Nz
 {
-	RenderPipeline::~RenderPipeline()
+	GpuRenderPipeline::~GpuRenderPipeline()
 	{
 		OnRenderPipelineRelease(this);
 	}
 
-	void RenderPipeline::ValidatePipelineInfo(const RenderDevice& device, RenderPipelineInfo& pipelineInfo)
+	void GpuRenderPipeline::ValidatePipelineInfo(const RenderDevice& device, RenderPipelineInfo& pipelineInfo)
 	{
 		const RenderDeviceFeatures& deviceFeatures = device.GetEnabledFeatures();
 		if (pipelineInfo.faceFilling != FaceFilling::Fill && !deviceFeatures.nonSolidFaceFilling)

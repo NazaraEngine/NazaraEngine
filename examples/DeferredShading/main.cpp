@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<Nz::GraphicalMesh> cubeMeshGfx = Nz::GraphicalMesh::BuildFromMesh(*cubeMesh);
 
-	Nz::RenderPipelineLayoutInfo skyboxPipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo skyboxPipelineLayoutInfo;
 	skyboxPipelineLayoutInfo.bindings.push_back({
 		0, 0, 1,
 		Nz::ShaderBindingType::UniformBuffer,
@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
 	textureBinding.shaderStageFlags = nzsl::ShaderStageType::Fragment;
 	textureBinding.type = Nz::ShaderBindingType::Sampler;
 
-	std::shared_ptr<Nz::RenderPipelineLayout> skyboxPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(skyboxPipelineLayoutInfo));
+	std::shared_ptr<Nz::GpuPipelineLayout> skyboxPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(skyboxPipelineLayoutInfo));
 
 	Nz::RenderPipelineInfo skyboxPipelineInfo;
 	skyboxPipelineInfo.depthBuffer = true;
@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
 		meshPrimitiveParams.vertexDeclaration
 	});
 
-	std::shared_ptr<Nz::RenderPipeline> skyboxPipeline = device->InstantiateRenderPipeline(std::move(skyboxPipelineInfo));
+	std::shared_ptr<Nz::GpuRenderPipeline> skyboxPipeline = device->InstantiateRenderPipeline(std::move(skyboxPipelineInfo));
 
 	// Skybox
 	std::shared_ptr<Nz::Texture> skyboxTexture;
@@ -262,7 +262,7 @@ int main(int argc, char* argv[])
 	SetInstanceWorldMatrix(modelInstance2, Nz::Matrix4f::Translate(Nz::Vector3f::Right() + Nz::Vector3f::Up()));
 	SetInstanceWorldMatrix(planeInstance, Nz::Matrix4f::Identity());
 
-	Nz::RenderPipelineLayoutInfo lightingPipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo lightingPipelineLayoutInfo;
 	lightingPipelineLayoutInfo.bindings.push_back({
 		0, 0, 1,
 		Nz::ShaderBindingType::UniformBuffer,
@@ -355,7 +355,7 @@ int main(int argc, char* argv[])
 
 	// Bloom data
 
-	Nz::RenderPipelineLayoutInfo fullscreenPipelineLayoutInfoViewer;
+	Nz::GpuPipelineLayoutInfo fullscreenPipelineLayoutInfoViewer;
 	fullscreenPipelineLayoutInfoViewer.bindings.push_back({
 		0, 0, 1,
 		Nz::ShaderBindingType::UniformBuffer,
@@ -376,11 +376,11 @@ int main(int argc, char* argv[])
 
 	Nz::ShaderBindingPtr bloomBrightShaderBinding;
 
-	std::shared_ptr<Nz::RenderPipeline> bloomBrightPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfoViewer);
+	std::shared_ptr<Nz::GpuRenderPipeline> bloomBrightPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfoViewer);
 
 	// Gaussian Blur
 
-	Nz::RenderPipelineLayoutInfo gaussianBlurPipelineLayoutInfo = fullscreenPipelineLayoutInfoViewer;
+	Nz::GpuPipelineLayoutInfo gaussianBlurPipelineLayoutInfo = fullscreenPipelineLayoutInfoViewer;
 
 	gaussianBlurPipelineLayoutInfo.bindings.push_back({
 		0, 2, 1,
@@ -398,7 +398,7 @@ int main(int argc, char* argv[])
 	gaussianBlurPipelineInfo.shaderModules.clear();
 	gaussianBlurPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "gaussian_blur.nzsl", states));
 
-	std::shared_ptr<Nz::RenderPipeline> gaussianBlurPipeline = device->InstantiateRenderPipeline(gaussianBlurPipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> gaussianBlurPipeline = device->InstantiateRenderPipeline(gaussianBlurPipelineInfo);
 	std::vector<Nz::ShaderBindingPtr> gaussianBlurShaderBinding(BloomSubdivisionCount * 2);
 
 	std::vector<Nz::UInt8> gaussianBlurData(gaussianBlurDataOffsets.GetSize());
@@ -428,13 +428,13 @@ int main(int argc, char* argv[])
 	fullscreenPipelineInfoViewer.shaderModules.clear();
 	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "tone_mapping.nzsl", states));
 
-	std::shared_ptr<Nz::RenderPipeline> toneMappingPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfoViewer);
+	std::shared_ptr<Nz::GpuRenderPipeline> toneMappingPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfoViewer);
 
 	// Bloom blend
 
 	Nz::ShaderBindingPtr bloomBlitBinding;
 
-	Nz::RenderPipelineLayoutInfo bloomBlendPipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo bloomBlendPipelineLayoutInfo;
 	bloomBlendPipelineLayoutInfo.bindings.push_back({
 		0, 0, 1,
 		Nz::ShaderBindingType::UniformBuffer,
@@ -463,13 +463,13 @@ int main(int argc, char* argv[])
 
 	bloomBlendPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "bloom_final.nzsl", states));
 
-	std::shared_ptr<Nz::RenderPipeline> bloomBlendPipeline = device->InstantiateRenderPipeline(bloomBlendPipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> bloomBlendPipeline = device->InstantiateRenderPipeline(bloomBlendPipelineInfo);
 
 	std::vector<Nz::ShaderBindingPtr> bloomBlendShaderBinding(BloomSubdivisionCount);
 
 	// Gamma correction
 
-	Nz::RenderPipelineLayoutInfo fullscreenPipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo fullscreenPipelineLayoutInfo;
 
 	fullscreenPipelineLayoutInfo.bindings.push_back({
 		0, 0, 1,
@@ -485,7 +485,7 @@ int main(int argc, char* argv[])
 
 	// God rays
 
-	Nz::RenderPipelineLayoutInfo godraysPipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo godraysPipelineLayoutInfo;
 
 	godraysPipelineLayoutInfo.bindings = {
 		{
@@ -513,7 +513,7 @@ int main(int argc, char* argv[])
 
 	godraysPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "god_rays.nzsl", states));
 
-	std::shared_ptr<Nz::RenderPipeline> godraysPipeline = device->InstantiateRenderPipeline(godraysPipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> godraysPipeline = device->InstantiateRenderPipeline(godraysPipelineInfo);
 
 	nzsl::FieldOffsets godraysFieldOffsets(nzsl::StructLayout::Std140);
 	std::size_t gr_exposureOffset = godraysFieldOffsets.AddField(nzsl::StructFieldType::Float1);
@@ -543,7 +543,7 @@ int main(int argc, char* argv[])
 	Nz::ShaderBindingPtr godRaysBlitShaderBinding;
 
 
-	std::shared_ptr<Nz::RenderPipeline> fullscreenPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> fullscreenPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfo);
 
 	Nz::RenderPipelineInfo lightingPipelineInfo;
 	lightingPipelineInfo.blending = true;
@@ -565,7 +565,7 @@ int main(int argc, char* argv[])
 
 	lightingPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "lighting.nzsl", states));
 
-	std::shared_ptr<Nz::RenderPipeline> lightingPipeline = device->InstantiateRenderPipeline(lightingPipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> lightingPipeline = device->InstantiateRenderPipeline(lightingPipelineInfo);
 
 	Nz::RenderPipelineInfo stencilPipelineInfo;
 	stencilPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
@@ -587,7 +587,7 @@ int main(int argc, char* argv[])
 
 	stencilPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "lighting.nzsl", states));
 
-	std::shared_ptr<Nz::RenderPipeline> stencilPipeline = device->InstantiateRenderPipeline(stencilPipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> stencilPipeline = device->InstantiateRenderPipeline(stencilPipelineInfo);
 
 
 	std::vector<Nz::ShaderBindingPtr> lightingShaderBindings;

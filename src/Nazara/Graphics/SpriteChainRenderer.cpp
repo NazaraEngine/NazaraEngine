@@ -234,7 +234,7 @@ namespace Nz
 		commandBuffer.BindIndexBuffer(*m_indexBuffer, Nz::IndexType::U16);
 
 		const GpuBuffer* currentVertexBuffer = nullptr;
-		const RenderPipeline* currentPipeline = nullptr;
+		const GpuRenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentMaterialShaderBinding = nullptr;
 		const ShaderBinding* currentSceneShaderBinding = nullptr;
 		const ShaderBinding* currentViewerShaderBinding = nullptr;

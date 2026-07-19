@@ -34,7 +34,7 @@ namespace Nz
 	class AbstractViewer;
 	class Material;
 	class MaterialInstance;
-	class RenderPipelineLayout;
+	class GpuPipelineLayout;
 	class SkeletonInstance;
 
 	using MaterialLibrary = ObjectLibrary<Material>;
@@ -67,7 +67,7 @@ namespace Nz
 			inline std::size_t GetBindingSetCount() const;
 			inline std::size_t GetBindingSetHash(UInt32 setIndex) const;
 			inline UInt32 GetEngineBindingIndex(EngineShaderBinding shaderBinding) const;
-			inline const std::shared_ptr<RenderPipelineLayout>& GetRenderPipelineLayout() const;
+			inline const std::shared_ptr<GpuPipelineLayout>& GetRenderPipelineLayout() const;
 			inline const MaterialSettings& GetSettings() const;
 			inline const StorageBufferData& GetStorageBufferData(std::size_t storageBufferIndex) const;
 			inline std::size_t GetStorageBufferCount() const;
@@ -116,7 +116,7 @@ namespace Nz
 			static constexpr UInt32 ViewerBindingSet = 1;
 
 		private:
-			std::shared_ptr<RenderPipelineLayout> m_renderPipelineLayout;
+			std::shared_ptr<GpuPipelineLayout> m_renderPipelineLayout;
 			std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> m_optionValues;
 			std::unordered_map<std::string /*tag*/, std::size_t, StringHash<>, std::equal_to<>> m_storageBufferByTag;
 			std::unordered_map<std::string /*tag*/, std::size_t, StringHash<>, std::equal_to<>> m_textureByTag;

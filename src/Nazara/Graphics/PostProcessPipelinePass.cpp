@@ -15,10 +15,10 @@ namespace Nz
 	m_shader(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, std::move(shaderName)),
 	m_inputCount(inputCount)
 	{
-		RenderPipelineLayoutInfo layoutInfo;
+		GpuPipelineLayoutInfo layoutInfo;
 		for (UInt32 inputIndex = 0; inputIndex < m_inputCount; ++inputIndex)
 		{
-			layoutInfo.bindings.push_back(RenderPipelineLayoutInfo::Binding{
+			layoutInfo.bindings.push_back(GpuPipelineLayoutInfo::Binding{
 				0, inputIndex, 1,
 				ShaderBindingType::Sampler,
 				nzsl::ShaderStageType::Fragment

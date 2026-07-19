@@ -58,7 +58,7 @@ namespace Nz
 			HybridVector<std::size_t, 10> bindingHashes;
 		};
 
-		const RenderPipelineLayoutInfo& pipelineLayoutInfo = m_reflection.GetPipelineLayoutInfo();
+		const GpuPipelineLayoutInfo& pipelineLayoutInfo = m_reflection.GetPipelineLayoutInfo();
 
 		HybridVector<SetData, 4> setHashes;
 		for (const auto& binding : pipelineLayoutInfo.bindings)

@@ -27,13 +27,13 @@ namespace Nz
 			void BeginDebugRegion(std::string_view regionName, const Color& color) override;
 			void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) override;
 
-			void BindComputePipeline(const ComputePipeline& pipeline) override;
+			void BindComputePipeline(const GpuComputePipeline& pipeline) override;
 			void BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) override;
-			void BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) override;
+			void BindComputeShaderBinding(const GpuPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) override;
 			void BindIndexBuffer(const GpuBuffer& indexBuffer, IndexType indexType, UInt64 offset = 0) override;
-			void BindRenderPipeline(const RenderPipeline& pipeline) override;
+			void BindRenderPipeline(const GpuRenderPipeline& pipeline) override;
 			void BindRenderShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) override;
-			void BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) override;
+			void BindRenderShaderBinding(const GpuPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) override;
 			void BindVertexBuffer(UInt32 binding, const GpuBuffer& vertexBuffer, UInt64 offset = 0) override;
 
 			void BlitTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Boxui& toBox, TextureLayout toLayout, SamplerFilter filter) override;
@@ -67,7 +67,7 @@ namespace Nz
 
 			void NextSubpass() override;
 
-			void PushConstants(const RenderPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data) override;
+			void PushConstants(const GpuPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data) override;
 
 			void SetScissor(const Recti& scissorRegion) override;
 			void SetViewport(const Recti& viewportRegion) override;

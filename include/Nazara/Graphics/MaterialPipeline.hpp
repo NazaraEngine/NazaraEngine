@@ -11,7 +11,7 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
-#include <Nazara/Renderer/RenderPipeline.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
 #include <NazaraUtils/FixedVector.hpp>
 #include <NZSL/Ast/ConstantValue.hpp>
 #include <array>
@@ -34,7 +34,7 @@ namespace Nz
 			std::shared_ptr<UberShader> uberShader;
 		};
 
-		std::shared_ptr<RenderPipelineLayout> pipelineLayout;
+		std::shared_ptr<GpuPipelineLayout> pipelineLayout;
 		FixedVector<Option, 32> optionValues;
 		FixedVector<Shader, 8> shaders;
 	};
@@ -59,7 +59,7 @@ namespace Nz
 			MaterialPipeline& operator=(MaterialPipeline&&) = delete;
 
 			inline const MaterialPipelineInfo& GetInfo() const;
-			const std::shared_ptr<RenderPipeline>& GetRenderPipeline(const RenderPipelineInfo::VertexBufferData* vertexBuffers, std::size_t vertexBufferCount) const;
+			const std::shared_ptr<GpuRenderPipeline>& GetRenderPipeline(const RenderPipelineInfo::VertexBufferData* vertexBuffers, std::size_t vertexBufferCount) const;
 
 			static const std::shared_ptr<MaterialPipeline>& Get(const MaterialPipelineInfo& pipelineInfo);
 
@@ -72,7 +72,7 @@ namespace Nz
 				NazaraSlot(UberShader, OnShaderUpdated, onShaderUpdated);
 			};
 
-			mutable std::vector<std::shared_ptr<RenderPipeline>> m_renderPipelines;
+			mutable std::vector<std::shared_ptr<GpuRenderPipeline>> m_renderPipelines;
 			std::vector<UberShaderEntry> m_uberShaderEntries;
 			MaterialPipelineInfo m_pipelineInfo;
 

@@ -10,7 +10,7 @@ namespace Nz
 		return m_pipeline;
 	}
 
-	inline const ComputePipelineInfo& VulkanComputePipeline::GetPipelineInfo() const
+	inline const GpuComputePipelineInfo& VulkanComputePipeline::GetPipelineInfo() const
 	{
 		return m_pipelineInfo;
 	}

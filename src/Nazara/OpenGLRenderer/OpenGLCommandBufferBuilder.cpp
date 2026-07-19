@@ -24,7 +24,7 @@ namespace Nz
 		m_commandBuffer.SetFramebuffer(SafeCast<const OpenGLFramebuffer&>(framebuffer), SafeCast<const OpenGLRenderPass&>(renderPass), clearValues, clearValueCount);
 	}
 
-	void OpenGLCommandBufferBuilder::BindComputePipeline(const ComputePipeline& pipeline)
+	void OpenGLCommandBufferBuilder::BindComputePipeline(const GpuComputePipeline& pipeline)
 	{
 		const OpenGLComputePipeline& glPipeline = SafeCast<const OpenGLComputePipeline&>(pipeline);
 
@@ -38,7 +38,7 @@ namespace Nz
 		m_commandBuffer.BindComputeShaderBinding(glBinding.GetOwner(), set, &glBinding, dynamicOffsets);
 	}
 
-	void OpenGLCommandBufferBuilder::BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
+	void OpenGLCommandBufferBuilder::BindComputeShaderBinding(const GpuPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const OpenGLRenderPipelineLayout& glPipelineLayout = SafeCast<const OpenGLRenderPipelineLayout&>(pipelineLayout);
 		const OpenGLShaderBinding& glBinding = SafeCast<const OpenGLShaderBinding&>(binding);
@@ -53,7 +53,7 @@ namespace Nz
 		m_commandBuffer.BindIndexBuffer(glBuffer.GetBuffer().GetObjectId(), indexType, offset);
 	}
 
-	void OpenGLCommandBufferBuilder::BindRenderPipeline(const RenderPipeline& pipeline)
+	void OpenGLCommandBufferBuilder::BindRenderPipeline(const GpuRenderPipeline& pipeline)
 	{
 		const OpenGLRenderPipeline& glPipeline = SafeCast<const OpenGLRenderPipeline&>(pipeline);
 
@@ -67,7 +67,7 @@ namespace Nz
 		m_commandBuffer.BindRenderShaderBinding(glBinding.GetOwner(), set, &glBinding, dynamicOffsets);
 	}
 
-	void OpenGLCommandBufferBuilder::BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
+	void OpenGLCommandBufferBuilder::BindRenderShaderBinding(const GpuPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const OpenGLRenderPipelineLayout& glPipelineLayout = SafeCast<const OpenGLRenderPipelineLayout&>(pipelineLayout);
 		const OpenGLShaderBinding& glBinding = SafeCast<const OpenGLShaderBinding&>(binding);
@@ -251,7 +251,7 @@ namespace Nz
 			m_commandBuffer.InsertMemoryBarrier(barriers);
 	}
 
-	void OpenGLCommandBufferBuilder::PushConstants(const RenderPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data)
+	void OpenGLCommandBufferBuilder::PushConstants(const GpuPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data)
 	{
 		NazaraWarning("TODO");
 	}

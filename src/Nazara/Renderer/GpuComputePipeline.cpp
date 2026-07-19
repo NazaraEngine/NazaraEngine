@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Renderer/ComputePipeline.hpp>
+#include <Nazara/Renderer/GpuComputePipeline.hpp>
 
 namespace Nz
 {
-	ComputePipeline::~ComputePipeline() = default;
+	GpuComputePipeline::~GpuComputePipeline() = default;
 }

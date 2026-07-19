@@ -47,7 +47,7 @@ namespace Nz
 		return bindingPtr;
 	}
 
-	bool VulkanRenderPipelineLayout::Create(Vk::Device& device, RenderPipelineLayoutInfo layoutInfo)
+	bool VulkanRenderPipelineLayout::Create(Vk::Device& device, GpuPipelineLayoutInfo layoutInfo)
 	{
 		m_device = &device;
 		m_layoutInfo = std::move(layoutInfo);

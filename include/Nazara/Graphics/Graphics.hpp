@@ -18,7 +18,7 @@
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/RenderPassCache.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuPipelineLayout.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/TextRenderer/TextRenderer.hpp>
 #include <NZSL/FilesystemModuleResolver.hpp>
@@ -47,8 +47,8 @@ namespace Nz
 			Graphics(Config config);
 			~Graphics();
 
-			inline const std::shared_ptr<RenderPipeline>& GetBlitPipeline(bool transparent) const;
-			inline const std::shared_ptr<RenderPipelineLayout>& GetBlitPipelineLayout() const;
+			inline const std::shared_ptr<GpuRenderPipeline>& GetBlitPipeline(bool transparent) const;
+			inline const std::shared_ptr<GpuPipelineLayout>& GetBlitPipelineLayout() const;
 			inline const std::shared_ptr<PipelinePassList>& GetDefaultPipelinePasses() const;
 			inline const DefaultTextures& GetDefaultTextures() const;
 			inline FramePipelinePassRegistry& GetFramePipelinePassRegistry();
@@ -119,9 +119,9 @@ namespace Nz
 			std::shared_ptr<nzsl::FilesystemModuleResolver> m_shaderModuleResolver;
 			std::shared_ptr<PipelinePassList> m_defaultPipelinePasses;
 			std::shared_ptr<RenderDevice> m_renderDevice;
-			std::shared_ptr<RenderPipeline> m_blitPipeline;
-			std::shared_ptr<RenderPipeline> m_blitPipelineTransparent;
-			std::shared_ptr<RenderPipelineLayout> m_blitPipelineLayout;
+			std::shared_ptr<GpuRenderPipeline> m_blitPipeline;
+			std::shared_ptr<GpuRenderPipeline> m_blitPipelineTransparent;
+			std::shared_ptr<GpuPipelineLayout> m_blitPipelineLayout;
 			DefaultMaterials m_defaultMaterials;
 			DefaultTextures m_defaultTextures;
 			FramePipelinePassRegistry m_pipelinePassRegistry;

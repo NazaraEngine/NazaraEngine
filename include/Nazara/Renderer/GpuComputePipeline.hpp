@@ -8,32 +8,32 @@
 #define NAZARA_RENDERER_COMPUTEPIPELINE_HPP
 
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuPipelineLayout.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
 
 namespace Nz
 {
-	class RenderPipelineLayout;
+	class GpuPipelineLayout;
 	class ShaderModule;
 
-	struct ComputePipelineInfo
+	struct GpuComputePipelineInfo
 	{
-		std::shared_ptr<RenderPipelineLayout> pipelineLayout;
+		std::shared_ptr<GpuPipelineLayout> pipelineLayout;
 		std::shared_ptr<ShaderModule> shaderModule;
 	};
 
-	class NAZARA_RENDERER_API ComputePipeline
+	class NAZARA_RENDERER_API GpuComputePipeline
 	{
 		public:
-			ComputePipeline() = default;
-			virtual ~ComputePipeline();
+			GpuComputePipeline() = default;
+			virtual ~GpuComputePipeline();
 
-			virtual const ComputePipelineInfo& GetPipelineInfo() const = 0;
+			virtual const GpuComputePipelineInfo& GetPipelineInfo() const = 0;
 
 			virtual void UpdateDebugName(std::string_view name) = 0;
 	};
 }
 
-#include <Nazara/Renderer/ComputePipeline.inl>
+#include <Nazara/Renderer/GpuComputePipeline.inl>
 
 #endif // NAZARA_RENDERER_COMPUTEPIPELINE_HPP

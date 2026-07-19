@@ -22,11 +22,11 @@
 namespace Nz
 {
 	class CommandBuffer;
-	class ComputePipeline;
+	class GpuComputePipeline;
 	class Framebuffer;
 	class RenderPass;
-	class RenderPipeline;
-	class RenderPipelineLayout;
+	class GpuRenderPipeline;
+	class GpuPipelineLayout;
 	class ShaderBinding;
 	class Swapchain;
 	class Texture;
@@ -49,13 +49,13 @@ namespace Nz
 			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect);
 			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, std::initializer_list<ClearValues> clearValues);
 
-			virtual void BindComputePipeline(const ComputePipeline& pipeline) = 0;
+			virtual void BindComputePipeline(const GpuComputePipeline& pipeline) = 0;
 			virtual void BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
-			virtual void BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
+			virtual void BindComputeShaderBinding(const GpuPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
 			virtual void BindIndexBuffer(const GpuBuffer& indexBuffer, IndexType indexType, UInt64 offset = 0) = 0;
-			virtual void BindRenderPipeline(const RenderPipeline& pipeline) = 0;
+			virtual void BindRenderPipeline(const GpuRenderPipeline& pipeline) = 0;
 			virtual void BindRenderShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
-			virtual void BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
+			virtual void BindRenderShaderBinding(const GpuPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
 			virtual void BindVertexBuffer(UInt32 binding, const GpuBuffer& vertexBuffer, UInt64 offset = 0) = 0;
 
 			virtual void BlitTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Boxui& toBox, TextureLayout toLayout, SamplerFilter filter) = 0;
@@ -93,7 +93,7 @@ namespace Nz
 
 			virtual void PipelineBarrier(std::span<const MemoryBarrierInfo> memoryBarriers, std::span<const BufferBarrierInfo> bufferBarriers, std::span<const TextureBarrierInfo> textureBarriers) = 0;
 
-			virtual void PushConstants(const RenderPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data) = 0;
+			virtual void PushConstants(const GpuPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data) = 0;
 
 			virtual void SetScissor(const Recti& scissorRegion) = 0;
 			virtual void SetViewport(const Recti& viewportRegion) = 0;

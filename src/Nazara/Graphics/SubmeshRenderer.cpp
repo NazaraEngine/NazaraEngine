@@ -134,7 +134,7 @@ namespace Nz
 		const GpuBuffer* currentIndexBuffer = nullptr;
 		const GpuBuffer* currentVertexBuffer = nullptr;
 		const MaterialProxy* currentMaterialProxy = nullptr;
-		const RenderPipeline* currentPipeline = nullptr;
+		const GpuRenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentInstanceShaderBinding = nullptr;
 		const ShaderBinding* currentMaterialShaderBinding = nullptr;
 		const ShaderBinding* currentViewerShaderBinding = nullptr;
@@ -150,7 +150,7 @@ namespace Nz
 			NazaraAssert(elements[i]->GetElementType() == UnderlyingCast(BasicRenderElement::Submesh));
 			const RenderSubmesh& submesh = static_cast<const RenderSubmesh&>(*elements[i]);
 
-			if (const RenderPipeline* pipeline = submesh.GetRenderPipeline(); currentPipeline != pipeline)
+			if (const GpuRenderPipeline* pipeline = submesh.GetRenderPipeline(); currentPipeline != pipeline)
 			{
 				commandBuffer.BindRenderPipeline(*pipeline);
 				currentPipeline = pipeline;

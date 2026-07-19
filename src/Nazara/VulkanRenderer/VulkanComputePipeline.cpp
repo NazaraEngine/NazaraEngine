@@ -12,7 +12,7 @@
 
 namespace Nz
 {
-	VulkanComputePipeline::VulkanComputePipeline(VulkanDevice& device, ComputePipelineInfo pipelineInfo) :
+	VulkanComputePipeline::VulkanComputePipeline(VulkanDevice& device, GpuComputePipelineInfo pipelineInfo) :
 	m_pipelineInfo(std::move(pipelineInfo))
 	{
 		if (!device.GetEnabledFeatures().computeShaders)

@@ -80,7 +80,7 @@ namespace Nz
 		m_currentSubpassIndex = 0;
 	}
 
-	void VulkanCommandBufferBuilder::BindComputePipeline(const ComputePipeline& pipeline)
+	void VulkanCommandBufferBuilder::BindComputePipeline(const GpuComputePipeline& pipeline)
 	{
 		const VulkanComputePipeline& vkPipeline = SafeCast<const VulkanComputePipeline&>(pipeline);
 
@@ -95,7 +95,7 @@ namespace Nz
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet(), SafeCaster(dynamicOffsets.size()), dynamicOffsets.data());
 	}
 
-	void VulkanCommandBufferBuilder::BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
+	void VulkanCommandBufferBuilder::BindComputeShaderBinding(const GpuPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const VulkanRenderPipelineLayout& vkPipelineLayout = SafeCast<const VulkanRenderPipelineLayout&>(pipelineLayout);
 		const VulkanShaderBinding& vkBinding = SafeCast<const VulkanShaderBinding&>(binding);
@@ -110,7 +110,7 @@ namespace Nz
 		m_commandBuffer.BindIndexBuffer(vkBuffer.GetBuffer(), offset, ToVulkan(indexType));
 	}
 
-	void VulkanCommandBufferBuilder::BindRenderPipeline(const RenderPipeline& pipeline)
+	void VulkanCommandBufferBuilder::BindRenderPipeline(const GpuRenderPipeline& pipeline)
 	{
 		if (!m_currentRenderPass)
 			throw std::runtime_error("BindPipeline must be called in a RenderPass");
@@ -128,7 +128,7 @@ namespace Nz
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet(), SafeCaster(dynamicOffsets.size()), dynamicOffsets.data());
 	}
 
-	void VulkanCommandBufferBuilder::BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
+	void VulkanCommandBufferBuilder::BindRenderShaderBinding(const GpuPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const VulkanRenderPipelineLayout& vkPipelineLayout = SafeCast<const VulkanRenderPipelineLayout&>(pipelineLayout);
 		const VulkanShaderBinding& vkBinding = SafeCast<const VulkanShaderBinding&>(binding);
@@ -513,7 +513,7 @@ namespace Nz
 		}
 	}
 
-	void VulkanCommandBufferBuilder::PushConstants(const RenderPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data)
+	void VulkanCommandBufferBuilder::PushConstants(const GpuPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data)
 	{
 		const VulkanRenderPipelineLayout& vkPipelineLayout = SafeCast<const VulkanRenderPipelineLayout&>(pipelineLayout);
 

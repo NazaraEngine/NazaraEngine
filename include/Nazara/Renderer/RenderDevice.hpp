@@ -10,15 +10,15 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/PixelFormat.hpp>
 #include <Nazara/Renderer/AsyncRenderCommands.hpp>
-#include <Nazara/Renderer/ComputePipeline.hpp>
+#include <Nazara/Renderer/GpuComputePipeline.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Export.hpp>
 #include <Nazara/Renderer/Framebuffer.hpp>
 #include <Nazara/Renderer/GpuBuffer.hpp>
 #include <Nazara/Renderer/RenderDeviceInfo.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
-#include <Nazara/Renderer/RenderPipeline.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
+#include <Nazara/Renderer/GpuPipelineLayout.hpp>
 #include <Nazara/Renderer/Swapchain.hpp>
 #include <Nazara/Renderer/SwapchainParameters.hpp>
 #include <Nazara/Renderer/Texture.hpp>
@@ -51,11 +51,11 @@ namespace Nz
 			virtual std::unique_ptr<AsyncRenderCommands> InstantiateAsyncCommands(QueueType queueType) = 0;
 			virtual std::shared_ptr<GpuBuffer> InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData = nullptr) = 0;
 			virtual std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) = 0;
-			virtual std::shared_ptr<ComputePipeline> InstantiateComputePipeline(ComputePipelineInfo pipelineInfo) = 0;
+			virtual std::shared_ptr<GpuComputePipeline> InstantiateComputePipeline(GpuComputePipelineInfo pipelineInfo) = 0;
 			virtual std::shared_ptr<Framebuffer> InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) = 0;
 			virtual std::shared_ptr<RenderPass> InstantiateRenderPass(std::vector<RenderPass::Attachment> attachments, std::vector<RenderPass::SubpassDescription> subpassDescriptions, std::vector<RenderPass::SubpassDependency> subpassDependencies) = 0;
-			virtual std::shared_ptr<RenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) = 0;
-			virtual std::shared_ptr<RenderPipelineLayout> InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo) = 0;
+			virtual std::shared_ptr<GpuRenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) = 0;
+			virtual std::shared_ptr<GpuPipelineLayout> InstantiateRenderPipelineLayout(GpuPipelineLayoutInfo pipelineLayoutInfo) = 0;
 			virtual std::shared_ptr<ShaderModule> InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::BackendParameters& states) = 0;
 			virtual std::shared_ptr<ShaderModule> InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::BackendParameters& states) = 0;
 			std::shared_ptr<ShaderModule> InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const std::filesystem::path& sourcePath, const nzsl::BackendParameters& states);

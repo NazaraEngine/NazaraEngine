@@ -18,12 +18,12 @@ struct SpriteRenderData
 
 struct SpriteRenderPipeline
 {
-	std::shared_ptr<Nz::RenderPipeline> pipeline;
-	std::shared_ptr<Nz::RenderPipelineLayout> pipelineLayout;
+	std::shared_ptr<Nz::GpuRenderPipeline> pipeline;
+	std::shared_ptr<Nz::GpuPipelineLayout> pipelineLayout;
 
 };
 
-std::shared_ptr<Nz::ComputePipeline> BuildComputePipeline(Nz::RenderDevice& device, std::shared_ptr<Nz::RenderPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver);
+std::shared_ptr<Nz::GpuComputePipeline> BuildComputePipeline(Nz::RenderDevice& device, std::shared_ptr<Nz::GpuPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver);
 SpriteRenderPipeline BuildSpritePipeline(Nz::RenderDevice& device);
 SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPipeline& pipelineData, const Nz::Rectf& textureRect, const Nz::Vector2f& screenSize, const Nz::Texture& texture, const Nz::TextureSampler& sampler);
 
@@ -65,7 +65,7 @@ int main()
 	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
 
 	// Compute part
-	Nz::RenderPipelineLayoutInfo computePipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo computePipelineLayoutInfo;
 	computePipelineLayoutInfo.bindings.assign({
 		{
 			0, 0, 1,
@@ -79,12 +79,12 @@ int main()
 		},
 	});
 
-	std::shared_ptr<Nz::RenderPipelineLayout> computePipelineLayout = device->InstantiateRenderPipelineLayout(computePipelineLayoutInfo);
+	std::shared_ptr<Nz::GpuPipelineLayout> computePipelineLayout = device->InstantiateRenderPipelineLayout(computePipelineLayoutInfo);
 
 	std::shared_ptr<nzsl::FilesystemModuleResolver> moduleResolver = std::make_shared<nzsl::FilesystemModuleResolver>();
 	moduleResolver->RegisterDirectory(resourceDir / "../shaders/", true);
 
-	std::shared_ptr<Nz::ComputePipeline> computePipeline;
+	std::shared_ptr<Nz::GpuComputePipeline> computePipeline;
 	try
 	{
 		computePipeline = BuildComputePipeline(*device, computePipelineLayout, moduleResolver);
@@ -156,7 +156,7 @@ int main()
 			try
 			{
 				hasNewPipeline = false;
-				std::shared_ptr<Nz::ComputePipeline> newComputePipeline = BuildComputePipeline(*device, computePipelineLayout, moduleResolver);
+				std::shared_ptr<Nz::GpuComputePipeline> newComputePipeline = BuildComputePipeline(*device, computePipelineLayout, moduleResolver);
 				frame.PushForRelease(std::move(computePipeline));
 				computePipeline = std::move(newComputePipeline);
 			}
@@ -227,7 +227,7 @@ int main()
 	return EXIT_SUCCESS;
 }
 
-std::shared_ptr<Nz::ComputePipeline> BuildComputePipeline(Nz::RenderDevice& device, std::shared_ptr<Nz::RenderPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver)
+std::shared_ptr<Nz::GpuComputePipeline> BuildComputePipeline(Nz::RenderDevice& device, std::shared_ptr<Nz::GpuPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver)
 {
 	nzsl::Ast::ModulePtr shaderModule = moduleResolver->Resolve("Compute.Sepia");
 	if (!shaderModule)
@@ -246,11 +246,11 @@ std::shared_ptr<Nz::ComputePipeline> BuildComputePipeline(Nz::RenderDevice& devi
 		std::abort();
 	}
 
-	Nz::ComputePipelineInfo computePipelineInfo;
+	Nz::GpuComputePipelineInfo computePipelineInfo;
 	computePipelineInfo.pipelineLayout = pipelineLayout;
 	computePipelineInfo.shaderModule = computeShader;
 
-	std::shared_ptr<Nz::ComputePipeline> pipeline = device.InstantiateComputePipeline(computePipelineInfo);
+	std::shared_ptr<Nz::GpuComputePipeline> pipeline = device.InstantiateComputePipeline(computePipelineInfo);
 	if (!pipeline)
 	{
 		std::cout << "Failed to instantiate compute pipeline" << std::endl;
@@ -330,7 +330,7 @@ SpriteRenderPipeline BuildSpritePipeline(Nz::RenderDevice& device)
 
 		SpriteRenderPipeline pipelineData;
 
-		Nz::RenderPipelineLayoutInfo pipelineLayoutInfo;
+		Nz::GpuPipelineLayoutInfo pipelineLayoutInfo;
 		pipelineLayoutInfo.bindings.push_back({
 			0, 0, 1,
 			Nz::ShaderBindingType::Sampler,

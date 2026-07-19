@@ -4,12 +4,12 @@
 
 namespace Nz
 {
-	inline const std::shared_ptr<RenderPipeline>& Graphics::GetBlitPipeline(bool transparent) const
+	inline const std::shared_ptr<GpuRenderPipeline>& Graphics::GetBlitPipeline(bool transparent) const
 	{
 		return (transparent) ? m_blitPipelineTransparent : m_blitPipeline;
 	}
 
-	inline const std::shared_ptr<RenderPipelineLayout>& Graphics::GetBlitPipelineLayout() const
+	inline const std::shared_ptr<GpuPipelineLayout>& Graphics::GetBlitPipelineLayout() const
 	{
 		return m_blitPipelineLayout;
 	}

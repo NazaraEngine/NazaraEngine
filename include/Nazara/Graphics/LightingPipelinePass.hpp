@@ -26,8 +26,8 @@ namespace Nz
 	class GraphicalMesh;
 	class RenderDevice;
 	class RenderFrame;
-	class RenderPipeline;
-	class RenderPipelineLayout;
+	class GpuRenderPipeline;
+	class GpuPipelineLayout;
 	class ShaderBinding;
 	class UberShader;
 
@@ -95,10 +95,10 @@ namespace Nz
 
 			struct LightPipeline
 			{
-				std::shared_ptr<RenderPipeline> lightingPipeline;
-				std::shared_ptr<RenderPipeline> lightingPipelineShadow;
-				std::shared_ptr<RenderPipeline> stencilPipeline;
-				std::shared_ptr<RenderPipeline> stencilPipelineShadow;
+				std::shared_ptr<GpuRenderPipeline> lightingPipeline;
+				std::shared_ptr<GpuRenderPipeline> lightingPipelineShadow;
+				std::shared_ptr<GpuRenderPipeline> stencilPipeline;
+				std::shared_ptr<GpuRenderPipeline> stencilPipelineShadow;
 			};
 
 			void* PushLightData(RenderDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemory>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlock>& lights, UInt64 lightSize);
@@ -109,8 +109,8 @@ namespace Nz
 			std::shared_ptr<GraphicalMesh> m_pointLightMesh;
 			std::shared_ptr<GraphicalMesh> m_spotLightMesh;
 			std::shared_ptr<LightBufferPool> m_lightBufferPool;
-			std::shared_ptr<RenderPipelineLayout> m_commonPipelineLayout;
-			std::shared_ptr<RenderPipelineLayout> m_shadowPipelineLayout;
+			std::shared_ptr<GpuPipelineLayout> m_commonPipelineLayout;
+			std::shared_ptr<GpuPipelineLayout> m_shadowPipelineLayout;
 			std::shared_ptr<UberShader> m_fullscreenVertexShader;
 			std::shared_ptr<UberShader> m_lightingShader;
 			std::shared_ptr<UberShader> m_meshStencilShader;

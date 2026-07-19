@@ -8,7 +8,7 @@
 #define NAZARA_VULKANRENDERER_VULKANCOMPUTEPIPELINE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Renderer/ComputePipeline.hpp>
+#include <Nazara/Renderer/GpuComputePipeline.hpp>
 #include <Nazara/VulkanRenderer/Export.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Pipeline.hpp>
@@ -17,16 +17,16 @@ namespace Nz
 {
 	class VulkanDevice;
 
-	class NAZARA_VULKANRENDERER_API VulkanComputePipeline : public ComputePipeline
+	class NAZARA_VULKANRENDERER_API VulkanComputePipeline : public GpuComputePipeline
 	{
 		public:
-			VulkanComputePipeline(VulkanDevice& device, ComputePipelineInfo pipelineInfo);
+			VulkanComputePipeline(VulkanDevice& device, GpuComputePipelineInfo pipelineInfo);
 			VulkanComputePipeline(const VulkanComputePipeline&) = delete;
 			VulkanComputePipeline(VulkanComputePipeline&&) = delete;
 			~VulkanComputePipeline() = default;
 
 			inline const Vk::Pipeline& GetPipeline() const;
-			inline const ComputePipelineInfo& GetPipelineInfo() const override;
+			inline const GpuComputePipelineInfo& GetPipelineInfo() const override;
 
 			void UpdateDebugName(std::string_view name) override;
 
@@ -35,7 +35,7 @@ namespace Nz
 
 		private:
 			Vk::Pipeline m_pipeline;
-			ComputePipelineInfo m_pipelineInfo;
+			GpuComputePipelineInfo m_pipelineInfo;
 	};
 }
 

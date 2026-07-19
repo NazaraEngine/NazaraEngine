@@ -59,7 +59,7 @@ namespace Nz
 		return std::make_shared<VulkanCommandPool>(*this, queueType);
 	}
 
-	std::shared_ptr<ComputePipeline> VulkanDevice::InstantiateComputePipeline(ComputePipelineInfo pipelineInfo)
+	std::shared_ptr<GpuComputePipeline> VulkanDevice::InstantiateComputePipeline(GpuComputePipelineInfo pipelineInfo)
 	{
 		return std::make_shared<VulkanComputePipeline>(*this, std::move(pipelineInfo));
 	}
@@ -74,12 +74,12 @@ namespace Nz
 		return std::make_shared<VulkanRenderPass>(*this, std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies));
 	}
 
-	std::shared_ptr<RenderPipeline> VulkanDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)
+	std::shared_ptr<GpuRenderPipeline> VulkanDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)
 	{
 		return std::make_shared<VulkanRenderPipeline>(*this, std::move(pipelineInfo));
 	}
 
-	std::shared_ptr<RenderPipelineLayout> VulkanDevice::InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo)
+	std::shared_ptr<GpuPipelineLayout> VulkanDevice::InstantiateRenderPipelineLayout(GpuPipelineLayoutInfo pipelineLayoutInfo)
 	{
 		auto pipelineLayout = std::make_shared<VulkanRenderPipelineLayout>();
 		if (!pipelineLayout->Create(*this, std::move(pipelineLayoutInfo)))

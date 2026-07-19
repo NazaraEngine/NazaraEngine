@@ -21,7 +21,7 @@
 namespace Nz
 {
 	class RenderDevice;
-	class RenderPipeline;
+	class GpuRenderPipeline;
 	class ShaderBinding;
 	class Texture;
 	class TextureAsset;
@@ -33,7 +33,7 @@ namespace Nz
 		struct DrawCall
 		{
 			const GpuBuffer* vertexBuffer;
-			const RenderPipeline* renderPipeline;
+			const GpuRenderPipeline* renderPipeline;
 			const ShaderBinding* materialShaderBinding;
 			const ShaderBinding* sceneShaderBinding;
 			const ShaderBinding* viewerShaderBinding;
@@ -92,7 +92,7 @@ namespace Nz
 				const VertexDeclaration* currentVertexDeclaration = nullptr;
 				GpuBuffer* currentVertexBuffer = nullptr;
 				const MaterialProxy* currentMaterialProxy = nullptr;
-				const RenderPipeline* currentPipeline = nullptr;
+				const GpuRenderPipeline* currentPipeline = nullptr;
 				const ShaderBinding* currentMaterialShaderBinding = nullptr;
 				const ShaderBinding* currentSceneShaderBinding = nullptr;
 				const ShaderBinding* currentViewerShaderBinding = nullptr;

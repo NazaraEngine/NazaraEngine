@@ -180,7 +180,7 @@ namespace Nz
 
 	void Graphics::BuildBlitPipeline()
 	{
-		RenderPipelineLayoutInfo layoutInfo;
+		GpuPipelineLayoutInfo layoutInfo;
 		layoutInfo.bindings.assign({
 			{
 				0, 0, 1,

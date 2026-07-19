@@ -19,7 +19,7 @@
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Renderer/RenderPipeline.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
 #include <NazaraUtils/FixedVector.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/Result.hpp>

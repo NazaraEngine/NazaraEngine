@@ -5,8 +5,8 @@
 #include <Nazara/Platform/WindowEventHandler.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/RenderPipeline.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
+#include <Nazara/Renderer/GpuPipelineLayout.hpp>
 #include <Nazara/Renderer/WindowSwapchain.hpp>
 #include <Nazara/Renderer/Plugins/ImGuiPlugin.hpp>
 #include <Nazara/Renderer/Plugins/ImGuiFunctions.hpp>
@@ -224,8 +224,8 @@ namespace NzImGui
 		std::shared_ptr<Nz::GpuBuffer> indexBuffer;
 		std::shared_ptr<Nz::GpuBuffer> vertexBuffer;
 		std::shared_ptr<Nz::RenderDevice> device;
-		std::shared_ptr<Nz::RenderPipeline> renderPipeline;
-		std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout;
+		std::shared_ptr<Nz::GpuRenderPipeline> renderPipeline;
+		std::shared_ptr<Nz::GpuPipelineLayout> renderPipelineLayout;
 		std::shared_ptr<Nz::Texture> fontTexture;
 		std::shared_ptr<Nz::TextureSampler> fontTextureSampler;
 		std::shared_ptr<Nz::VertexDeclaration> vertexDeclaration;

@@ -16,9 +16,9 @@
 
 namespace Nz
 {
-	class ComputePipeline;
+	class GpuComputePipeline;
 	class ElementRendererRegistry;
-	class RenderPipelineLayout;
+	class GpuPipelineLayout;
 	class RenderQueue;
 	class UberShader;
 
@@ -43,8 +43,8 @@ namespace Nz
 			void BuildCullingPipeline();
 			std::size_t GetRenderQueueHash() const;
 
-			std::shared_ptr<ComputePipeline> m_computePipeline;
-			std::shared_ptr<RenderPipelineLayout> m_computePipelineLayout;
+			std::shared_ptr<GpuComputePipeline> m_computePipeline;
+			std::shared_ptr<GpuPipelineLayout> m_computePipelineLayout;
 			std::shared_ptr<UberShader> m_frustumCullingShader;
 			std::size_t m_renderQueueHash;
 			std::string m_passName;

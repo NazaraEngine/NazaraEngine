@@ -12,7 +12,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/OpenGL.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuPipelineLayout.hpp>
 #include <NazaraUtils/Bitset.hpp>
 #include <NZSL/GlslWriter.hpp>
 #include <memory>
@@ -21,19 +21,19 @@
 
 namespace Nz
 {
-	class NAZARA_OPENGLRENDERER_API OpenGLRenderPipelineLayout : public RenderPipelineLayout
+	class NAZARA_OPENGLRENDERER_API OpenGLRenderPipelineLayout : public GpuPipelineLayout
 	{
 		friend OpenGLShaderBinding;
 
 		public:
-			OpenGLRenderPipelineLayout(RenderPipelineLayoutInfo layoutInfo);
+			OpenGLRenderPipelineLayout(GpuPipelineLayoutInfo layoutInfo);
 			OpenGLRenderPipelineLayout(const OpenGLRenderPipelineLayout&) = delete;
 			OpenGLRenderPipelineLayout(OpenGLRenderPipelineLayout&&) = delete;
 			~OpenGLRenderPipelineLayout();
 
 			ShaderBindingPtr AllocateShaderBinding(UInt32 setIndex) override;
 
-			inline const RenderPipelineLayoutInfo& GetLayoutInfo() const;
+			inline const GpuPipelineLayoutInfo& GetLayoutInfo() const;
 			inline const nzsl::GlslWriter::Parameters& GetShaderParameters() const;
 
 			void UpdateDebugName(std::string_view name) override;
@@ -103,7 +103,7 @@ namespace Nz
 			std::size_t m_maxDescriptorCount;
 			std::vector<DescriptorPool> m_descriptorPools;
 			nzsl::GlslWriter::Parameters m_shaderParameters;
-			RenderPipelineLayoutInfo m_layoutInfo;
+			GpuPipelineLayoutInfo m_layoutInfo;
 	};
 }
 

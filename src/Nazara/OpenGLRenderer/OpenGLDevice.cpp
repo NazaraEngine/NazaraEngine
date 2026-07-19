@@ -224,7 +224,7 @@ namespace Nz
 		return std::make_shared<OpenGLCommandPool>();
 	}
 
-	std::shared_ptr<ComputePipeline> OpenGLDevice::InstantiateComputePipeline(ComputePipelineInfo pipelineInfo)
+	std::shared_ptr<GpuComputePipeline> OpenGLDevice::InstantiateComputePipeline(GpuComputePipelineInfo pipelineInfo)
 	{
 		return std::make_shared<OpenGLComputePipeline>(*this, std::move(pipelineInfo));
 	}
@@ -239,12 +239,12 @@ namespace Nz
 		return std::make_shared<OpenGLRenderPass>(std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies));
 	}
 
-	std::shared_ptr<RenderPipeline> OpenGLDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)
+	std::shared_ptr<GpuRenderPipeline> OpenGLDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)
 	{
 		return std::make_shared<OpenGLRenderPipeline>(*this, std::move(pipelineInfo));
 	}
 
-	std::shared_ptr<RenderPipelineLayout> OpenGLDevice::InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo)
+	std::shared_ptr<GpuPipelineLayout> OpenGLDevice::InstantiateRenderPipelineLayout(GpuPipelineLayoutInfo pipelineLayoutInfo)
 	{
 		return std::make_shared<OpenGLRenderPipelineLayout>(std::move(pipelineLayoutInfo));
 	}

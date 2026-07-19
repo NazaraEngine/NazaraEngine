@@ -22,7 +22,7 @@ namespace Nz
 		return it->second.index;
 	}
 
-	inline std::size_t RenderQueueRegistry::FetchPipelineIndex(const RenderPipeline* pipeline) const
+	inline std::size_t RenderQueueRegistry::FetchPipelineIndex(const GpuRenderPipeline* pipeline) const
 	{
 		auto it = m_pipelines.find(pipeline);
 		assert(it != m_pipelines.end());

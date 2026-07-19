@@ -25,7 +25,7 @@ namespace Nz
 	*
 	* \return Pipeline instance
 	*/
-	const std::shared_ptr<RenderPipeline>& MaterialPipeline::GetRenderPipeline(const RenderPipelineInfo::VertexBufferData* vertexBuffers, std::size_t vertexBufferCount) const
+	const std::shared_ptr<GpuRenderPipeline>& MaterialPipeline::GetRenderPipeline(const RenderPipelineInfo::VertexBufferData* vertexBuffers, std::size_t vertexBufferCount) const
 	{
 		for (const auto& pipeline : m_renderPipelines)
 		{

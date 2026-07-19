@@ -514,7 +514,7 @@ namespace Nz
 		else
 			m_lightShadowmapBindingIndex = MaxValue();
 
-		RenderPipelineLayoutInfo pipelineLayoutInfo = std::move(reflection).GetPipelineLayoutInfo();
+		GpuPipelineLayoutInfo pipelineLayoutInfo = std::move(reflection).GetPipelineLayoutInfo();
 		{
 			auto it = std::find_if(pipelineLayoutInfo.bindings.begin(), pipelineLayoutInfo.bindings.end(), [&](const auto& binding) { return binding.setIndex == 1 && binding.bindingIndex == m_lightDataBindingIndex; });
 			NazaraAssert(it != pipelineLayoutInfo.bindings.end());

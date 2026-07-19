@@ -8,7 +8,7 @@
 #define NAZARA_VULKANRENDERER_VULKANRENDERPIPELINE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Renderer/RenderPipeline.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/Export.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
@@ -21,7 +21,7 @@ namespace Nz
 {
 	class VulkanDevice;
 
-	class NAZARA_VULKANRENDERER_API VulkanRenderPipeline : public RenderPipeline
+	class NAZARA_VULKANRENDERER_API VulkanRenderPipeline : public GpuRenderPipeline
 	{
 		public:
 			struct CreateInfo;

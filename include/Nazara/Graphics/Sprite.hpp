@@ -12,7 +12,7 @@
 #include <Nazara/Core/VertexStruct.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Renderer/RenderPipeline.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
 #include <array>
 
 namespace Nz

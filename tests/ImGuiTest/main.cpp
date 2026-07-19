@@ -183,7 +183,7 @@ int main()
 
 	Nz::UInt32 uniformSize = sizeof(ubo);
 
-	Nz::RenderPipelineLayoutInfo pipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo pipelineLayoutInfo;
 
 	auto& uboBinding = pipelineLayoutInfo.bindings.emplace_back();
 	uboBinding.setIndex = 0;
@@ -191,7 +191,7 @@ int main()
 	uboBinding.shaderStageFlags = nzsl::ShaderStageType::Vertex;
 	uboBinding.type = Nz::ShaderBindingType::UniformBuffer;
 
-	std::shared_ptr<Nz::RenderPipelineLayout> basePipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
+	std::shared_ptr<Nz::GpuPipelineLayout> basePipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
 
 	auto& pipelineTextureBinding = pipelineLayoutInfo.bindings.emplace_back();
 	pipelineTextureBinding.setIndex = 1;
@@ -199,7 +199,7 @@ int main()
 	pipelineTextureBinding.shaderStageFlags = nzsl::ShaderStageType::Fragment;
 	pipelineTextureBinding.type = Nz::ShaderBindingType::Sampler;
 
-	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
+	std::shared_ptr<Nz::GpuPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 
 	Nz::ShaderBindingPtr viewerShaderBinding = basePipelineLayout->AllocateShaderBinding(0);
 	Nz::ShaderBindingPtr textureShaderBinding = renderPipelineLayout->AllocateShaderBinding(1);
@@ -239,7 +239,7 @@ int main()
 	pipelineVertexBuffer.binding = 0;
 	pipelineVertexBuffer.declaration = meshVB->GetVertexDeclaration();
 
-	std::shared_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
 
 	std::shared_ptr<Nz::CommandPool> commandPool = device->InstantiateCommandPool(Nz::QueueType::Graphics);
 

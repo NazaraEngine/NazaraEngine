@@ -17,7 +17,7 @@
 
 namespace Nz
 {
-	struct RenderPipelineLayoutInfo
+	struct GpuPipelineLayoutInfo
 	{
 		struct Binding
 		{
@@ -32,11 +32,11 @@ namespace Nz
 		UInt32 pushConstantSize = 0;
 	};
 
-	class NAZARA_RENDERER_API RenderPipelineLayout
+	class NAZARA_RENDERER_API GpuPipelineLayout
 	{
 		public:
-			RenderPipelineLayout() = default;
-			virtual ~RenderPipelineLayout();
+			GpuPipelineLayout() = default;
+			virtual ~GpuPipelineLayout();
 
 			virtual ShaderBindingPtr AllocateShaderBinding(UInt32 setIndex) = 0;
 
@@ -44,6 +44,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Renderer/RenderPipelineLayout.inl>
+#include <Nazara/Renderer/GpuPipelineLayout.inl>
 
 #endif // NAZARA_RENDERER_RENDERPIPELINELAYOUT_HPP
