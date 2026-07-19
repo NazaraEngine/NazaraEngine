@@ -13,7 +13,7 @@
 #include <Nazara/Platform/Platform.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Export.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 
 namespace Nz
 {
@@ -35,24 +35,24 @@ namespace Nz
 
 			inline RendererImpl* GetRendererImpl();
 
-			std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures = {});
+			std::shared_ptr<GpuDevice> InstanciateGpuDevice(std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures = {});
 
-			RenderAPI QueryAPI() const;
+			GpuBackend QueryAPI() const;
 			std::string QueryAPIString() const;
 			UInt32 QueryAPIVersion() const;
 
-			const std::vector<RenderDeviceInfo>& QueryRenderDevices() const;
+			const std::vector<GpuDeviceInfo>& QueryGpuDevices() const;
 
 			struct NAZARA_RENDERER_API Config
 			{
 				void Override(const CommandLineParameters& parameters);
 
 				ParameterList customParameters;
-				RenderAPI preferredAPI = RenderAPI::Unknown;
+				GpuBackend preferredAPI = GpuBackend::Unknown;
 #ifdef NAZARA_DEBUG
-				RenderAPIValidationLevel validationLevel = RenderAPIValidationLevel::Verbose;
+				GpuValidationLevel validationLevel = GpuValidationLevel::Verbose;
 #else
-				RenderAPIValidationLevel validationLevel = RenderAPIValidationLevel::None;
+				GpuValidationLevel validationLevel = GpuValidationLevel::None;
 #endif
 			};
 

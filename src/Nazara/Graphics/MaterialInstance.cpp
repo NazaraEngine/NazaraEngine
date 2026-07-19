@@ -10,9 +10,9 @@
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/RenderResourceReferences.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <NazaraUtils/StackVector.hpp>
 
 namespace Nz
@@ -170,7 +170,7 @@ namespace Nz
 
 		// Textures
 		const auto& defaultTextures = Graphics::Instance()->GetDefaultTextures();
-		const auto& renderDevice = Graphics::Instance()->GetRenderDevice();
+		const auto& renderDevice = Graphics::Instance()->GetGpuDevice();
 		auto& samplerCache = Graphics::Instance()->GetSamplerCache();
 
 		// Storage buffer
@@ -231,7 +231,7 @@ namespace Nz
 
 	void MaterialInstance::FillRenderResourceReferences(RenderResourceReferences& resourceReferences) const
 	{
-		const auto& renderDevice = Graphics::Instance()->GetRenderDevice();
+		const auto& renderDevice = Graphics::Instance()->GetGpuDevice();
 
 		for (const auto& storageInfo : m_storageBufferBindings)
 			resourceReferences.renderBuffers.emplace(storageInfo.renderBuffer);
@@ -314,7 +314,7 @@ namespace Nz
 		return m_passes[passIndex].pipeline;
 	}
 
-	const ShaderBinding& MaterialInstance::GetShaderBinding(RenderResources& renderResources) const
+	const ShaderBinding& MaterialInstance::GetShaderBinding(GpuResources& renderResources) const
 	{
 		if (m_shaderBinding && !m_isShaderBindingInvalidated)
 			return *m_shaderBinding;
@@ -340,9 +340,9 @@ namespace Nz
 		return HasPass(passIndex);
 	}
 
-	void MaterialInstance::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)
+	void MaterialInstance::OnTransfer(GpuResources& renderResources, GpuCommandBufferBuilder& builder)
 	{
-		UploadPool& uploadPool = renderResources.GetUploadPool();
+		GpuUploadPool& uploadPool = renderResources.GetUploadPool();
 		for (UniformBuffer& uniformBuffer : m_uniformBuffers)
 		{
 			if (!uniformBuffer.dataInvalidated)
@@ -475,7 +475,7 @@ namespace Nz
 			UpdatePassStates(materialPassRegistry.GetIndex(passName), stateUpdater);
 	}
 
-	void MaterialInstance::UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer)
+	void MaterialInstance::UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<GpuBuffer> storageBuffer)
 	{
 		NazaraAssertMsg(storageBuffer, "invalid buffer");
 
@@ -483,7 +483,7 @@ namespace Nz
 		return UpdateStorageBufferBinding(storageBufferBinding, std::move(storageBuffer), 0, size);
 	}
 
-	void MaterialInstance::UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer, UInt64 offset, UInt64 size)
+	void MaterialInstance::UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<GpuBuffer> storageBuffer, UInt64 offset, UInt64 size)
 	{
 		NazaraAssertMsg(storageBuffer, "invalid buffer");
 		NazaraAssertMsg(storageBuffer->GetUsageFlags() & BufferUsage::StorageBuffer, "buffer does not have storage buffer usage flag");

@@ -19,7 +19,7 @@ namespace Nz
 	{
 		// FIXME: If reversed depth is turned on/off after creating the debug drawer the debug drawer will not follow
 		if (!m_debugDrawer)
-			m_debugDrawer = std::make_unique<DebugDrawer>(*Graphics::Instance()->GetRenderDevice(), m_isReversedZEnabled);
+			m_debugDrawer = std::make_unique<DebugDrawer>(*Graphics::Instance()->GetGpuDevice(), m_isReversedZEnabled);
 
 		return m_debugDrawer.get();
 	}

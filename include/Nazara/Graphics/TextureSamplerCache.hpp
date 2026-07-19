@@ -14,12 +14,12 @@
 
 namespace Nz
 {
-	class RenderDevice;
+	class GpuDevice;
 
 	class NAZARA_GRAPHICS_API TextureSamplerCache
 	{
 		public:
-			inline TextureSamplerCache(std::shared_ptr<RenderDevice> device);
+			inline TextureSamplerCache(std::shared_ptr<GpuDevice> device);
 			TextureSamplerCache(const TextureSamplerCache&) = delete;
 			TextureSamplerCache(TextureSamplerCache&&) = delete;
 			~TextureSamplerCache() = default;
@@ -30,7 +30,7 @@ namespace Nz
 			TextureSamplerCache& operator=(TextureSamplerCache&&) = delete;
 
 		private:
-			std::shared_ptr<RenderDevice> m_device;
+			std::shared_ptr<GpuDevice> m_device;
 			std::unordered_map<TextureSamplerInfo, std::shared_ptr<TextureSampler>> m_samplers;
 	};
 }

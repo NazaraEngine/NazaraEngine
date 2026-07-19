@@ -15,11 +15,11 @@
 namespace Nz
 {
 	class BakedFrameGraph;
-	class CommandBufferBuilder;
-	class Framebuffer;
+	class GpuCommandBufferBuilder;
+	class GpuFramebuffer;
 	class FrameGraph;
-	class RenderPass;
-	class RenderResources;
+	class GpuRenderPass;
+	class GpuResources;
 	class Texture;
 
 	class NAZARA_GRAPHICS_API RenderTarget

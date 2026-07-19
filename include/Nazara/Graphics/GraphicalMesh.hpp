@@ -11,13 +11,13 @@
 #include <Nazara/Core/Mesh.hpp>
 #include <Nazara/Core/VertexDeclaration.hpp>
 #include <Nazara/Graphics/Export.hpp>
-#include <Nazara/Renderer/RenderBuffer.hpp>
+#include <Nazara/Renderer/GpuBuffer.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <memory>
 
 namespace Nz
 {
-	class AsyncRenderCommands;
+	class GpuAsyncCommands;
 
 	class NAZARA_GRAPHICS_API GraphicalMesh
 	{
@@ -34,10 +34,10 @@ namespace Nz
 			inline void Clear();
 
 			inline const Boxf& GetAABB() const;
-			inline const std::shared_ptr<RenderBuffer>& GetIndexBuffer(std::size_t subMesh) const;
+			inline const std::shared_ptr<GpuBuffer>& GetIndexBuffer(std::size_t subMesh) const;
 			inline UInt32 GetIndexCount(std::size_t subMesh) const;
 			inline IndexType GetIndexType(std::size_t subMesh) const;
-			inline const std::shared_ptr<RenderBuffer>& GetVertexBuffer(std::size_t subMesh) const;
+			inline const std::shared_ptr<GpuBuffer>& GetVertexBuffer(std::size_t subMesh) const;
 			inline const std::shared_ptr<const VertexDeclaration>& GetVertexDeclaration(std::size_t subMesh) const;
 			inline std::size_t GetSubMeshCount() const;
 
@@ -49,8 +49,8 @@ namespace Nz
 
 			struct SubMesh
 			{
-				std::shared_ptr<RenderBuffer> indexBuffer;
-				std::shared_ptr<RenderBuffer> vertexBuffer;
+				std::shared_ptr<GpuBuffer> indexBuffer;
+				std::shared_ptr<GpuBuffer> vertexBuffer;
 				std::shared_ptr<const VertexDeclaration> vertexDeclaration;
 				IndexType indexType;
 				UInt32 indexCount;
@@ -59,7 +59,7 @@ namespace Nz
 			static inline std::shared_ptr<GraphicalMesh> Build(const Primitive& primitive, const MeshParams& params = MeshParams());
 			static inline std::shared_ptr<GraphicalMesh> Build(const PrimitiveList& primitiveList, const MeshParams& params = MeshParams());
 			static std::shared_ptr<GraphicalMesh> BuildFromMesh(const Mesh& mesh);
-			static std::shared_ptr<GraphicalMesh> BuildFromMesh(AsyncRenderCommands& asyncTransfer, const Mesh& mesh);
+			static std::shared_ptr<GraphicalMesh> BuildFromMesh(GpuAsyncCommands& asyncTransfer, const Mesh& mesh);
 
 			NazaraSignal(OnInvalidated, GraphicalMesh* /*gfxMesh*/);
 

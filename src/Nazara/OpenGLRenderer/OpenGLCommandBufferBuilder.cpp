@@ -19,12 +19,12 @@ namespace Nz
 		m_commandBuffer.BeginDebugRegion(regionName, color);
 	}
 
-	void OpenGLCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& /*renderRect*/, const ClearValues* clearValues, std::size_t clearValueCount)
+	void OpenGLCommandBufferBuilder::BeginRenderPass(const GpuFramebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& /*renderRect*/, const ClearValues* clearValues, std::size_t clearValueCount)
 	{
 		m_commandBuffer.SetFramebuffer(SafeCast<const OpenGLFramebuffer&>(framebuffer), SafeCast<const OpenGLRenderPass&>(renderPass), clearValues, clearValueCount);
 	}
 
-	void OpenGLCommandBufferBuilder::BindComputePipeline(const ComputePipeline& pipeline)
+	void OpenGLCommandBufferBuilder::BindComputePipeline(const GpuComputePipeline& pipeline)
 	{
 		const OpenGLComputePipeline& glPipeline = SafeCast<const OpenGLComputePipeline&>(pipeline);
 
@@ -38,7 +38,7 @@ namespace Nz
 		m_commandBuffer.BindComputeShaderBinding(glBinding.GetOwner(), set, &glBinding, dynamicOffsets);
 	}
 
-	void OpenGLCommandBufferBuilder::BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
+	void OpenGLCommandBufferBuilder::BindComputeShaderBinding(const GpuPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const OpenGLRenderPipelineLayout& glPipelineLayout = SafeCast<const OpenGLRenderPipelineLayout&>(pipelineLayout);
 		const OpenGLShaderBinding& glBinding = SafeCast<const OpenGLShaderBinding&>(binding);
@@ -46,14 +46,14 @@ namespace Nz
 		m_commandBuffer.BindComputeShaderBinding(glPipelineLayout, set, &glBinding, dynamicOffsets);
 	}
 
-	void OpenGLCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset)
+	void OpenGLCommandBufferBuilder::BindIndexBuffer(const GpuBuffer& indexBuffer, IndexType indexType, UInt64 offset)
 	{
 		const OpenGLBuffer& glBuffer = SafeCast<const OpenGLBuffer&>(indexBuffer);
 
 		m_commandBuffer.BindIndexBuffer(glBuffer.GetBuffer().GetObjectId(), indexType, offset);
 	}
 
-	void OpenGLCommandBufferBuilder::BindRenderPipeline(const RenderPipeline& pipeline)
+	void OpenGLCommandBufferBuilder::BindRenderPipeline(const GpuRenderPipeline& pipeline)
 	{
 		const OpenGLRenderPipeline& glPipeline = SafeCast<const OpenGLRenderPipeline&>(pipeline);
 
@@ -67,7 +67,7 @@ namespace Nz
 		m_commandBuffer.BindRenderShaderBinding(glBinding.GetOwner(), set, &glBinding, dynamicOffsets);
 	}
 
-	void OpenGLCommandBufferBuilder::BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
+	void OpenGLCommandBufferBuilder::BindRenderShaderBinding(const GpuPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const OpenGLRenderPipelineLayout& glPipelineLayout = SafeCast<const OpenGLRenderPipelineLayout&>(pipelineLayout);
 		const OpenGLShaderBinding& glBinding = SafeCast<const OpenGLShaderBinding&>(binding);
@@ -75,7 +75,7 @@ namespace Nz
 		m_commandBuffer.BindRenderShaderBinding(glPipelineLayout, set, &glBinding, dynamicOffsets);
 	}
 
-	void OpenGLCommandBufferBuilder::BindVertexBuffer(UInt32 binding, const RenderBuffer& vertexBuffer, UInt64 offset)
+	void OpenGLCommandBufferBuilder::BindVertexBuffer(UInt32 binding, const GpuBuffer& vertexBuffer, UInt64 offset)
 	{
 		const OpenGLBuffer& glBuffer = SafeCast<const OpenGLBuffer&>(vertexBuffer);
 
@@ -110,7 +110,7 @@ namespace Nz
 		m_commandBuffer.BuildMipmaps(glTexture, baseLevel, levelCount);
 	}
 
-	void OpenGLCommandBufferBuilder::CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
+	void OpenGLCommandBufferBuilder::CopyBuffer(const GpuBufferView& source, const GpuBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
 		OpenGLBuffer& sourceBuffer = *SafeCast<OpenGLBuffer*>(source.GetBuffer());
 		OpenGLBuffer& targetBuffer = *SafeCast<OpenGLBuffer*>(target.GetBuffer());
@@ -118,7 +118,7 @@ namespace Nz
 		m_commandBuffer.CopyBuffer(sourceBuffer.GetBuffer().GetObjectId(), targetBuffer.GetBuffer().GetObjectId(), size, sourceOffset + source.GetOffset(), targetOffset + target.GetOffset());
 	}
 
-	void OpenGLCommandBufferBuilder::CopyBuffer(const UploadPool::Allocation& allocation, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
+	void OpenGLCommandBufferBuilder::CopyBuffer(const GpuUploadPool::Allocation& allocation, const GpuBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
 		OpenGLBuffer& targetBuffer = *SafeCast<OpenGLBuffer*>(target.GetBuffer());
 
@@ -148,14 +148,14 @@ namespace Nz
 		m_commandBuffer.DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 	}
 
-	void OpenGLCommandBufferBuilder::DrawIndirect(const RenderBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
+	void OpenGLCommandBufferBuilder::DrawIndirect(const GpuBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
 	{
 		const OpenGLBuffer& targetIndirectBuffer = SafeCast<const OpenGLBuffer&>(buffer);
 
 		m_commandBuffer.DrawIndirect(targetIndirectBuffer.GetBuffer().GetObjectId(), offset, drawCount, stride);
 	}
 
-	void OpenGLCommandBufferBuilder::DrawIndirectCount(const RenderBuffer& buffer, UInt64 offset, const RenderBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
+	void OpenGLCommandBufferBuilder::DrawIndirectCount(const GpuBuffer& buffer, UInt64 offset, const GpuBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
 	{
 		const OpenGLBuffer& targetIndirectBuffer = SafeCast<const OpenGLBuffer&>(buffer);
 		const OpenGLBuffer& targetCountBuffer = SafeCast<const OpenGLBuffer&>(countBuffer);
@@ -163,14 +163,14 @@ namespace Nz
 		m_commandBuffer.DrawIndirectCount(targetIndirectBuffer.GetBuffer().GetObjectId(), offset, targetCountBuffer.GetBuffer().GetObjectId(), SafeCaster(countBufferOffset), maxDrawCount, stride);
 	}
 
-	void OpenGLCommandBufferBuilder::DrawIndexedIndirect(const RenderBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
+	void OpenGLCommandBufferBuilder::DrawIndexedIndirect(const GpuBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
 	{
 		const OpenGLBuffer& targetIndirectBuffer = SafeCast<const OpenGLBuffer&>(buffer);
 
 		m_commandBuffer.DrawIndexedIndirect(targetIndirectBuffer.GetBuffer().GetObjectId(), offset, drawCount, stride);
 	}
 
-	void OpenGLCommandBufferBuilder::DrawIndexedIndirectCount(const RenderBuffer& buffer, UInt64 offset, const RenderBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
+	void OpenGLCommandBufferBuilder::DrawIndexedIndirectCount(const GpuBuffer& buffer, UInt64 offset, const GpuBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
 	{
 		const OpenGLBuffer& targetIndirectBuffer = SafeCast<const OpenGLBuffer&>(buffer);
 		const OpenGLBuffer& targetCountBuffer = SafeCast<const OpenGLBuffer&>(countBuffer);
@@ -188,9 +188,9 @@ namespace Nz
 		/* nothing to do */
 	}
 
-	void OpenGLCommandBufferBuilder::ExecuteCommands(std::span<const CommandBuffer*> commandBuffers)
+	void OpenGLCommandBufferBuilder::ExecuteCommands(std::span<const GpuCommandBuffer*> commandBuffers)
 	{
-		for (const CommandBuffer* commandBuffer : commandBuffers)
+		for (const GpuCommandBuffer* commandBuffer : commandBuffers)
 		{
 			const OpenGLCommandBuffer& oglCommandBuffer = *SafeCast<const OpenGLCommandBuffer*>(commandBuffer);
 			m_commandBuffer.ExecuteCommandBuffer(oglCommandBuffer);
@@ -251,7 +251,7 @@ namespace Nz
 			m_commandBuffer.InsertMemoryBarrier(barriers);
 	}
 
-	void OpenGLCommandBufferBuilder::PushConstants(const RenderPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data)
+	void OpenGLCommandBufferBuilder::PushConstants(const GpuPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data)
 	{
 		NazaraWarning("TODO");
 	}

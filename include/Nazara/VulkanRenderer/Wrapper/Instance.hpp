@@ -66,8 +66,8 @@ namespace Nz::Vk
 			Instance(Instance&&) = delete;
 			~Instance();
 
-			bool Create(RenderAPIValidationLevel validationLevel, const VkInstanceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
-			inline bool Create(RenderAPIValidationLevel validationLevel, const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, UInt32 apiVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator = nullptr);
+			bool Create(GpuValidationLevel validationLevel, const VkInstanceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+			inline bool Create(GpuValidationLevel validationLevel, const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, UInt32 apiVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator = nullptr);
 			inline void Destroy();
 
 			bool EnumeratePhysicalDevices(std::vector<VkPhysicalDevice>* physicalDevices) const;
@@ -85,9 +85,9 @@ namespace Nz::Vk
 			inline VkPhysicalDeviceProperties GetPhysicalDeviceProperties(VkPhysicalDevice device) const;
 			bool GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties) const;
 			inline PFN_vkVoidFunction GetProcAddr(const char* name) const;
-			inline RenderAPIValidationLevel GetValidationLevel() const;
+			inline GpuValidationLevel GetValidationLevel() const;
 
-			void InstallDebugMessageCallback(RenderAPIValidationLevel validationLevel);
+			void InstallDebugMessageCallback(GpuValidationLevel validationLevel);
 
 			inline bool IsExtensionLoaded(std::string_view extensionName) const;
 			inline bool IsLayerLoaded(std::string_view layerName) const;
@@ -116,7 +116,7 @@ namespace Nz::Vk
 			VkAllocationCallbacks m_allocator;
 			VkInstance m_instance;
 			mutable VkResult m_lastErrorCode;
-			RenderAPIValidationLevel m_validationLevel;
+			GpuValidationLevel m_validationLevel;
 			UInt32 m_apiVersion;
 	};
 }

@@ -11,9 +11,9 @@
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/Components/CameraComponent.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <Nazara/Renderer/WindowSwapchain.hpp>
 
 namespace Nz
@@ -54,7 +54,7 @@ namespace Nz
 
 	WindowSwapchain& RenderSystem::CreateSwapchain(Window& window, const SwapchainParameters& parameters)
 	{
-		return *m_windowSwapchains.emplace_back(std::make_unique<WindowSwapchain>(Graphics::Instance()->GetRenderDevice(), window, parameters));
+		return *m_windowSwapchains.emplace_back(std::make_unique<WindowSwapchain>(Graphics::Instance()->GetGpuDevice(), window, parameters));
 	}
 
 	void RenderSystem::DestroySwapchain(WindowSwapchain& swapchain)

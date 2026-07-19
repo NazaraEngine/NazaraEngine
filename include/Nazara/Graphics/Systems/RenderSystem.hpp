@@ -28,13 +28,13 @@
 
 namespace Nz
 {
-	class CommandBufferBuilder;
+	class GpuCommandBufferBuilder;
 	class FramePipeline;
 	class RenderFrame;
 	class NodeComponent;
 	class SharedSkeletonComponent;
 	class SkeletonComponent;
-	class UploadPool;
+	class GpuUploadPool;
 
 	class NAZARA_GRAPHICS_API RenderSystem
 	{

@@ -12,18 +12,18 @@
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
 
 namespace Nz
 {
-	SubmeshRenderer::SubmeshRenderer(RenderDevice& device) :
+	SubmeshRenderer::SubmeshRenderer(GpuDevice& device) :
 	m_device(device)
 	{
 		m_pool = std::make_shared<PoolData>();
 	}
 
-	void SubmeshRenderer::ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer& buffer, std::size_t commandCount)> callback)
+	void SubmeshRenderer::ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(GpuBuffer& buffer, std::size_t commandCount)> callback)
 	{
 		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
 
@@ -46,7 +46,7 @@ namespace Nz
 		return std::make_unique<SubmeshRendererData>();
 	}
 
-	void SubmeshRenderer::Prepare(const RenderData& /*renderData*/, const SceneData& /*sceneData*/, const AbstractViewer& /*viewer*/, ElementRendererData& rendererData, RenderResources& /*renderResources*/, std::size_t elementCount, const Pointer<const RenderElement>* elements)
+	void SubmeshRenderer::Prepare(const RenderData& /*renderData*/, const SceneData& /*sceneData*/, const AbstractViewer& /*viewer*/, ElementRendererData& rendererData, GpuResources& /*renderResources*/, std::size_t elementCount, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
 
@@ -54,7 +54,7 @@ namespace Nz
 		{
 			if (!data.currentIndirectBufferPtr)
 			{
-				std::shared_ptr<RenderBuffer> indirectBuffer;
+				std::shared_ptr<GpuBuffer> indirectBuffer;
 				if (!m_pool->indirectBuffers.empty())
 				{
 					indirectBuffer = std::move(m_pool->indirectBuffers.back());
@@ -64,7 +64,7 @@ namespace Nz
 					indirectBuffer = m_device.InstantiateBuffer(IndirectCommandBufferCount * PredefinedIndirectDrawOffsets.totalSize, BufferUsage::IndirectBuffer | BufferUsage::MapSequentialWrite | BufferUsage::PersistentMapping | BufferUsage::StorageBuffer);
 
 				data.indirectCommandIndex = 0;
-				data.currentIndirectBufferPtr = static_cast<UInt8*>(indirectBuffer->Map(0, RenderBuffer::WholeSize));
+				data.currentIndirectBufferPtr = static_cast<UInt8*>(indirectBuffer->Map(0, GpuBuffer::WholeSize));
 
 				data.drawIndirectBuffers.push_back(std::move(indirectBuffer));
 			}
@@ -108,7 +108,7 @@ namespace Nz
 		}
 	}
 
-	void SubmeshRenderer::Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements)
+	void SubmeshRenderer::Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, GpuResources& renderResources, GpuCommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
 		if (!data.references)
@@ -131,10 +131,10 @@ namespace Nz
 		data.references->renderBuffers.insert(sceneData.spotLights);
 		data.references->textures.insert(sceneData.shadowAtlas);
 
-		const RenderBuffer* currentIndexBuffer = nullptr;
-		const RenderBuffer* currentVertexBuffer = nullptr;
+		const GpuBuffer* currentIndexBuffer = nullptr;
+		const GpuBuffer* currentVertexBuffer = nullptr;
 		const MaterialProxy* currentMaterialProxy = nullptr;
-		const RenderPipeline* currentPipeline = nullptr;
+		const GpuRenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentInstanceShaderBinding = nullptr;
 		const ShaderBinding* currentMaterialShaderBinding = nullptr;
 		const ShaderBinding* currentViewerShaderBinding = nullptr;
@@ -150,7 +150,7 @@ namespace Nz
 			NazaraAssert(elements[i]->GetElementType() == UnderlyingCast(BasicRenderElement::Submesh));
 			const RenderSubmesh& submesh = static_cast<const RenderSubmesh&>(*elements[i]);
 
-			if (const RenderPipeline* pipeline = submesh.GetRenderPipeline(); currentPipeline != pipeline)
+			if (const GpuRenderPipeline* pipeline = submesh.GetRenderPipeline(); currentPipeline != pipeline)
 			{
 				commandBuffer.BindRenderPipeline(*pipeline);
 				currentPipeline = pipeline;
@@ -163,7 +163,7 @@ namespace Nz
 				currentMaterialShaderBinding = nullptr;
 			}
 
-			if (const RenderBuffer* indexBuffer = submesh.GetIndexBuffer(); currentIndexBuffer != indexBuffer)
+			if (const GpuBuffer* indexBuffer = submesh.GetIndexBuffer(); currentIndexBuffer != indexBuffer)
 			{
 				if (indexBuffer)
 					commandBuffer.BindIndexBuffer(*indexBuffer, submesh.GetIndexType());
@@ -171,7 +171,7 @@ namespace Nz
 				currentIndexBuffer = indexBuffer;
 			}
 
-			if (const RenderBuffer* vertexBuffer = submesh.GetVertexBuffer(); currentVertexBuffer != vertexBuffer)
+			if (const GpuBuffer* vertexBuffer = submesh.GetVertexBuffer(); currentVertexBuffer != vertexBuffer)
 			{
 				if (vertexBuffer)
 					commandBuffer.BindVertexBuffer(0, *vertexBuffer);
@@ -259,7 +259,7 @@ namespace Nz
 				data.shaderBindings.emplace_back(std::move(instanceBinding));
 			}
 
-			RenderBuffer& indirectBuffer = *data.drawIndirectBuffers[data.drawIndirectBufferIndex];
+			GpuBuffer& indirectBuffer = *data.drawIndirectBuffers[data.drawIndirectBufferIndex];
 
 			if (currentIndexBuffer)
 				commandBuffer.DrawIndexedIndirect(indirectBuffer, data.drawElementCounter * SafeCast<UInt32>(PredefinedIndirectDrawOffsets.totalSize), 1, SafeCaster(PredefinedIndirectDrawOffsets.totalSize));
@@ -275,7 +275,7 @@ namespace Nz
 		}
 	}
 
-	void SubmeshRenderer::Reset(ElementRendererData& rendererData, RenderResources& renderResources)
+	void SubmeshRenderer::Reset(ElementRendererData& rendererData, GpuResources& renderResources)
 	{
 		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
 

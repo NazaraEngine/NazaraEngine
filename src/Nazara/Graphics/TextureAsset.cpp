@@ -274,7 +274,7 @@ namespace Nz
 		m_source = NoSource{};
 	}
 
-	const std::shared_ptr<Texture>& TextureAsset::GetOrCreateTexture(RenderDevice& renderDevice) const
+	const std::shared_ptr<Texture>& TextureAsset::GetOrCreateTexture(GpuDevice& renderDevice) const
 	{
 		TextureEntry* entry = GetOrCreateEntry(renderDevice);
 		if NAZARA_UNLIKELY(!entry)
@@ -496,7 +496,7 @@ namespace Nz
 		return texAsset;
 	}
 
-	bool TextureAsset::BuildEntryFromImage(RenderDevice& renderDevice, const Image& image, TextureEntry* entry) const
+	bool TextureAsset::BuildEntryFromImage(GpuDevice& renderDevice, const Image& image, TextureEntry* entry) const
 	{
 		if (image.GetFormat() != m_textureInfo.pixelFormat && PixelFormatInfo::ToSRGB(image.GetFormat()).value_or(image.GetFormat()) != m_textureInfo.pixelFormat)
 		{
@@ -514,7 +514,7 @@ namespace Nz
 		entry->texture = renderDevice.InstantiateTexture(m_textureInfo);
 		if (image.GetLevelCount() > 1)
 		{
-			std::unique_ptr<AsyncRenderCommands> asyncCommands = renderDevice.InstantiateAsyncCommands(QueueType::Graphics);
+			std::unique_ptr<GpuAsyncCommands> asyncCommands = renderDevice.InstantiateAsyncCommands(QueueType::Graphics);
 			for (UInt8 level = 0; level < image.GetLevelCount(); ++level)
 			{
 				auto callback = [&](void* pixels)
@@ -549,7 +549,7 @@ namespace Nz
 		return true;
 	}
 
-	auto TextureAsset::GetOrCreateEntry(RenderDevice& device) const -> TextureEntry*
+	auto TextureAsset::GetOrCreateEntry(GpuDevice& device) const -> TextureEntry*
 	{
 		TextureEntry* entry = GetEntry(device);
 		if (!entry)
@@ -560,7 +560,7 @@ namespace Nz
 
 			entry = &m_entries.emplace_back();
 			entry->device = &device;
-			entry->onDeviceRelease.Connect(device.OnRenderDeviceRelease, [this](RenderDevice* device)
+			entry->onDeviceRelease.Connect(device.OnGpuDeviceRelease, [this](GpuDevice* device)
 			{
 				// Destroy texture before the device is released and free the slot
 				auto it = std::find_if(m_entries.begin(), m_entries.end(), [device](const TextureEntry& entry) { return entry.device == device; });

@@ -10,17 +10,17 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/Export.hpp>
+#include <Nazara/Renderer/GpuRenderPass.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
-#include <Nazara/Renderer/RenderPass.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <vector>
 
 namespace Nz
 {
-	class CommandPool;
-	class Framebuffer;
-	class RenderDevice;
-	class RenderResources;
+	class GpuCommandPool;
+	class GpuFramebuffer;
+	class GpuDevice;
+	class GpuResources;
 
 	class NAZARA_RENDERER_API Swapchain
 	{
@@ -30,15 +30,15 @@ namespace Nz
 
 			virtual RenderFrame AcquireFrame() = 0;
 
-			virtual std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) = 0;
+			virtual std::shared_ptr<GpuCommandPool> CreateCommandPool(QueueType queueType) = 0;
 
-			virtual const Framebuffer& GetFramebuffer(std::size_t i) const = 0;
+			virtual const GpuFramebuffer& GetFramebuffer(std::size_t i) const = 0;
 			virtual std::size_t GetFramebufferCount() const = 0;
 			virtual PresentMode GetPresentMode() const = 0;
-			virtual const RenderPass& GetRenderPass() const = 0;
+			virtual const GpuRenderPass& GetRenderPass() const = 0;
 			virtual const Vector2ui& GetSize() const = 0;
 			virtual PresentModeFlags GetSupportedPresentModes() const = 0;
-			virtual RenderResources& GetTransientResources() = 0;
+			virtual GpuResources& GetTransientResources() = 0;
 
 			virtual void NotifyResize(const Vector2ui& newSize) = 0;
 
@@ -47,7 +47,7 @@ namespace Nz
 			NazaraSignal(OnSwapchainResize, Swapchain* /*swapchain*/, const Vector2ui& /*newSize*/);
 
 		protected:
-			static void BuildRenderPass(PixelFormat colorFormat, PixelFormat depthFormat, std::vector<RenderPass::Attachment>& attachments, std::vector<RenderPass::SubpassDescription>& subpassDescriptions, std::vector<RenderPass::SubpassDependency>& subpassDependencies);
+			static void BuildRenderPass(PixelFormat colorFormat, PixelFormat depthFormat, std::vector<GpuRenderPass::Attachment>& attachments, std::vector<GpuRenderPass::SubpassDescription>& subpassDescriptions, std::vector<GpuRenderPass::SubpassDependency>& subpassDependencies);
 	};
 }
 

@@ -5,7 +5,7 @@
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 #include <NZSL/Ast/Cloner.hpp>
 #include <NZSL/Ast/ReflectVisitor.hpp>
 #include <NZSL/Ast/TransformerExecutor.hpp>
@@ -112,7 +112,7 @@ namespace Nz
 
 			try
 			{
-				stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStages, *m_shaderModule, std::move(states));
+				stage = Graphics::Instance()->GetGpuDevice()->InstantiateShaderModule(m_shaderStages, *m_shaderModule, std::move(states));
 			}
 			catch (const std::exception& e)
 			{

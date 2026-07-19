@@ -5,7 +5,7 @@
 
 namespace Nz
 {
-	inline const ComputePipelineInfo& OpenGLComputePipeline::GetPipelineInfo() const
+	inline const GpuComputePipelineInfo& OpenGLComputePipeline::GetPipelineInfo() const
 	{
 		return m_pipelineInfo;
 	}

@@ -19,7 +19,7 @@
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Renderer/RenderPipeline.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
 #include <NazaraUtils/FixedVector.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/Result.hpp>
@@ -61,13 +61,13 @@ namespace Nz
 
 			std::shared_ptr<Model> Clone() const;
 
-			const std::shared_ptr<RenderBuffer>& GetIndexBuffer(std::size_t subMeshIndex) const;
+			const std::shared_ptr<GpuBuffer>& GetIndexBuffer(std::size_t subMeshIndex) const;
 			std::size_t GetIndexCount(std::size_t subMeshIndex) const;
 			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t subMeshIndex) const override;
 			std::size_t GetMaterialCount() const override;
 			inline std::size_t GetSubMeshCount() const;
 			const RenderPipelineInfo::VertexInputVector& GetVertexBufferData(std::size_t subMeshIndex) const;
-			const std::shared_ptr<RenderBuffer>& GetVertexBuffer(std::size_t subMeshIndex) const;
+			const std::shared_ptr<GpuBuffer>& GetVertexBuffer(std::size_t subMeshIndex) const;
 
 			inline void SetIndexCount(std::size_t subMeshIndex, std::size_t indexCount);
 			inline void SetMaterial(std::size_t subMeshIndex, std::shared_ptr<MaterialInstance> material);

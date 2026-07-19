@@ -17,7 +17,7 @@ namespace Nz
 {
 	ShadowAtlasPipelinePass::ShadowAtlasPipelinePass(PassData& passData, const std::vector<std::string_view>& renderQueueNames) :
 	m_renderQueueHash(0),
-	m_shadowAtlas(*Graphics::Instance()->GetRenderDevice(), 8192),
+	m_shadowAtlas(*Graphics::Instance()->GetGpuDevice(), 8192),
 	m_elementRegistry(passData.elementRegistry),
 	m_pipeline(passData.pipeline),
 	m_renderMask(MaxValue())
@@ -76,7 +76,7 @@ namespace Nz
 
 		preparePass.AddOutput(prepareAttachment);
 
-		preparePass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		preparePass.SetCommandCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			m_pipeline.ForEachShadowCastingLight([&](std::size_t lightIndex, const Light* /*light*/, LightShadowData* shadowData)
 			{
@@ -158,7 +158,7 @@ namespace Nz
 		cullPass.AddInput(prepareAttachment);
 		cullPass.AddOutput(cullAttachment);
 
-		cullPass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		cullPass.SetCommandCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			m_pipeline.ForEachShadowCastingLight([&](std::size_t lightIndex, const Light* /*light*/, LightShadowData* shadowData)
 			{
@@ -174,7 +174,7 @@ namespace Nz
 						if (elementType >= lightData.elementRendererData.size() || viewIndex >= lightData.elementRendererData[elementType].size())
 							return;
 
-						elementRenderer.ForEachIndirectBuffer(*lightData.elementRendererData[elementType][viewIndex], [&](RenderBuffer& buffer, std::size_t commandCount)
+						elementRenderer.ForEachIndirectBuffer(*lightData.elementRendererData[elementType][viewIndex], [&](GpuBuffer& buffer, std::size_t commandCount)
 						{
 							ShaderBindingPtr computeShaderBinding = m_computePipelineLayout->AllocateShaderBinding(0);
 							computeShaderBinding->Update({
@@ -227,7 +227,7 @@ namespace Nz
 		renderPass.SetDepthStencilClear(1.0f, 0);
 		renderPass.SetDepthStencilOutput(shadowAtlasIndex);
 
-		renderPass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		renderPass.SetRenderCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			ElementRenderer::RenderData renderData;
 			renderData.shaderBindingCache = m_pipeline.GetShaderBindingCache();
@@ -305,11 +305,11 @@ namespace Nz
 	void ShadowAtlasPipelinePass::BuildCullingPipeline()
 	{
 		Graphics* graphics = Graphics::Instance();
-		auto& renderDevice = *graphics->GetRenderDevice();
+		auto& renderDevice = *graphics->GetGpuDevice();
 
 		m_frustumCullingShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Compute, "Compute.FrustumCulling");
 
-		RenderPipelineLayoutInfo cullingPipelineLayoutInfo;
+		GpuPipelineLayoutInfo cullingPipelineLayoutInfo;
 		cullingPipelineLayoutInfo.pushConstantSize = 6 * sizeof(Nz::Planef);
 		cullingPipelineLayoutInfo.bindings.push_back({
 			.bindingIndex = 0,

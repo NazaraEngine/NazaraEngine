@@ -36,7 +36,7 @@ namespace Nz
 
 		Graphics* graphics = Graphics::Instance();
 
-		const std::shared_ptr<RenderDevice>& renderDevice = graphics->GetRenderDevice();
+		const std::shared_ptr<GpuDevice>& renderDevice = graphics->GetGpuDevice();
 
 		nzsl::Ast::TransformerExecutor executor;
 		executor.AddPass<nzsl::Ast::ResolveTransformer>({ .moduleResolver = graphics->GetShaderModuleResolver() });
@@ -58,7 +58,7 @@ namespace Nz
 			HybridVector<std::size_t, 10> bindingHashes;
 		};
 
-		const RenderPipelineLayoutInfo& pipelineLayoutInfo = m_reflection.GetPipelineLayoutInfo();
+		const GpuPipelineLayoutInfo& pipelineLayoutInfo = m_reflection.GetPipelineLayoutInfo();
 
 		HybridVector<SetData, 4> setHashes;
 		for (const auto& binding : pipelineLayoutInfo.bindings)
@@ -126,7 +126,7 @@ namespace Nz
 				auto& uniformBlock = m_uniformBlocks.emplace_back();
 				uniformBlock.bindingIndex = shaderBlock.bindingIndex;
 				uniformBlock.bindingSet = shaderBlock.bindingSet;
-				uniformBlock.bufferPool = std::make_unique<RenderBufferPool>(renderDevice, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal, size);
+				uniformBlock.bufferPool = std::make_unique<GpuBufferPool>(renderDevice, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal, size);
 				uniformBlock.structIndex = shaderBlock.structIndex;
 
 				m_uniformBlockByTag.emplace(tag, blockIndex);

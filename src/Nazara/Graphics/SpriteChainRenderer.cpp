@@ -10,14 +10,14 @@
 #include <Nazara/Graphics/ShaderBindingCache.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <utility>
 
 namespace Nz
 {
-	SpriteChainRenderer::SpriteChainRenderer(RenderDevice& device) :
+	SpriteChainRenderer::SpriteChainRenderer(GpuDevice& device) :
 	m_device(device)
 	{
 		m_pool = std::make_shared<PoolData>();
@@ -45,7 +45,7 @@ namespace Nz
 		m_indexBuffer = m_device.InstantiateBuffer(indexCount * sizeof(UInt16), BufferUsage::IndexBuffer | BufferUsage::DeviceLocal, indices.data());
 	}
 
-	void SpriteChainRenderer::ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer& buffer, std::size_t commandCount)> callback)
+	void SpriteChainRenderer::ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(GpuBuffer& buffer, std::size_t commandCount)> callback)
 	{
 		// TODO
 	}
@@ -60,7 +60,7 @@ namespace Nz
 		return std::make_unique<SpriteChainRendererData>();
 	}
 
-	void SpriteChainRenderer::Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements)
+	void SpriteChainRenderer::Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, GpuResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
@@ -129,7 +129,7 @@ namespace Nz
 				m_pendingData.currentAllocation = &renderResources.GetUploadPool().Allocate(VertexBufferSize);
 				m_pendingData.currentAllocationMemPtr = static_cast<UInt8*>(m_pendingData.currentAllocation->mappedPtr);
 
-				std::shared_ptr<RenderBuffer> vertexBuffer;
+				std::shared_ptr<GpuBuffer> vertexBuffer;
 
 				// Reuse vertex buffers from pool if any
 				if (!m_pool->vertexBuffers.empty())
@@ -210,7 +210,7 @@ namespace Nz
 		data.drawCallPerElement[firstSpriteChain] = SpriteChainRendererData::DrawCallIndices{ oldDrawCallCount, drawCallCount };
 	}
 
-	void SpriteChainRenderer::PrepareEnd(ElementRendererData& /*rendererData*/, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer)
+	void SpriteChainRenderer::PrepareEnd(ElementRendererData& /*rendererData*/, GpuResources& /*renderResources*/, GpuCommandBufferBuilder& commandBuffer)
 	{
 		Flush();
 
@@ -227,14 +227,14 @@ namespace Nz
 		m_pendingData = PendingData{};
 	}
 
-	void SpriteChainRenderer::Render(const RenderData& renderData, const SceneData& /*sceneData*/, const AbstractViewer& /*viewer*/, ElementRendererData& rendererData, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements)
+	void SpriteChainRenderer::Render(const RenderData& renderData, const SceneData& /*sceneData*/, const AbstractViewer& /*viewer*/, ElementRendererData& rendererData, GpuResources& /*renderResources*/, GpuCommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
 		commandBuffer.BindIndexBuffer(*m_indexBuffer, Nz::IndexType::U16);
 
-		const RenderBuffer* currentVertexBuffer = nullptr;
-		const RenderPipeline* currentPipeline = nullptr;
+		const GpuBuffer* currentVertexBuffer = nullptr;
+		const GpuRenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentMaterialShaderBinding = nullptr;
 		const ShaderBinding* currentSceneShaderBinding = nullptr;
 		const ShaderBinding* currentViewerShaderBinding = nullptr;
@@ -296,7 +296,7 @@ namespace Nz
 		}
 	}
 
-	void SpriteChainRenderer::Reset(ElementRendererData& rendererData, RenderResources& renderResources)
+	void SpriteChainRenderer::Reset(ElementRendererData& rendererData, GpuResources& renderResources)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 

@@ -3,15 +3,15 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Renderer/TextureSampler.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 
 namespace Nz
 {
 	TextureSampler::~TextureSampler() = default;
 
-	void TextureSampler::ValidateSamplerInfo(const RenderDevice& device, TextureSamplerInfo& samplerInfo)
+	void TextureSampler::ValidateSamplerInfo(const GpuDevice& device, TextureSamplerInfo& samplerInfo)
 	{
-		const RenderDeviceFeatures& deviceFeatures = device.GetEnabledFeatures();
+		const GpuDeviceFeatures& deviceFeatures = device.GetEnabledFeatures();
 		if (samplerInfo.anisotropyLevel > 1.f && !deviceFeatures.anisotropicFiltering)
 		{
 			NazaraWarning("texture sampler has anistropy level > 1.0 but anistropic filtering is not enabled on the device, disabling...");

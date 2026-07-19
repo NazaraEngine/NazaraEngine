@@ -17,13 +17,13 @@
 
 namespace Nz
 {
-	class ComputePipeline;
+	class GpuComputePipeline;
 	class ElementRendererRegistry;
 	class FrameGraph;
 	class FramePass;
 	class FramePipeline;
 	class ParameterList;
-	class RenderPipelineLayout;
+	class GpuPipelineLayout;
 	class RenderQueue;
 	class UberShader;
 
@@ -58,8 +58,8 @@ namespace Nz
 				std::vector<std::vector<std::unique_ptr<ElementRendererData>>> elementRendererData;
 			};
 
-			std::shared_ptr<ComputePipeline> m_computePipeline;
-			std::shared_ptr<RenderPipelineLayout> m_computePipelineLayout;
+			std::shared_ptr<GpuComputePipeline> m_computePipeline;
+			std::shared_ptr<GpuPipelineLayout> m_computePipelineLayout;
 			std::shared_ptr<UberShader> m_frustumCullingShader;
 			std::size_t m_renderQueueHash;
 			std::unordered_map<std::size_t, LightData> m_lightData;

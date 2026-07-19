@@ -23,11 +23,11 @@ namespace Nz
 	class RenderSpriteChain : public RenderElement
 	{
 		public:
-			inline RenderSpriteChain(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox, UInt32 renderMask);
+			inline RenderSpriteChain(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<GpuRenderPipeline> renderPipeline, UInt32 instanceIndex, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox, UInt32 renderMask);
 			~RenderSpriteChain() = default;
 
 			inline const MaterialProxy& GetMaterialProxy() const;
-			inline const RenderPipeline& GetRenderPipeline() const;
+			inline const GpuRenderPipeline& GetRenderPipeline() const;
 			inline const Recti& GetScissorBox() const;
 			inline std::size_t GetSpriteCount() const;
 			inline const void* GetSpriteData() const;
@@ -42,7 +42,7 @@ namespace Nz
 			inline UInt64 ComputeSortKey(const RenderQueueRegistry& registry) const override;
 
 			std::shared_ptr<MaterialProxy> m_materialProxy;
-			std::shared_ptr<RenderPipeline> m_renderPipeline;
+			std::shared_ptr<GpuRenderPipeline> m_renderPipeline;
 			std::shared_ptr<VertexDeclaration> m_vertexDeclaration;
 			std::size_t m_spriteCount;
 			const void* m_spriteData;

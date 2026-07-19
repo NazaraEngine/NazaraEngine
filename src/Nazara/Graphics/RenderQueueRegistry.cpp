@@ -12,9 +12,9 @@ namespace Nz
 		Register<MaterialProxy, &RenderQueueRegistry::m_materialProxyBitset, &RenderQueueRegistry::m_materialProxies>(materialProxy, materialProxy->OnMaterialProxyRelease);
 	}
 
-	void RenderQueueRegistry::RegisterPipeline(const RenderPipeline* pipeline)
+	void RenderQueueRegistry::RegisterPipeline(const GpuRenderPipeline* pipeline)
 	{
-		Register<RenderPipeline, &RenderQueueRegistry::m_pipelineBitset, &RenderQueueRegistry::m_pipelines>(pipeline, pipeline->OnRenderPipelineRelease);
+		Register<GpuRenderPipeline, &RenderQueueRegistry::m_pipelineBitset, &RenderQueueRegistry::m_pipelines>(pipeline, pipeline->OnRenderPipelineRelease);
 	}
 
 	void RenderQueueRegistry::RegisterSkeleton(const Skeleton* skeleton)
@@ -22,9 +22,9 @@ namespace Nz
 		Register<Skeleton, &RenderQueueRegistry::m_skeletonBitset, &RenderQueueRegistry::m_skeletons>(skeleton, skeleton->OnSkeletonRelease);
 	}
 
-	void RenderQueueRegistry::RegisterVertexBuffer(const RenderBuffer* vertexBuffer)
+	void RenderQueueRegistry::RegisterVertexBuffer(const GpuBuffer* vertexBuffer)
 	{
-		Register<RenderBuffer, &RenderQueueRegistry::m_vertexBufferBitset, &RenderQueueRegistry::m_vertexBuffers>(vertexBuffer, vertexBuffer->OnRenderBufferRelease);
+		Register<GpuBuffer, &RenderQueueRegistry::m_vertexBufferBitset, &RenderQueueRegistry::m_vertexBuffers>(vertexBuffer, vertexBuffer->OnGpuBufferRelease);
 	}
 
 	void RenderQueueRegistry::RegisterVertexDeclaration(const VertexDeclaration* vertexDeclaration)

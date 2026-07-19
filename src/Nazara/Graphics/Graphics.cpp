@@ -49,11 +49,11 @@ namespace Nz
 	{
 		Renderer* renderer = Renderer::Instance();
 
-		const std::vector<RenderDeviceInfo>& renderDeviceInfo = renderer->QueryRenderDevices();
+		const std::vector<GpuDeviceInfo>& renderDeviceInfo = renderer->QueryGpuDevices();
 		if (renderDeviceInfo.empty())
 			throw std::runtime_error("no render device available");
 
-		std::size_t bestRenderDeviceIndex = MaxValue();
+		std::size_t bestGpuDeviceIndex = MaxValue();
 		for (std::size_t i = 0; i < renderDeviceInfo.size(); ++i)
 		{
 			const auto& deviceInfo = renderDeviceInfo[i];
@@ -81,41 +81,41 @@ namespace Nz
 				continue;
 			}
 
-			if (config.useDedicatedRenderDevice && deviceInfo.type == RenderDeviceType::Dedicated)
+			if (config.useDedicatedGpuDevice && deviceInfo.type == GpuDeviceType::Dedicated)
 			{
-				bestRenderDeviceIndex = i;
+				bestGpuDeviceIndex = i;
 				break;
 			}
-			else if (!config.useDedicatedRenderDevice && deviceInfo.type == RenderDeviceType::Integrated)
+			else if (!config.useDedicatedGpuDevice && deviceInfo.type == GpuDeviceType::Integrated)
 			{
-				bestRenderDeviceIndex = i;
+				bestGpuDeviceIndex = i;
 				break;
 			}
-			else if (bestRenderDeviceIndex == MaxValue<std::size_t>())
-				bestRenderDeviceIndex = i;
+			else if (bestGpuDeviceIndex == MaxValue<std::size_t>())
+				bestGpuDeviceIndex = i;
 		}
 
-		if (bestRenderDeviceIndex >= renderDeviceInfo.size())
+		if (bestGpuDeviceIndex >= renderDeviceInfo.size())
 			throw std::runtime_error("no render device available");
 
-		RenderDeviceFeatures enabledFeatures;
-		enabledFeatures.anisotropicFiltering = !config.forceDisableFeatures.anisotropicFiltering && renderDeviceInfo[bestRenderDeviceIndex].features.anisotropicFiltering;
+		GpuDeviceFeatures enabledFeatures;
+		enabledFeatures.anisotropicFiltering = !config.forceDisableFeatures.anisotropicFiltering && renderDeviceInfo[bestGpuDeviceIndex].features.anisotropicFiltering;
 		enabledFeatures.computeShaders = true; //< required
-		enabledFeatures.depthClamping = !config.forceDisableFeatures.depthClamping && renderDeviceInfo[bestRenderDeviceIndex].features.depthClamping;
-		enabledFeatures.drawBaseVertex = !config.forceDisableFeatures.drawBaseVertex && renderDeviceInfo[bestRenderDeviceIndex].features.drawBaseVertex;
-		enabledFeatures.drawIndirect = !config.forceDisableFeatures.drawIndirect && renderDeviceInfo[bestRenderDeviceIndex].features.drawIndirect;
-		enabledFeatures.drawIndirectCount = !config.forceDisableFeatures.drawIndirectCount && renderDeviceInfo[bestRenderDeviceIndex].features.drawIndirectCount;
+		enabledFeatures.depthClamping = !config.forceDisableFeatures.depthClamping && renderDeviceInfo[bestGpuDeviceIndex].features.depthClamping;
+		enabledFeatures.drawBaseVertex = !config.forceDisableFeatures.drawBaseVertex && renderDeviceInfo[bestGpuDeviceIndex].features.drawBaseVertex;
+		enabledFeatures.drawIndirect = !config.forceDisableFeatures.drawIndirect && renderDeviceInfo[bestGpuDeviceIndex].features.drawIndirect;
+		enabledFeatures.drawIndirectCount = !config.forceDisableFeatures.drawIndirectCount && renderDeviceInfo[bestGpuDeviceIndex].features.drawIndirectCount;
 		enabledFeatures.drawIndirectFirstInstance = true; //< required
-		enabledFeatures.multiDrawIndirect = !config.forceDisableFeatures.multiDrawIndirect && renderDeviceInfo[bestRenderDeviceIndex].features.multiDrawIndirect;
-		enabledFeatures.nonSolidFaceFilling = !config.forceDisableFeatures.nonSolidFaceFilling && renderDeviceInfo[bestRenderDeviceIndex].features.nonSolidFaceFilling;
-		enabledFeatures.persistentMapping = !config.forceDisableFeatures.persistentMapping && renderDeviceInfo[bestRenderDeviceIndex].features.persistentMapping;
+		enabledFeatures.multiDrawIndirect = !config.forceDisableFeatures.multiDrawIndirect && renderDeviceInfo[bestGpuDeviceIndex].features.multiDrawIndirect;
+		enabledFeatures.nonSolidFaceFilling = !config.forceDisableFeatures.nonSolidFaceFilling && renderDeviceInfo[bestGpuDeviceIndex].features.nonSolidFaceFilling;
+		enabledFeatures.persistentMapping = !config.forceDisableFeatures.persistentMapping && renderDeviceInfo[bestGpuDeviceIndex].features.persistentMapping;
 		enabledFeatures.storageBuffers = true; //< required
-		enabledFeatures.textureReadWithoutFormat = !config.forceDisableFeatures.textureReadWithoutFormat && renderDeviceInfo[bestRenderDeviceIndex].features.textureReadWithoutFormat;
-		enabledFeatures.textureReadWrite = !config.forceDisableFeatures.textureReadWrite && renderDeviceInfo[bestRenderDeviceIndex].features.textureReadWrite;
-		enabledFeatures.textureWriteWithoutFormat = !config.forceDisableFeatures.textureWriteWithoutFormat && renderDeviceInfo[bestRenderDeviceIndex].features.textureWriteWithoutFormat;
-		enabledFeatures.unrestrictedTextureViews = !config.forceDisableFeatures.unrestrictedTextureViews && renderDeviceInfo[bestRenderDeviceIndex].features.unrestrictedTextureViews;
+		enabledFeatures.textureReadWithoutFormat = !config.forceDisableFeatures.textureReadWithoutFormat && renderDeviceInfo[bestGpuDeviceIndex].features.textureReadWithoutFormat;
+		enabledFeatures.textureReadWrite = !config.forceDisableFeatures.textureReadWrite && renderDeviceInfo[bestGpuDeviceIndex].features.textureReadWrite;
+		enabledFeatures.textureWriteWithoutFormat = !config.forceDisableFeatures.textureWriteWithoutFormat && renderDeviceInfo[bestGpuDeviceIndex].features.textureWriteWithoutFormat;
+		enabledFeatures.unrestrictedTextureViews = !config.forceDisableFeatures.unrestrictedTextureViews && renderDeviceInfo[bestGpuDeviceIndex].features.unrestrictedTextureViews;
 
-		m_renderDevice = renderer->InstanciateRenderDevice(bestRenderDeviceIndex, enabledFeatures);
+		m_renderDevice = renderer->InstanciateGpuDevice(bestGpuDeviceIndex, enabledFeatures);
 		if (!m_renderDevice)
 			throw std::runtime_error("failed to instantiate render device");
 
@@ -180,7 +180,7 @@ namespace Nz
 
 	void Graphics::BuildBlitPipeline()
 	{
-		RenderPipelineLayoutInfo layoutInfo;
+		GpuPipelineLayoutInfo layoutInfo;
 		layoutInfo.bindings.assign({
 			{
 				0, 0, 1,
@@ -595,9 +595,9 @@ namespace Nz
 	void Graphics::Config::Override(const CommandLineParameters& parameters)
 	{
 		if (parameters.HasFlag("use-dedicated-gpu") || TestEnvironmentVariable("NAZARA_USE_DEDICATED_GPU"))
-			useDedicatedRenderDevice = true;
+			useDedicatedGpuDevice = true;
 
 		if (parameters.HasFlag("use-integrated-gpu") || TestEnvironmentVariable("NAZARA_USE_INTEGRATED_GPU"))
-			useDedicatedRenderDevice = false;
+			useDedicatedGpuDevice = false;
 	}
 }

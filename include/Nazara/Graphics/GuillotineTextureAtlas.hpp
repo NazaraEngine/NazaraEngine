@@ -14,13 +14,13 @@
 
 namespace Nz
 {
-	class RenderDevice;
+	class GpuDevice;
 
 	class NAZARA_GRAPHICS_API GuillotineTextureAtlas final : public GuillotineAtlas
 	{
 		public:
-			inline GuillotineTextureAtlas(RenderDevice& renderDevice, PixelFormat pixelFormat, UInt32 initialLayerSize = 512);
-			inline GuillotineTextureAtlas(RenderDevice& renderDevice, PixelFormat texturePixelFormat, PixelFormat imagePixelFormat, UInt32 initialLayerSize = 512);
+			inline GuillotineTextureAtlas(GpuDevice& renderDevice, PixelFormat pixelFormat, UInt32 initialLayerSize = 512);
+			inline GuillotineTextureAtlas(GpuDevice& renderDevice, PixelFormat texturePixelFormat, PixelFormat imagePixelFormat, UInt32 initialLayerSize = 512);
 			~GuillotineTextureAtlas() = default;
 
 			DataStoreFlags GetStorage() const override;
@@ -29,7 +29,7 @@ namespace Nz
 			std::shared_ptr<AbstractImage> ResizeImage(const AbstractImage* oldImage, const Vector2ui& size) const override;
 			void UpdateImage(AbstractImage& image, const void* ptr, const Rectui& rect, UInt32 srcWidth, UInt32 srcHeight) const override;
 
-			RenderDevice& m_renderDevice;
+			GpuDevice& m_renderDevice;
 			PixelFormat m_texturePixelFormat;
 	};
 }

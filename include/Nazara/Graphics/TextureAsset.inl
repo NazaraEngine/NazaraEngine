@@ -34,7 +34,7 @@ namespace Nz
 		return m_textureInfo.type;
 	}
 
-	inline auto TextureAsset::GetEntry(RenderDevice& device) const -> TextureEntry*
+	inline auto TextureAsset::GetEntry(GpuDevice& device) const -> TextureEntry*
 	{
 		// As we will have one device, and probably no more than two, linear search is more than enough
 		for (TextureEntry& entry : m_entries)

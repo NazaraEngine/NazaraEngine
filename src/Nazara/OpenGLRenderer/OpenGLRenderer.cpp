@@ -5,7 +5,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLRenderer.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLSwapchain.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 #include <Nazara/Renderer/Swapchain.hpp>
 #include <cassert>
 #include <sstream>
@@ -31,14 +31,14 @@ namespace Nz
 		m_device.reset();
 	}
 
-	std::shared_ptr<RenderDevice> OpenGLRenderer::InstanciateRenderDevice([[maybe_unused]] std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures)
+	std::shared_ptr<GpuDevice> OpenGLRenderer::InstanciateGpuDevice([[maybe_unused]] std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures)
 	{
 		assert(deviceIndex == 0);
 
 		// For now, since we have to create a device to know its features, supported features are always reported as enabled
 		// We still call ValidateFeatures in order to trigger warnings if requested features are not supported
 		// TODO: Report disabled features as disabled (make OpenGLDeviceProxy?)
-		RenderDeviceFeatures validatedFeatures = enabledFeatures;
+		GpuDeviceFeatures validatedFeatures = enabledFeatures;
 		OpenGLDevice::ValidateFeatures(m_device->GetEnabledFeatures(), validatedFeatures);
 
 		return m_device;
@@ -99,9 +99,9 @@ namespace Nz
 		return {};
 	}
 
-	RenderAPI OpenGLRenderer::QueryAPI() const
+	GpuBackend OpenGLRenderer::QueryAPI() const
 	{
-		return (m_device->GetReferenceContext().GetParams().type == GL::ContextType::OpenGL) ? RenderAPI::OpenGL : RenderAPI::OpenGL_ES;
+		return (m_device->GetReferenceContext().GetParams().type == GL::ContextType::OpenGL) ? GpuBackend::OpenGL : GpuBackend::OpenGL_ES;
 	}
 
 	std::string OpenGLRenderer::QueryAPIString() const
@@ -123,7 +123,7 @@ namespace Nz
 		return 300;
 	}
 
-	const std::vector<RenderDeviceInfo>& OpenGLRenderer::QueryRenderDevices() const
+	const std::vector<GpuDeviceInfo>& OpenGLRenderer::QueryGpuDevices() const
 	{
 		return m_deviceInfos;
 	}

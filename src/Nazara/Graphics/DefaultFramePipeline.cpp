@@ -13,19 +13,19 @@
 #include <Nazara/Graphics/RenderTarget.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Math/Frustum.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
 #include <NazaraUtils/StackVector.hpp>
 
 namespace Nz
 {
 	DefaultFramePipeline::DefaultFramePipeline(ElementRendererRegistry& elementRegistry) :
-	m_directionalLights(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedDirectionalLightOffsets.totalSize), 16, SafeCaster(PredefinedDirectionalLightsOffsets.totalSize)),
-	m_directionalShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedDirectionalShadowAtlasEntryOffsets.totalSize), 16),
-	m_instanceBuffer(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedInstanceOffsets.totalSize), 512),
-	m_pointLights(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedPointLightOffsets.totalSize), 128, SafeCaster(PredefinedPointLightsOffsets.totalSize)),
-	m_pointShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedPointShadowAtlasEntryOffsets.totalSize), 128),
-	m_spotLights(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedSpotLightOffsets.totalSize), 128, SafeCaster(PredefinedSpotLightsOffsets.totalSize)),
-	m_spotShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedSpotShadowAtlasEntryOffsets.totalSize), 128),
+	m_directionalLights(*Graphics::Instance()->GetGpuDevice(), SafeCaster(PredefinedDirectionalLightOffsets.totalSize), 16, SafeCaster(PredefinedDirectionalLightsOffsets.totalSize)),
+	m_directionalShadowAtlasEntries(*Graphics::Instance()->GetGpuDevice(), SafeCaster(PredefinedDirectionalShadowAtlasEntryOffsets.totalSize), 16),
+	m_instanceBuffer(*Graphics::Instance()->GetGpuDevice(), SafeCaster(PredefinedInstanceOffsets.totalSize), 512),
+	m_pointLights(*Graphics::Instance()->GetGpuDevice(), SafeCaster(PredefinedPointLightOffsets.totalSize), 128, SafeCaster(PredefinedPointLightsOffsets.totalSize)),
+	m_pointShadowAtlasEntries(*Graphics::Instance()->GetGpuDevice(), SafeCaster(PredefinedPointShadowAtlasEntryOffsets.totalSize), 128),
+	m_spotLights(*Graphics::Instance()->GetGpuDevice(), SafeCaster(PredefinedSpotLightOffsets.totalSize), 128, SafeCaster(PredefinedSpotLightsOffsets.totalSize)),
+	m_spotShadowAtlasEntries(*Graphics::Instance()->GetGpuDevice(), SafeCaster(PredefinedSpotShadowAtlasEntryOffsets.totalSize), 128),
 	m_elementRegistry(elementRegistry),
 	m_renderablePool(4096),
 	m_lightPool(64),
@@ -95,27 +95,27 @@ namespace Nz
 		}
 	}
 
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetDirectionalLightBuffer() const
+	const std::shared_ptr<GpuBuffer>& DefaultFramePipeline::GetDirectionalLightBuffer() const
 	{
 		return m_directionalLights.GetBuffer();
 	}
 
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetDirectionalShadowMappingBuffer() const
+	const std::shared_ptr<GpuBuffer>& DefaultFramePipeline::GetDirectionalShadowMappingBuffer() const
 	{
 		return m_directionalShadowAtlasEntries.GetBuffer();
 	}
 
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetInstanceBuffer() const
+	const std::shared_ptr<GpuBuffer>& DefaultFramePipeline::GetInstanceBuffer() const
 	{
 		return m_instanceBuffer.GetBuffer();
 	}
 
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetPointLightBuffer() const
+	const std::shared_ptr<GpuBuffer>& DefaultFramePipeline::GetPointLightBuffer() const
 	{
 		return m_pointLights.GetBuffer();
 	}
 
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetPointShadowMappingBuffer() const
+	const std::shared_ptr<GpuBuffer>& DefaultFramePipeline::GetPointShadowMappingBuffer() const
 	{
 		return m_pointShadowAtlasEntries.GetBuffer();
 	}
@@ -141,18 +141,18 @@ namespace Nz
 		if (!m_shadowAtlasPipelinePass)
 		{
 			Graphics* graphics = Graphics::Instance();
-			return graphics->GetDefaultTextures().depthTextures[ImageType::E2D]->GetOrCreateTexture(*graphics->GetRenderDevice());
+			return graphics->GetDefaultTextures().depthTextures[ImageType::E2D]->GetOrCreateTexture(*graphics->GetGpuDevice());
 		}
 
 		return m_shadowAtlasPipelinePass->GetAtlas().GetTexture();
 	}
 
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetSpotLightBuffer() const
+	const std::shared_ptr<GpuBuffer>& DefaultFramePipeline::GetSpotLightBuffer() const
 	{
 		return m_spotLights.GetBuffer();
 	}
 
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetSpotShadowMappingBuffer() const
+	const std::shared_ptr<GpuBuffer>& DefaultFramePipeline::GetSpotShadowMappingBuffer() const
 	{
 		return m_spotShadowAtlasEntries.GetBuffer();
 	}
@@ -419,7 +419,7 @@ namespace Nz
 		return m_lightPool.RetrieveFromIndex(lightIndex)->shadowData.get();
 	}
 
-	void DefaultFramePipeline::Render(RenderResources& renderResources)
+	void DefaultFramePipeline::Render(GpuResources& renderResources)
 	{
 		ProcesRemovedData(renderResources);
 
@@ -997,7 +997,7 @@ namespace Nz
 		mergePass.AddOutput(mergedAttachment);
 		mergePass.SetClearColor(0, Color::Black());
 
-		mergePass.SetRenderCallback([targetViewers](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		mergePass.SetRenderCallback([targetViewers](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			Graphics* graphics = Graphics::Instance();
 			builder.BindRenderPipeline(*graphics->GetBlitPipeline(false));
@@ -1056,7 +1056,7 @@ namespace Nz
 			return (!m_transferSet.empty()) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Skip;
 		});
 
-		framePass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		framePass.SetCommandCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			builder.MemoryBarrier({ .srcStageMask = PipelineStage::BottomOfPipe, .dstStageMask = PipelineStage::Transfer, .srcAccessMask = {}, .dstAccessMask = MemoryAccess::TransferRead | MemoryAccess::TransferWrite });
 
@@ -1074,7 +1074,7 @@ namespace Nz
 		return viewerUploadAttachment;
 	}
 
-	void DefaultFramePipeline::ProcesRemovedData(RenderResources& renderResources)
+	void DefaultFramePipeline::ProcesRemovedData(GpuResources& renderResources)
 	{
 			for (std::size_t lightIndex : m_removedLightInstances.IterBits())
 		{

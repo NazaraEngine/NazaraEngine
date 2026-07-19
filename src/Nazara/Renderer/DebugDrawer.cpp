@@ -5,11 +5,11 @@
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Core/Joint.hpp>
 #include <Nazara/Core/Skeleton.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
-#include <Nazara/Renderer/RenderPipeline.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
+#include <Nazara/Renderer/GpuPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
 #include <NZSL/Serializer.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>
@@ -23,7 +23,7 @@ namespace Nz
 		};
 	}
 
-	DebugDrawer::DebugDrawer(RenderDevice& renderDevice, bool usesReversedZ, std::size_t maxVertexPerDraw) :
+	DebugDrawer::DebugDrawer(GpuDevice& renderDevice, bool usesReversedZ, std::size_t maxVertexPerDraw) :
 	m_vertexPerBlock(maxVertexPerDraw),
 	m_renderDevice(renderDevice),
 	m_viewerDataUpdated(false)
@@ -35,7 +35,7 @@ namespace Nz
 		if (!debugDrawShader)
 			throw std::runtime_error("failed to instantiate debug draw shader");
 
-		RenderPipelineLayoutInfo layoutInfo;
+		GpuPipelineLayoutInfo layoutInfo;
 		layoutInfo.bindings.assign({
 			{
 				0, 0, 1,
@@ -77,7 +77,7 @@ namespace Nz
 		m_currentViewerData = {};
 	}
 
-	void DebugDrawer::Draw(CommandBufferBuilder& builder)
+	void DebugDrawer::Draw(GpuCommandBufferBuilder& builder)
 	{
 		if (m_drawCalls.empty())
 			return;
@@ -135,7 +135,7 @@ namespace Nz
 		}
 	}
 
-	void DebugDrawer::Prepare(RenderResources& renderResources)
+	void DebugDrawer::Prepare(GpuResources& renderResources)
 	{
 		for (auto& drawCall : m_drawCalls)
 		{
@@ -149,7 +149,7 @@ namespace Nz
 
 		if (!m_lineVertices.empty())
 		{
-			UploadPool& uploadPool = renderResources.GetUploadPool();
+			GpuUploadPool& uploadPool = renderResources.GetUploadPool();
 
 			std::size_t vertexCount = m_lineVertices.size();
 
@@ -237,11 +237,11 @@ namespace Nz
 		m_viewerDataUpdated = false;
 	}
 
-	void DebugDrawer::Upload(CommandBufferBuilder& builder, RenderResources& renderResources)
+	void DebugDrawer::Upload(GpuCommandBufferBuilder& builder, GpuResources& renderResources)
 	{
 		if (!m_viewerDataUpdated || !m_pendingUploads.empty())
 		{
-			UploadPool& uploadPool = renderResources.GetUploadPool();
+			GpuUploadPool& uploadPool = renderResources.GetUploadPool();
 
 			builder.BeginDebugRegion("Debug drawer upload", Color::Yellow());
 			{
@@ -249,7 +249,7 @@ namespace Nz
 
 				if (!m_viewerDataUpdated)
 				{
-					const UploadPool::Allocation& viewerDataAllocation = uploadPool.Allocate(m_viewerData.size());
+					const GpuUploadPool::Allocation& viewerDataAllocation = uploadPool.Allocate(m_viewerData.size());
 					std::memcpy(viewerDataAllocation.mappedPtr, m_viewerData.data(), m_viewerData.size());
 
 					builder.CopyBuffer(viewerDataAllocation, m_currentViewerData.buffer.get());

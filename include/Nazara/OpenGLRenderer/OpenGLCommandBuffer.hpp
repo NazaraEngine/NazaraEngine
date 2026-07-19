@@ -14,8 +14,8 @@
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipeline.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
-#include <Nazara/Renderer/CommandBuffer.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuCommandBuffer.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
 #include <NazaraUtils/FixedVector.hpp>
 #include <NazaraUtils/TypeList.hpp>
 #include <optional>
@@ -31,7 +31,7 @@ namespace Nz
 	class OpenGLRenderPass;
 	class OpenGLTexture;
 
-	class NAZARA_OPENGLRENDERER_API OpenGLCommandBuffer final : public CommandBuffer
+	class NAZARA_OPENGLRENDERER_API OpenGLCommandBuffer final : public GpuCommandBuffer
 	{
 		public:
 			inline OpenGLCommandBuffer();
@@ -55,7 +55,7 @@ namespace Nz
 			inline void BuildMipmaps(OpenGLTexture& texture, UInt8 baseLevel, UInt8 levelCount);
 
 			inline void CopyBuffer(GLuint source, GLuint target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
-			inline void CopyBuffer(const UploadPool::Allocation& allocation, GLuint target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
+			inline void CopyBuffer(const GpuUploadPool::Allocation& allocation, GLuint target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
 			inline void CopyTexture(const OpenGLTexture& source, const Boxui& sourceBox, const OpenGLTexture& target, const Vector3ui& targetPoint);
 
 			inline void Dispatch(UInt32 numGroupsX, UInt32 numGroupsY, UInt32 numGroupsZ);
@@ -81,7 +81,7 @@ namespace Nz
 
 			inline void InsertMemoryBarrier(GLbitfield barriers);
 
-			inline void SetFramebuffer(const OpenGLFramebuffer& framebuffer, const OpenGLRenderPass& renderPass, const CommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount);
+			inline void SetFramebuffer(const OpenGLFramebuffer& framebuffer, const OpenGLRenderPass& renderPass, const GpuCommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount);
 			inline void SetScissor(const Recti& scissorRegion);
 			inline void SetViewport(const Recti& viewportRegion);
 
@@ -326,7 +326,7 @@ namespace Nz
 
 			struct SetFrameBufferCommand
 			{
-				std::array<CommandBufferBuilder::ClearValues, 16> clearValues; //< TODO: Remove hard limit?
+				std::array<GpuCommandBufferBuilder::ClearValues, 16> clearValues; //< TODO: Remove hard limit?
 				const OpenGLFramebuffer* framebuffer;
 				const OpenGLRenderPass* renderpass;
 			};

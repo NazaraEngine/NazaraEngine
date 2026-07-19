@@ -16,32 +16,32 @@
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Export.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <Nazara/Renderer/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
 #include <memory>
 #include <span>
 #include <vector>
 
 namespace Nz
 {
-	class CommandBufferBuilder;
-	class RenderBuffer;
-	class RenderDevice;
-	class RenderPipeline;
-	class RenderPipelineLayout;
-	class RenderResources;
+	class GpuCommandBufferBuilder;
+	class GpuBuffer;
+	class GpuDevice;
+	class GpuRenderPipeline;
+	class GpuPipelineLayout;
+	class GpuResources;
 	class Skeleton;
 
 	class NAZARA_RENDERER_API DebugDrawer
 	{
 		public:
-			DebugDrawer(RenderDevice& renderDevice, bool usesReversedZ = false, std::size_t maxVertexPerDraw = DefaultVertexBlockSize);
+			DebugDrawer(GpuDevice& renderDevice, bool usesReversedZ = false, std::size_t maxVertexPerDraw = DefaultVertexBlockSize);
 			DebugDrawer(const DebugDrawer&) = delete;
 			DebugDrawer(DebugDrawer&&) noexcept = default;
 			~DebugDrawer();
 
-			void Draw(CommandBufferBuilder& builder);
+			void Draw(GpuCommandBufferBuilder& builder);
 
 			inline void DrawBox(const Boxf& box, const Color& color);
 			inline void DrawBoxCorners(const EnumArray<BoxCorner, Vector3f>& boxCorners, const Color& color);
@@ -55,13 +55,13 @@ namespace Nz
 			inline void DrawSphere(const Vector3f& point, float radius, const Color& color);
 			void DrawSkeleton(const Skeleton& skeleton, const Color& color);
 
-			void Prepare(RenderResources& renderResources);
+			void Prepare(GpuResources& renderResources);
 
 			void Reset();
 
 			void SetViewerData(const Matrix4f& viewProjMatrix);
 
-			void Upload(CommandBufferBuilder& builder, RenderResources& renderResources);
+			void Upload(GpuCommandBufferBuilder& builder, GpuResources& renderResources);
 
 			DebugDrawer& operator=(const DebugDrawer&) = delete;
 			DebugDrawer& operator=(DebugDrawer&&) = delete;
@@ -71,37 +71,37 @@ namespace Nz
 		private:
 			struct ViewerData
 			{
-				std::shared_ptr<RenderBuffer> buffer;
+				std::shared_ptr<GpuBuffer> buffer;
 				ShaderBindingPtr binding;
 			};
 
 			struct DataPool
 			{
-				std::vector<std::shared_ptr<RenderBuffer>> vertexBuffers;
+				std::vector<std::shared_ptr<GpuBuffer>> vertexBuffers;
 				std::vector<ViewerData> viewerData;
 			};
 
 			struct DrawCall
 			{
-				std::shared_ptr<RenderBuffer> vertexBuffer;
+				std::shared_ptr<GpuBuffer> vertexBuffer;
 				std::size_t vertexCount;
 			};
 
 			struct PendingUpload
 			{
-				UploadPool::Allocation* allocation;
-				RenderBuffer* vertexBuffer;
+				GpuUploadPool::Allocation* allocation;
+				GpuBuffer* vertexBuffer;
 			};
 
 			std::array<UInt8, PredefinedDebugDrawerOffsets.totalSize> m_viewerData;
 			std::shared_ptr<DataPool> m_dataPool;
-			std::shared_ptr<RenderPipeline> m_renderPipeline;
-			std::shared_ptr<RenderPipelineLayout> m_renderPipelineLayout;
+			std::shared_ptr<GpuRenderPipeline> m_renderPipeline;
+			std::shared_ptr<GpuPipelineLayout> m_renderPipelineLayout;
 			std::size_t m_vertexPerBlock;
 			std::vector<DrawCall> m_drawCalls;
 			std::vector<PendingUpload> m_pendingUploads;
 			std::vector<VertexStruct_XYZ_Color> m_lineVertices;
-			RenderDevice& m_renderDevice;
+			GpuDevice& m_renderDevice;
 			ViewerData m_currentViewerData;
 			bool m_viewerDataUpdated;
 	};

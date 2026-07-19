@@ -18,7 +18,7 @@
 namespace Nz
 {
 	class AbstractViewer;
-	class RenderResources;
+	class GpuResources;
 	struct RenderResourceReferences;
 	class SkeletonInstance;
 
@@ -38,7 +38,7 @@ namespace Nz
 			inline std::size_t GetBindingSetCount() const;
 			inline std::size_t GetBindingSetHash(UInt32 setIndex) const;
 
-			virtual const ShaderBinding& GetShaderBinding(RenderResources& renderResources) const = 0;
+			virtual const ShaderBinding& GetShaderBinding(GpuResources& renderResources) const = 0;
 
 			MaterialProxy& operator=(const MaterialProxy&) = default;
 			MaterialProxy& operator=(MaterialProxy&&) = default;

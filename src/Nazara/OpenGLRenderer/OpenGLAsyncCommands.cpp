@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	void OpenGLAsyncCommands::AddCommands(Nz::FunctionRef<void(CommandBufferBuilder& builder)> callback)
+	void OpenGLAsyncCommands::AddCommands(Nz::FunctionRef<void(GpuCommandBufferBuilder& builder)> callback)
 	{
 		OpenGLCommandBufferBuilder builder(m_commandBuffer);
 		callback(builder);

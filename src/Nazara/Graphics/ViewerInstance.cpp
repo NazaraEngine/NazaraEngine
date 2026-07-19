@@ -7,9 +7,9 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <NazaraUtils/StackVector.hpp>
 
 namespace Nz
@@ -28,11 +28,11 @@ namespace Nz
 	m_farPlane(-1.f),
 	m_nearPlane(-1.f)
 	{
-		m_viewerDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(PredefinedViewerOffsets.totalSize, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal);
+		m_viewerDataBuffer = Graphics::Instance()->GetGpuDevice()->InstantiateBuffer(PredefinedViewerOffsets.totalSize, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal);
 		m_viewerDataBuffer->UpdateDebugName("Viewer data");
 	}
 
-	void ViewerInstance::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)
+	void ViewerInstance::OnTransfer(GpuResources& renderResources, GpuCommandBufferBuilder& builder)
 	{
 		if (!m_dataInvalidated)
 			return;

@@ -8,16 +8,16 @@
 #define NAZARA_VULKANRENDERER_VULKANFRAMEBUFFER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Renderer/Framebuffer.hpp>
+#include <Nazara/Renderer/GpuFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/Export.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Framebuffer.hpp>
 
 namespace Nz
 {
-	class NAZARA_VULKANRENDERER_API VulkanFramebuffer : public Framebuffer
+	class NAZARA_VULKANRENDERER_API VulkanFramebuffer : public GpuFramebuffer
 	{
 		public:
-			using Framebuffer::Framebuffer;
+			using GpuFramebuffer::GpuFramebuffer;
 
 			virtual Vk::Framebuffer& GetFramebuffer() = 0;
 			virtual const Vk::Framebuffer& GetFramebuffer() const = 0;

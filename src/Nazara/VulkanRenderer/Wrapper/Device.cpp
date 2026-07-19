@@ -211,7 +211,7 @@ namespace Nz
 #if VMA_MEMORY_BUDGET || VMA_VULKAN_VERSION >= 1001000
 				m_instance.vkGetPhysicalDeviceMemoryProperties2,
 #endif
-#if VMA_VULKAN_VERSION >= 1003000
+#if VMA_KHR_MAINTENANCE4 || VMA_VULKAN_VERSION >= 1003000
 				vkGetDeviceBufferMemoryRequirements,
 				vkGetDeviceImageMemoryRequirements,
 #endif

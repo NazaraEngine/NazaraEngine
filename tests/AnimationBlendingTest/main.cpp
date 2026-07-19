@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 	Nz::PluginLoader loader;
 	Nz::Plugin<Nz::AssimpPlugin> assimp = loader.Load<Nz::AssimpPlugin>();
 
-	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Graphics::Instance()->GetGpuDevice();
 
 	auto& ecs = app.AddComponent<Nz::EntitySystemAppComponent>();
 

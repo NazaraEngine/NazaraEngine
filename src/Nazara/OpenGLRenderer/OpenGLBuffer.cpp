@@ -10,7 +10,7 @@
 namespace Nz
 {
 	OpenGLBuffer::OpenGLBuffer(OpenGLDevice& device, UInt64 size, BufferUsageFlags usage, const void* initialData) :
-	RenderBuffer(device, size, usage)
+	GpuBuffer(device, size, usage)
 	{
 		if (!m_buffer.Create(device))
 			throw std::runtime_error("failed to create buffer"); //< TODO: Handle OpenGL error
@@ -69,7 +69,7 @@ namespace Nz
 		return true;
 	}
 
-	bool OpenGLBuffer::Fill(AsyncRenderCommands& /*asyncTransfer*/, const void* data, UInt64 offset, UInt64 size)
+	bool OpenGLBuffer::Fill(GpuAsyncCommands& /*asyncTransfer*/, const void* data, UInt64 offset, UInt64 size)
 	{
 		return Fill(data, offset, size); //< TODO
 	}

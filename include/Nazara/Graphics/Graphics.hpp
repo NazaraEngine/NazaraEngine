@@ -16,9 +16,9 @@
 #include <Nazara/Graphics/NameRegistry.hpp>
 #include <Nazara/Graphics/PipelinePassList.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
-#include <Nazara/Renderer/RenderPassCache.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
+#include <Nazara/Renderer/GpuPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuRenderPassCache.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/TextRenderer/TextRenderer.hpp>
 #include <NZSL/FilesystemModuleResolver.hpp>
@@ -28,7 +28,7 @@ namespace Nz
 {
 	class CommandLineParameters;
 	class FilesystemAppComponent;
-	class RenderBuffer;
+	class GpuBuffer;
 	class TextureAsset;
 
 	class NAZARA_GRAPHICS_API Graphics : public ModuleBase<Graphics>
@@ -47,8 +47,8 @@ namespace Nz
 			Graphics(Config config);
 			~Graphics();
 
-			inline const std::shared_ptr<RenderPipeline>& GetBlitPipeline(bool transparent) const;
-			inline const std::shared_ptr<RenderPipelineLayout>& GetBlitPipelineLayout() const;
+			inline const std::shared_ptr<GpuRenderPipeline>& GetBlitPipeline(bool transparent) const;
+			inline const std::shared_ptr<GpuPipelineLayout>& GetBlitPipelineLayout() const;
 			inline const std::shared_ptr<PipelinePassList>& GetDefaultPipelinePasses() const;
 			inline const DefaultTextures& GetDefaultTextures() const;
 			inline FramePipelinePassRegistry& GetFramePipelinePassRegistry();
@@ -65,8 +65,8 @@ namespace Nz
 			inline const PipelinePassListLoader& GetPipelinePassListLoader() const;
 			inline PixelFormat GetPreferredDepthFormat() const;
 			inline PixelFormat GetPreferredDepthStencilFormat() const;
-			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
-			inline const RenderPassCache& GetRenderPassCache() const;
+			inline const std::shared_ptr<GpuDevice>& GetGpuDevice() const;
+			inline const GpuRenderPassCache& GetRenderPassCache() const;
 			inline NameRegistry& GetRenderQueueRegistry();
 			inline const NameRegistry& GetRenderQueueRegistry() const;
 			inline TextureSamplerCache& GetSamplerCache();
@@ -77,8 +77,8 @@ namespace Nz
 			{
 				void Override(const CommandLineParameters& parameters);
 
-				RenderDeviceFeatures forceDisableFeatures;
-				bool useDedicatedRenderDevice = true;
+				GpuDeviceFeatures forceDisableFeatures;
+				bool useDedicatedGpuDevice = true;
 			};
 
 			struct DefaultMaterials
@@ -114,14 +114,14 @@ namespace Nz
 			void RegisterShaderModules();
 			void SelectDepthStencilFormats();
 
-			std::optional<RenderPassCache> m_renderPassCache;
+			std::optional<GpuRenderPassCache> m_renderPassCache;
 			std::optional<TextureSamplerCache> m_samplerCache;
 			std::shared_ptr<nzsl::FilesystemModuleResolver> m_shaderModuleResolver;
 			std::shared_ptr<PipelinePassList> m_defaultPipelinePasses;
-			std::shared_ptr<RenderDevice> m_renderDevice;
-			std::shared_ptr<RenderPipeline> m_blitPipeline;
-			std::shared_ptr<RenderPipeline> m_blitPipelineTransparent;
-			std::shared_ptr<RenderPipelineLayout> m_blitPipelineLayout;
+			std::shared_ptr<GpuDevice> m_renderDevice;
+			std::shared_ptr<GpuRenderPipeline> m_blitPipeline;
+			std::shared_ptr<GpuRenderPipeline> m_blitPipelineTransparent;
+			std::shared_ptr<GpuPipelineLayout> m_blitPipelineLayout;
 			DefaultMaterials m_defaultMaterials;
 			DefaultTextures m_defaultTextures;
 			FramePipelinePassRegistry m_pipelinePassRegistry;

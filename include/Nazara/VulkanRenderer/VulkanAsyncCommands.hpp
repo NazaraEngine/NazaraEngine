@@ -8,7 +8,7 @@
 #define NAZARA_VULKANRENDERER_VULKANASYNCCOMMANDS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Renderer/AsyncRenderCommands.hpp>
+#include <Nazara/Renderer/GpuAsyncCommands.hpp>
 #include <Nazara/VulkanRenderer/Export.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 
@@ -16,7 +16,7 @@ namespace Nz
 {
 	class VulkanDevice;
 
-	class NAZARA_VULKANRENDERER_API VulkanAsyncCommands : public AsyncRenderCommands
+	class NAZARA_VULKANRENDERER_API VulkanAsyncCommands : public GpuAsyncCommands
 	{
 		friend class VulkanDevice;
 
@@ -26,7 +26,7 @@ namespace Nz
 			VulkanAsyncCommands(VulkanAsyncCommands&&) = delete; ///TODO
 			~VulkanAsyncCommands() = default;
 
-			void AddCommands(Nz::FunctionRef<void(CommandBufferBuilder& builder)> callback) override;
+			void AddCommands(Nz::FunctionRef<void(GpuCommandBufferBuilder& builder)> callback) override;
 
 			inline QueueType GetQueueType() const;
 
@@ -34,7 +34,7 @@ namespace Nz
 			VulkanAsyncCommands& operator=(VulkanAsyncCommands&&) = delete; ///TODO
 
 		private:
-			using AsyncRenderCommands::TriggerCallbacks;
+			using GpuAsyncCommands::TriggerCallbacks;
 
 			VkCommandBuffer PrepareForSubmit();
 

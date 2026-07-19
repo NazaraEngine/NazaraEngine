@@ -17,30 +17,30 @@
 
 namespace Nz
 {
-	class RenderPipeline;
+	class GpuRenderPipeline;
 	class ShaderBinding;
 
 	class NAZARA_GRAPHICS_API SubmeshRenderer final : public ElementRenderer
 	{
 		public:
-			SubmeshRenderer(RenderDevice& device);
+			SubmeshRenderer(GpuDevice& device);
 			~SubmeshRenderer() = default;
 
-			void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer& buffer, std::size_t commandCount)> callback) override;
+			void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(GpuBuffer& buffer, std::size_t commandCount)> callback) override;
 
 			RenderElementPool<RenderSubmesh>& GetPool() override;
 
 			std::unique_ptr<ElementRendererData> InstanciateData() override;
 
-			void Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
-			void Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
-			void Reset(ElementRendererData& rendererData, RenderResources& renderResources) override;
+			void Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, GpuResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
+			void Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, GpuResources& renderResources, GpuCommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
+			void Reset(ElementRendererData& rendererData, GpuResources& renderResources) override;
 
 		private:
 			struct PoolData
 			{
 				std::vector<RenderResourceReferences> references;
-				std::vector<std::shared_ptr<RenderBuffer>> indirectBuffers;
+				std::vector<std::shared_ptr<GpuBuffer>> indirectBuffers;
 			};
 
 			static constexpr UInt64 IndirectCommandBufferCount = 10 * 1024;
@@ -48,7 +48,7 @@ namespace Nz
 			std::shared_ptr<PoolData> m_pool;
 			std::vector<ShaderBinding::Binding> m_bindingCache;
 			RenderElementPool<RenderSubmesh> m_submeshPool;
-			RenderDevice& m_device;
+			GpuDevice& m_device;
 	};
 
 	struct SubmeshRendererData : public ElementRendererData
@@ -57,7 +57,7 @@ namespace Nz
 		std::size_t drawIndirectBufferIndex = 0;
 		std::size_t totalElementCount = 0;
 		std::vector<ShaderBindingPtr> shaderBindings;
-		std::vector<std::shared_ptr<RenderBuffer>> drawIndirectBuffers;
+		std::vector<std::shared_ptr<GpuBuffer>> drawIndirectBuffers;
 		UInt8* currentIndirectBufferPtr = nullptr;
 		UInt32 drawElementCounter = 0;
 		UInt32 indirectCommandIndex = 0;

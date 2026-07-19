@@ -55,16 +55,16 @@ std::vector<std::size_t> SortIndexes(const std::vector<T>& vec, Compare&& compar
 int main()
 {
 	Nz::Renderer::Config rendererConfig;
-	rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+	rendererConfig.preferredAPI = Nz::GpuBackend::OpenGL;
 
 	Nz::Modules<Nz::Renderer> nazara(rendererConfig);
-	if (Nz::Renderer::Instance()->QueryAPI() != Nz::RenderAPI::OpenGL)
+	if (Nz::Renderer::Instance()->QueryAPI() != Nz::GpuBackend::OpenGL)
 	{
 		std::cout << "This program only works with OpenGL" << std::endl;
 		return EXIT_FAILURE;
 	}
 
-	std::shared_ptr<Nz::OpenGLDevice> device = std::static_pointer_cast<Nz::OpenGLDevice>(Nz::Renderer::Instance()->InstanciateRenderDevice(0));
+	std::shared_ptr<Nz::OpenGLDevice> device = std::static_pointer_cast<Nz::OpenGLDevice>(Nz::Renderer::Instance()->InstanciateGpuDevice(0));
 
 	std::string err;
 

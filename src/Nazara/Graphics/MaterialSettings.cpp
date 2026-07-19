@@ -5,7 +5,7 @@
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
-#include <Nazara/Renderer/RenderBuffer.hpp>
+#include <Nazara/Renderer/GpuBuffer.hpp>
 
 namespace Nz
 {
@@ -15,13 +15,13 @@ namespace Nz
 		return AddPass(passIndex, std::move(materialPass));
 	}
 
-	void MaterialSettings::AddBufferProperty(std::string propertyName, std::shared_ptr<RenderBuffer> defaultBuffer)
+	void MaterialSettings::AddBufferProperty(std::string propertyName, std::shared_ptr<GpuBuffer> defaultBuffer)
 	{
 		UInt64 size = (defaultBuffer) ? defaultBuffer->GetSize() : 0;
 		return AddBufferProperty(std::move(propertyName), std::move(defaultBuffer), 0, size);
 	}
 
-	void MaterialSettings::AddBufferProperty(std::string propertyName, std::shared_ptr<RenderBuffer> defaultBuffer, UInt64 defaultOffset, UInt64 defaultSize)
+	void MaterialSettings::AddBufferProperty(std::string propertyName, std::shared_ptr<GpuBuffer> defaultBuffer, UInt64 defaultOffset, UInt64 defaultSize)
 	{
 		NazaraAssertMsg(!defaultBuffer || defaultBuffer->GetUsageFlags() & BufferUsage::StorageBuffer, "a default buffer was passed but doesn't have storage buffer usage flag");
 
@@ -61,7 +61,7 @@ namespace Nz
 		return GetPass(passIndex);
 	}
 
-	MaterialSettings::BufferValue::BufferValue(std::shared_ptr<RenderBuffer> buffer) :
+	MaterialSettings::BufferValue::BufferValue(std::shared_ptr<GpuBuffer> buffer) :
 	buffer(buffer)
 	{
 		if (buffer)

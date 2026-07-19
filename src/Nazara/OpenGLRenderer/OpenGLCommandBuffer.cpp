@@ -251,12 +251,12 @@ namespace Nz
 
 		if (command.drawCount > 1)
 		{
-			NazaraAssertMsg(context->glMultiDrawArraysIndirect, "multiDrawIndirect is not supported on this RenderDevice");
+			NazaraAssertMsg(context->glMultiDrawArraysIndirect, "multiDrawIndirect is not supported on this GpuDevice");
 			context->glMultiDrawArraysIndirect(primitiveMode, offset, command.drawCount, command.stride);
 		}
 		else
 		{
-			NazaraAssertMsg(context->glDrawArraysIndirect, "drawIndirect is not supported on this RenderDevice");
+			NazaraAssertMsg(context->glDrawArraysIndirect, "drawIndirect is not supported on this GpuDevice");
 			context->glDrawArraysIndirect(primitiveMode, offset);
 		}
 	}
@@ -278,7 +278,7 @@ namespace Nz
 		context->BindBuffer(GL::BufferTarget::DrawIndirect, command.indirectBuffer);
 		context->BindBuffer(GL::BufferTarget::Parameter, command.indirectCountBuffer);
 
-		NazaraAssertMsg(context->glMultiDrawArraysIndirectCount, "drawIndirectCount is not supported on this RenderDevice");
+		NazaraAssertMsg(context->glMultiDrawArraysIndirectCount, "drawIndirectCount is not supported on this GpuDevice");
 		context->glMultiDrawArraysIndirectCount(primitiveMode, offset, command.indirectCountBufferOffset, command.maxDrawCount, command.stride);
 	}
 
@@ -300,12 +300,12 @@ namespace Nz
 
 		if (command.drawCount > 1)
 		{
-			NazaraAssertMsg(context->glMultiDrawElementsIndirect, "multiDrawIndirect is not supported on this RenderDevice");
+			NazaraAssertMsg(context->glMultiDrawElementsIndirect, "multiDrawIndirect is not supported on this GpuDevice");
 			context->glMultiDrawElementsIndirect(primitiveMode, ToOpenGL(command.states.indexBufferType), offset, command.drawCount, command.stride);
 		}
 		else
 		{
-			NazaraAssertMsg(context->glDrawElementsIndirect, "drawIndirect is not supported on this RenderDevice");
+			NazaraAssertMsg(context->glDrawElementsIndirect, "drawIndirect is not supported on this GpuDevice");
 			context->glDrawElementsIndirect(primitiveMode, ToOpenGL(command.states.indexBufferType), offset);
 		}
 	}
@@ -327,7 +327,7 @@ namespace Nz
 		context->BindBuffer(GL::BufferTarget::DrawIndirect, command.indirectBuffer);
 		context->BindBuffer(GL::BufferTarget::Parameter, command.indirectCountBuffer);
 
-		NazaraAssertMsg(context->glMultiDrawElementsIndirectCount, "drawIndirectCount is not supported on this RenderDevice");
+		NazaraAssertMsg(context->glMultiDrawElementsIndirectCount, "drawIndirectCount is not supported on this GpuDevice");
 		context->glMultiDrawElementsIndirectCount(primitiveMode, ToOpenGL(command.states.indexBufferType), offset, command.indirectCountBufferOffset, command.maxDrawCount, command.stride);
 	}
 

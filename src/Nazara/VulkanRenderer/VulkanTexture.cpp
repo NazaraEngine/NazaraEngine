@@ -242,11 +242,11 @@ namespace Nz
 		return true;
 	}
 
-	bool VulkanTexture::Copy(AsyncRenderCommands& asyncTransfer, const Texture& source, const Boxui32& srcBox, const Vector3ui32& dstPos)
+	bool VulkanTexture::Copy(GpuAsyncCommands& asyncTransfer, const Texture& source, const Boxui32& srcBox, const Vector3ui32& dstPos)
 	{
 		const VulkanTexture& sourceTexture = SafeCast<const VulkanTexture&>(source);
 
-		asyncTransfer.AddCommands([&](CommandBufferBuilder& builder)
+		asyncTransfer.AddCommands([&](GpuCommandBufferBuilder& builder)
 		{
 			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
 			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();
@@ -294,12 +294,12 @@ namespace Nz
 		return std::make_shared<VulkanTexture>(std::static_pointer_cast<VulkanTexture>(shared_from_this()), viewInfo);
 	}
 
-	RenderDevice* VulkanTexture::GetDevice()
+	GpuDevice* VulkanTexture::GetDevice()
 	{
 		return &m_device;
 	}
 
-	const RenderDevice* VulkanTexture::GetDevice() const
+	const GpuDevice* VulkanTexture::GetDevice() const
 	{
 		return &m_device;
 	}
@@ -330,7 +330,7 @@ namespace Nz
 			sourceLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
 		VulkanAsyncCommands asyncTransfer(m_device, QueueType::Graphics);
-		asyncTransfer.AddCommands([&](CommandBufferBuilder& builder)
+		asyncTransfer.AddCommands([&](GpuCommandBufferBuilder& builder)
 		{
 			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
 			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();
@@ -341,7 +341,7 @@ namespace Nz
 		if (!Update(asyncTransfer, ptr, box, srcWidth, srcHeight, level))
 			return false;
 
-		asyncTransfer.AddCommands([&](CommandBufferBuilder& builder)
+		asyncTransfer.AddCommands([&](GpuCommandBufferBuilder& builder)
 		{
 			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
 			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();
@@ -364,7 +364,7 @@ namespace Nz
 			sourceLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
 		VulkanAsyncCommands asyncTransfer(m_device, QueueType::Graphics);
-		asyncTransfer.AddCommands([&](CommandBufferBuilder& builder)
+		asyncTransfer.AddCommands([&](GpuCommandBufferBuilder& builder)
 		{
 			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
 			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();
@@ -375,7 +375,7 @@ namespace Nz
 		if (!Update(asyncTransfer, callback, box, level))
 			return false;
 
-		asyncTransfer.AddCommands([&](CommandBufferBuilder& builder)
+		asyncTransfer.AddCommands([&](GpuCommandBufferBuilder& builder)
 		{
 			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
 			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();
@@ -387,7 +387,7 @@ namespace Nz
 		return true;
 	}
 
-	bool VulkanTexture::Update(AsyncRenderCommands& asyncTransfer, const void* pixels, bool buildMipmaps, UInt32 srcWidth, UInt32 srcHeight)
+	bool VulkanTexture::Update(GpuAsyncCommands& asyncTransfer, const void* pixels, bool buildMipmaps, UInt32 srcWidth, UInt32 srcHeight)
 	{
 		NazaraAssertMsg(pixels, "missing data");
 
@@ -395,7 +395,7 @@ namespace Nz
 		ImageUtils::ArrayToRegion(m_textureInfo.type, 0, m_textureInfo.layerCount, wholeRegion);
 
 		std::unique_ptr<VulkanBuffer> uploadBuffer;
-		asyncTransfer.AddCommands([&](CommandBufferBuilder& builder)
+		asyncTransfer.AddCommands([&](GpuCommandBufferBuilder& builder)
 		{
 			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
 			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();
@@ -480,7 +480,7 @@ namespace Nz
 		return true;
 	}
 
-	bool VulkanTexture::Update(AsyncRenderCommands& asyncTransfer, const void* ptr, const Boxui& box, UInt32 srcWidth, UInt32 srcHeight, UInt8 level)
+	bool VulkanTexture::Update(GpuAsyncCommands& asyncTransfer, const void* ptr, const Boxui& box, UInt32 srcWidth, UInt32 srcHeight, UInt8 level)
 	{
 		return Update(asyncTransfer, [&](void* pixelBuffer)
 		{
@@ -508,10 +508,10 @@ namespace Nz
 		}, box, level);
 	}
 
-	bool VulkanTexture::Update(AsyncRenderCommands& asyncTransfer, Nz::FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level)
+	bool VulkanTexture::Update(GpuAsyncCommands& asyncTransfer, Nz::FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level)
 	{
 		std::unique_ptr<VulkanBuffer> uploadBuffer;
-		asyncTransfer.AddCommands([&](CommandBufferBuilder& builder)
+		asyncTransfer.AddCommands([&](GpuCommandBufferBuilder& builder)
 		{
 			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
 			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();

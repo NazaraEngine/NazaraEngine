@@ -10,7 +10,7 @@
 namespace Nz
 {
 	VulkanRenderPass::VulkanRenderPass(Vk::Device& device, std::vector<Attachment> attachments, std::vector<SubpassDescription> subpassDescriptions, std::vector<SubpassDependency> subpassDependencies) :
-	RenderPass(std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies))
+	GpuRenderPass(std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies))
 	{
 		std::size_t totalAttachmentReference = 0;
 		for (const SubpassDescription& subpassInfo : m_subpassDescriptions)

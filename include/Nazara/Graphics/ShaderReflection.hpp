@@ -9,7 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Export.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuPipelineLayout.hpp>
 #include <NazaraUtils/StringHash.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <NZSL/Ast/Option.hpp>
@@ -31,8 +31,8 @@ namespace Nz
 			ShaderReflection(ShaderReflection&&) = delete;
 			~ShaderReflection() = default;
 
-			inline const RenderPipelineLayoutInfo& GetPipelineLayoutInfo() const&;
-			inline RenderPipelineLayoutInfo&& GetPipelineLayoutInfo() &&;
+			inline const GpuPipelineLayoutInfo& GetPipelineLayoutInfo() const&;
+			inline GpuPipelineLayoutInfo&& GetPipelineLayoutInfo() &&;
 			inline const ExternalBlockData* GetExternalBlockByTag(std::string_view tag) const;
 			inline const OptionData* GetOptionByName(std::string_view optionName) const;
 			inline const StructData* GetStructByIndex(std::size_t structIndex) const;
@@ -114,7 +114,7 @@ namespace Nz
 			std::unordered_map<std::string /*tag*/, ExternalBlockData, StringHash<>, std::equal_to<>> m_externalBlocks;
 			std::unordered_map<std::string /*name*/, OptionData, StringHash<>, std::equal_to<>> m_options;
 			std::unordered_map<std::size_t /*structIndex*/, StructData> m_structs;
-			RenderPipelineLayoutInfo m_pipelineLayoutInfo;
+			GpuPipelineLayoutInfo m_pipelineLayoutInfo;
 			bool m_isConditional;
 	};
 }

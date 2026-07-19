@@ -8,7 +8,7 @@
 #define NAZARA_VULKANRENDERER_VULKANUPLOADPOOL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Buffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceMemory.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
@@ -17,7 +17,7 @@
 
 namespace Nz
 {
-	class NAZARA_VULKANRENDERER_API VulkanUploadPool : public UploadPool
+	class NAZARA_VULKANRENDERER_API VulkanUploadPool : public GpuUploadPool
 	{
 		public:
 			struct VulkanAllocation : Allocation

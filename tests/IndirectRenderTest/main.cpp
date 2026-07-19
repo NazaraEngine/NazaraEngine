@@ -180,15 +180,15 @@ int main()
 #ifndef NAZARA_PLATFORM_WEB
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;
 	if (std::getchar() == 'y')
-		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
+		rendererConfig.preferredAPI = Nz::GpuBackend::Vulkan;
 	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+		rendererConfig.preferredAPI = Nz::GpuBackend::OpenGL;
 #endif
 
 	Nz::Application<Nz::Renderer> app(rendererConfig);
 	auto& windowingApp = app.AddComponent<Nz::WindowingAppComponent>();
 
-	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0, {
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Renderer::Instance()->InstanciateGpuDevice(0, {
 		.computeShaders = true,
 		.multiDrawIndirect = true
 	});
@@ -298,8 +298,8 @@ int main()
 		};
 	}
 
-	std::shared_ptr<Nz::RenderBuffer> renderBufferIB = device->InstantiateBuffer(indices.size() * sizeof(Nz::UInt16), Nz::BufferUsage::IndexBuffer | Nz::BufferUsage::DeviceLocal, indices.data());
-	std::shared_ptr<Nz::RenderBuffer> renderBufferVB = device->InstantiateBuffer(vertices.size() * meshParams.vertexDeclaration->GetStride(), Nz::BufferUsage::VertexBuffer | Nz::BufferUsage::DeviceLocal, vertices.data());
+	std::shared_ptr<Nz::GpuBuffer> renderBufferIB = device->InstantiateBuffer(indices.size() * sizeof(Nz::UInt16), Nz::BufferUsage::IndexBuffer | Nz::BufferUsage::DeviceLocal, indices.data());
+	std::shared_ptr<Nz::GpuBuffer> renderBufferVB = device->InstantiateBuffer(vertices.size() * meshParams.vertexDeclaration->GetStride(), Nz::BufferUsage::VertexBuffer | Nz::BufferUsage::DeviceLocal, vertices.data());
 
 	struct ObjectData
 	{
@@ -319,7 +319,7 @@ int main()
 		objectData[i].lodVertexOffset = std::array<Nz::Int32, 4>{ lods[0].vertexOffset, lods[1].vertexOffset, lods[2].vertexOffset, lods[3].vertexOffset };
 	}
 
-	std::shared_ptr<Nz::RenderBuffer> objectBuffers = device->InstantiateBuffer(instanceCount * sizeof(ObjectData), Nz::BufferUsage::StorageBuffer | Nz::BufferUsage::DeviceLocal, objectData.data());
+	std::shared_ptr<Nz::GpuBuffer> objectBuffers = device->InstantiateBuffer(instanceCount * sizeof(ObjectData), Nz::BufferUsage::StorageBuffer | Nz::BufferUsage::DeviceLocal, objectData.data());
 
 
 	// Texture
@@ -344,7 +344,7 @@ int main()
 
 	Nz::UInt32 uniformSize = sizeof(ubo);
 
-	Nz::RenderPipelineLayoutInfo pipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo pipelineLayoutInfo;
 	{
 		pipelineLayoutInfo.bindings.push_back({
 			.bindingIndex = 0,
@@ -365,7 +365,7 @@ int main()
 		});
 	}
 
-	std::shared_ptr<Nz::RenderPipelineLayout> basePipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
+	std::shared_ptr<Nz::GpuPipelineLayout> basePipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
 
 	auto& pipelineTextureBinding = pipelineLayoutInfo.bindings.emplace_back();
 	pipelineTextureBinding.setIndex = 1;
@@ -373,9 +373,9 @@ int main()
 	pipelineTextureBinding.shaderStageFlags = nzsl::ShaderStageType::Fragment;
 	pipelineTextureBinding.type = Nz::ShaderBindingType::Sampler;
 
-	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
+	std::shared_ptr<Nz::GpuPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 
-	std::shared_ptr<Nz::RenderBuffer> uniformBuffer = device->InstantiateBuffer(uniformSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal);
+	std::shared_ptr<Nz::GpuBuffer> uniformBuffer = device->InstantiateBuffer(uniformSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal);
 
 
 	Nz::RenderPipelineInfo renderPipelineInfo;
@@ -389,17 +389,17 @@ int main()
 	pipelineVertexBuffer.binding = 0;
 	pipelineVertexBuffer.declaration = meshParams.vertexDeclaration;
 
-	std::shared_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(renderPipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> pipeline = device->InstantiateRenderPipeline(renderPipelineInfo);
 
 	Nz::RenderPipelineInfo cullPipelineInfo;
 	renderPipelineInfo.pipelineLayout = renderPipelineLayout;
 
-	std::shared_ptr<Nz::ComputePipeline> cullPipeline = device->InstantiateComputePipeline({
+	std::shared_ptr<Nz::GpuComputePipeline> cullPipeline = device->InstantiateComputePipeline({
 		.pipelineLayout = basePipelineLayout,
 		.shaderModule = cullingShader
 	});
 
-	std::shared_ptr<Nz::CommandPool> commandPool = device->InstantiateCommandPool(Nz::QueueType::Graphics);
+	std::shared_ptr<Nz::GpuCommandPool> commandPool = device->InstantiateCommandPool(Nz::QueueType::Graphics);
 
 	// Indirect buffer
 	std::vector<Nz::DrawIndexedIndirectCommand> indirectCommands(instanceCount);
@@ -414,7 +414,7 @@ int main()
 		indirectCommand.vertexOffset = lods[0].vertexOffset;
 	}
 
-	std::shared_ptr<Nz::RenderBuffer> indirectBuffer = device->InstantiateBuffer(sizeof(Nz::DrawIndexedIndirectCommand) * instanceCount, Nz::BufferUsage::IndirectBuffer | Nz::BufferUsage::StorageBuffer | Nz::BufferUsage::DeviceLocal, indirectCommands.data());
+	std::shared_ptr<Nz::GpuBuffer> indirectBuffer = device->InstantiateBuffer(sizeof(Nz::DrawIndexedIndirectCommand) * instanceCount, Nz::BufferUsage::IndirectBuffer | Nz::BufferUsage::StorageBuffer | Nz::BufferUsage::DeviceLocal, indirectCommands.data());
 
 	Nz::ShaderBindingPtr viewerShaderBinding = basePipelineLayout->AllocateShaderBinding(0);
 	viewerShaderBinding->Update({
@@ -557,7 +557,7 @@ int main()
 
 			std::memcpy(allocation.mappedPtr, &ubo, sizeof(ubo));
 
-			frame.Execute([&](Nz::CommandBufferBuilder& builder)
+			frame.Execute([&](Nz::GpuCommandBufferBuilder& builder)
 			{
 				builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow());
 				{
@@ -574,7 +574,7 @@ int main()
 		debugDrawer.Prepare(frame);
 
 		const Nz::WindowSwapchain* windowRT = &windowSwapchain;
-		frame.Execute([&](Nz::CommandBufferBuilder& builder)
+		frame.Execute([&](Nz::GpuCommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("GPU Culling", Nz::Color::Blue());
 			{
@@ -587,7 +587,7 @@ int main()
 			windowSize = window.GetSize();
 			Nz::Recti renderRect(0, 0, windowSize.x, windowSize.y);
 
-			Nz::CommandBufferBuilder::ClearValues clearValues[2];
+			Nz::GpuCommandBufferBuilder::ClearValues clearValues[2];
 			clearValues[0].color = Nz::Color::Black();
 			clearValues[1].depth = 1.f;
 			clearValues[1].stencil = 0;

@@ -22,12 +22,12 @@ namespace Nz
 			OpenGLRenderer() = default;
 			~OpenGLRenderer();
 
-			std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures) override;
+			std::shared_ptr<GpuDevice> InstanciateGpuDevice(std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures) override;
 
-			RenderAPI QueryAPI() const override;
+			GpuBackend QueryAPI() const override;
 			std::string QueryAPIString() const override;
 			UInt32 QueryAPIVersion() const override;
-			const std::vector<RenderDeviceInfo>& QueryRenderDevices() const override;
+			const std::vector<GpuDeviceInfo>& QueryGpuDevices() const override;
 
 			bool Prepare(const Renderer::Config& config) override;
 
@@ -36,7 +36,7 @@ namespace Nz
 
 			std::shared_ptr<OpenGLDevice> m_device;
 			std::unique_ptr<GL::Loader> m_loader;
-			std::vector<RenderDeviceInfo> m_deviceInfos;
+			std::vector<GpuDeviceInfo> m_deviceInfos;
 	};
 }
 

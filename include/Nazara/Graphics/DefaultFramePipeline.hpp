@@ -51,16 +51,16 @@ namespace Nz
 			void ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback) override;
 			void ForEachShadowCastingLight(FunctionRef<void(std::size_t lightIndex, const Light* light, LightShadowData* lightShadowData)> callback) override;
 
-			const std::shared_ptr<RenderBuffer>& GetDirectionalLightBuffer() const override;
-			const std::shared_ptr<RenderBuffer>& GetDirectionalShadowMappingBuffer() const override;
-			const std::shared_ptr<RenderBuffer>& GetInstanceBuffer() const override;
-			const std::shared_ptr<RenderBuffer>& GetPointLightBuffer() const override;
-			const std::shared_ptr<RenderBuffer>& GetPointShadowMappingBuffer() const override;
+			const std::shared_ptr<GpuBuffer>& GetDirectionalLightBuffer() const override;
+			const std::shared_ptr<GpuBuffer>& GetDirectionalShadowMappingBuffer() const override;
+			const std::shared_ptr<GpuBuffer>& GetInstanceBuffer() const override;
+			const std::shared_ptr<GpuBuffer>& GetPointLightBuffer() const override;
+			const std::shared_ptr<GpuBuffer>& GetPointShadowMappingBuffer() const override;
 			RenderQueue& GetRenderQueue(std::size_t renderQueueIndex) override;
 			ShaderBindingCache* GetShaderBindingCache() const override;
 			const std::shared_ptr<Texture>& GetShadowAtlasTexture() const override;
-			const std::shared_ptr<RenderBuffer>& GetSpotLightBuffer() const override;
-			const std::shared_ptr<RenderBuffer>& GetSpotShadowMappingBuffer() const override;
+			const std::shared_ptr<GpuBuffer>& GetSpotLightBuffer() const override;
+			const std::shared_ptr<GpuBuffer>& GetSpotShadowMappingBuffer() const override;
 
 			void QueueTransfer(TransferInterface* transfer) override;
 
@@ -73,7 +73,7 @@ namespace Nz
 			const Light* RetrieveLight(std::size_t lightIndex) const override;
 			const LightShadowData* RetrieveLightShadowData(std::size_t lightIndex) const override;
 
-			void Render(RenderResources& renderResources) override;
+			void Render(GpuResources& renderResources) override;
 
 			void UnregisterInstance(UInt32 instanceIndex) override;
 			void UnregisterLight(std::size_t lightIndex) override;
@@ -108,7 +108,7 @@ namespace Nz
 
 			std::size_t InsertTransferPass(FrameGraph& frameGraph, std::function<void()> callback);
 
-			void ProcesRemovedData(RenderResources& renderResources);
+			void ProcesRemovedData(GpuResources& renderResources);
 
 			void RegisterMaterialInstance(MaterialInstance* materialPass, std::size_t renderableIndex);
 			void RegisterShadowCaster(std::size_t lightIndex, LightData* lightData);

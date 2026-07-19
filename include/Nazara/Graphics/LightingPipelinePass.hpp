@@ -12,8 +12,8 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Math/Frustum.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
 #include <NazaraUtils/FixedVector.hpp>
 #include <memory>
 
@@ -24,10 +24,10 @@ namespace Nz
 	class FramePipeline;
 	class Light;
 	class GraphicalMesh;
-	class RenderDevice;
+	class GpuDevice;
 	class RenderFrame;
-	class RenderPipeline;
-	class RenderPipelineLayout;
+	class GpuRenderPipeline;
+	class GpuPipelineLayout;
 	class ShaderBinding;
 	class UberShader;
 
@@ -54,18 +54,18 @@ namespace Nz
 
 		private:
 			void SetupMeshes();
-			void SetupPipelineLayouts(RenderDevice& renderDevice, const std::string& shaderName);
-			void SetupPipelines(RenderDevice& renderDevice, std::string&& shaderName);
+			void SetupPipelineLayouts(GpuDevice& renderDevice, const std::string& shaderName);
+			void SetupPipelines(GpuDevice& renderDevice, std::string&& shaderName);
 
 			struct LightBlockMemory
 			{
-				std::shared_ptr<RenderBuffer> lightUbo;
+				std::shared_ptr<GpuBuffer> lightUbo;
 				ShaderBindingPtr shaderBinding;
 			};
 
 			struct LightBlockMemoryShadow
 			{
-				std::shared_ptr<RenderBuffer> lightUbo;
+				std::shared_ptr<GpuBuffer> lightUbo;
 				std::vector<ShaderBindingPtr> shaderBindings;
 			};
 
@@ -83,34 +83,34 @@ namespace Nz
 			{
 				std::size_t lightCount = 0;
 				LightBlockMemory memory;
-				UploadPool::Allocation* uploadAllocation;
+				GpuUploadPool::Allocation* uploadAllocation;
 			};
 
 			struct LightBlockShadow
 			{
 				std::size_t lightCount = 0;
 				LightBlockMemoryShadow memory;
-				UploadPool::Allocation* uploadAllocation;
+				GpuUploadPool::Allocation* uploadAllocation;
 			};
 
 			struct LightPipeline
 			{
-				std::shared_ptr<RenderPipeline> lightingPipeline;
-				std::shared_ptr<RenderPipeline> lightingPipelineShadow;
-				std::shared_ptr<RenderPipeline> stencilPipeline;
-				std::shared_ptr<RenderPipeline> stencilPipelineShadow;
+				std::shared_ptr<GpuRenderPipeline> lightingPipeline;
+				std::shared_ptr<GpuRenderPipeline> lightingPipelineShadow;
+				std::shared_ptr<GpuRenderPipeline> stencilPipeline;
+				std::shared_ptr<GpuRenderPipeline> stencilPipelineShadow;
 			};
 
-			void* PushLightData(RenderDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemory>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlock>& lights, UInt64 lightSize);
-			void* PushLightData(RenderDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemoryShadow>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlockShadow>& lights, UInt64 lightSize, const Texture* shadowMap, const TextureSampler* shadowMapSampler);
-			void ReleaseLights(std::vector<LightBlockMemory>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlock>& lights);
-			void ReleaseLights(std::vector<LightBlockMemoryShadow>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlockShadow>& lights);
+			void* PushLightData(GpuDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemory>& lightMemoryPool, GpuResources& renderResources, std::vector<LightBlock>& lights, UInt64 lightSize);
+			void* PushLightData(GpuDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemoryShadow>& lightMemoryPool, GpuResources& renderResources, std::vector<LightBlockShadow>& lights, UInt64 lightSize, const Texture* shadowMap, const TextureSampler* shadowMapSampler);
+			void ReleaseLights(std::vector<LightBlockMemory>& lightMemoryPool, GpuResources& renderResources, std::vector<LightBlock>& lights);
+			void ReleaseLights(std::vector<LightBlockMemoryShadow>& lightMemoryPool, GpuResources& renderResources, std::vector<LightBlockShadow>& lights);
 
 			std::shared_ptr<GraphicalMesh> m_pointLightMesh;
 			std::shared_ptr<GraphicalMesh> m_spotLightMesh;
 			std::shared_ptr<LightBufferPool> m_lightBufferPool;
-			std::shared_ptr<RenderPipelineLayout> m_commonPipelineLayout;
-			std::shared_ptr<RenderPipelineLayout> m_shadowPipelineLayout;
+			std::shared_ptr<GpuPipelineLayout> m_commonPipelineLayout;
+			std::shared_ptr<GpuPipelineLayout> m_shadowPipelineLayout;
 			std::shared_ptr<UberShader> m_fullscreenVertexShader;
 			std::shared_ptr<UberShader> m_lightingShader;
 			std::shared_ptr<UberShader> m_meshStencilShader;

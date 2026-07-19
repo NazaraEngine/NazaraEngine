@@ -4,11 +4,11 @@
 
 #include <Nazara/Renderer/WindowSwapchain.hpp>
 #include <Nazara/Platform/Window.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 
 namespace Nz
 {
-	WindowSwapchain::WindowSwapchain(std::shared_ptr<RenderDevice> renderDevice, Window& window, SwapchainParameters parameters) :
+	WindowSwapchain::WindowSwapchain(std::shared_ptr<GpuDevice> renderDevice, Window& window, SwapchainParameters parameters) :
 	m_renderDevice(std::move(renderDevice)),
 	m_window(&window),
 	m_parameters(std::move(parameters)),

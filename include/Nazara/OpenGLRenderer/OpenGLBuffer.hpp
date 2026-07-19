@@ -11,13 +11,13 @@
 #include <Nazara/OpenGLRenderer/Export.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Buffer.hpp>
-#include <Nazara/Renderer/RenderBuffer.hpp>
+#include <Nazara/Renderer/GpuBuffer.hpp>
 #include <memory>
 #include <vector>
 
 namespace Nz
 {
-	class NAZARA_OPENGLRENDERER_API OpenGLBuffer : public RenderBuffer
+	class NAZARA_OPENGLRENDERER_API OpenGLBuffer : public GpuBuffer
 	{
 		public:
 			OpenGLBuffer(OpenGLDevice& device, UInt64 size, BufferUsageFlags usage, const void* initialData = nullptr);
@@ -26,7 +26,7 @@ namespace Nz
 			~OpenGLBuffer() = default;
 
 			bool Fill(const void* data, UInt64 offset, UInt64 size) override;
-			bool Fill(AsyncRenderCommands& asyncTransfer, const void* data, UInt64 offset, UInt64 size) override;
+			bool Fill(GpuAsyncCommands& asyncTransfer, const void* data, UInt64 offset, UInt64 size) override;
 
 			void Flush(UInt64 offset, UInt64 size) override;
 

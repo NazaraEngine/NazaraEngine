@@ -41,7 +41,7 @@ namespace Nz
 	m_rebuildLights(false)
 	{
 		Graphics* graphics = Graphics::Instance();
-		const auto& renderDevice = graphics->GetRenderDevice();
+		const auto& renderDevice = graphics->GetGpuDevice();
 
 		UInt64 uboAlignment = renderDevice->GetDeviceInfo().limits.minUniformBufferOffsetAlignment;
 		m_directionalLightSize = SafeCaster(AlignPow2<UInt64>(PredefinedDirectionalLightOffsets.totalSize, uboAlignment));
@@ -64,7 +64,7 @@ namespace Nz
 		if (m_lastVisibilityHash != lightVisibilityHash || m_rebuildLights)*/
 		{
 			Graphics* graphics = Graphics::Instance();
-			const auto& renderDevice = graphics->GetRenderDevice();
+			const auto& renderDevice = graphics->GetGpuDevice();
 
 			ReleaseLights(m_lightBufferPool->directionalLightPool, frameData.renderResources, m_directionalLights);
 			ReleaseLights(m_lightBufferPool->pointLightPool, frameData.renderResources, m_pointLights);
@@ -131,18 +131,18 @@ namespace Nz
 				}
 			}
 
-			frameData.renderResources.Execute([&](CommandBufferBuilder& builder)
+			frameData.renderResources.Execute([&](GpuCommandBufferBuilder& builder)
 			{
 				for (auto& lightBlockContainer : { &m_directionalLights, &m_pointLights, &m_spotLights })
 				{
 					for (auto& lightBlock : *lightBlockContainer)
-						builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_directionalLightSize));
+						builder.CopyBuffer(*lightBlock.uploadAllocation, GpuBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_directionalLightSize));
 				}
 
 				for (auto& lightBlockContainer : { &m_shadowDirectionalLights, &m_shadowPointLights, &m_shadowSpotLights })
 				{
 					for (auto& lightBlock : *lightBlockContainer)
-						builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_directionalLightSize));
+						builder.CopyBuffer(*lightBlock.uploadAllocation, GpuBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_directionalLightSize));
 				}
 
 				builder.MemoryBarrier({ .srcStageMask = PipelineStage::Transfer, .dstStageMask = PipelineStage::VertexInput, .srcAccessMask = MemoryAccess::TransferWrite, .dstAccessMask = MemoryAccess::VertexBufferRead });
@@ -222,7 +222,7 @@ namespace Nz
 			return (m_rebuildCommandBuffer) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
 		});
 
-		lightingPass.SetRenderCallback([this, &sampler, inputCount, inputAttachmentIndices](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		lightingPass.SetRenderCallback([this, &sampler, inputCount, inputAttachmentIndices](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			env.renderResources.PushForRelease(std::move(m_commonShaderBinding));
 
@@ -424,7 +424,7 @@ namespace Nz
 		}
 	}
 
-	void LightingPipelinePass::SetupPipelineLayouts(RenderDevice& renderDevice, const std::string& shaderName)
+	void LightingPipelinePass::SetupPipelineLayouts(GpuDevice& renderDevice, const std::string& shaderName)
 	{
 		using namespace nzsl::Ast::Literals;
 
@@ -514,7 +514,7 @@ namespace Nz
 		else
 			m_lightShadowmapBindingIndex = MaxValue();
 
-		RenderPipelineLayoutInfo pipelineLayoutInfo = std::move(reflection).GetPipelineLayoutInfo();
+		GpuPipelineLayoutInfo pipelineLayoutInfo = std::move(reflection).GetPipelineLayoutInfo();
 		{
 			auto it = std::find_if(pipelineLayoutInfo.bindings.begin(), pipelineLayoutInfo.bindings.end(), [&](const auto& binding) { return binding.setIndex == 1 && binding.bindingIndex == m_lightDataBindingIndex; });
 			NazaraAssert(it != pipelineLayoutInfo.bindings.end());
@@ -533,7 +533,7 @@ namespace Nz
 		m_commonPipelineLayout = renderDevice.InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 	}
 
-	void LightingPipelinePass::SetupPipelines(RenderDevice& renderDevice, std::string&& shaderName)
+	void LightingPipelinePass::SetupPipelines(GpuDevice& renderDevice, std::string&& shaderName)
 	{
 		using namespace nzsl::Ast::Literals;
 
@@ -629,7 +629,7 @@ namespace Nz
 		}
 	}
 
-	void* LightingPipelinePass::PushLightData(RenderDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemory>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlock>& lights, UInt64 lightSize)
+	void* LightingPipelinePass::PushLightData(GpuDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemory>& lightMemoryPool, GpuResources& renderResources, std::vector<LightBlock>& lights, UInt64 lightSize)
 	{
 		if (lights.empty() || lights.back().lightCount >= maxLight)
 		{
@@ -667,7 +667,7 @@ namespace Nz
 		return AccessByOffset<void*>(lightBlock.uploadAllocation->mappedPtr, lightBlock.lightCount++ * lightSize);
 	}
 
-	void* LightingPipelinePass::PushLightData(RenderDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemoryShadow>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlockShadow>& lights, UInt64 lightSize, const Texture* shadowMap, const TextureSampler* shadowMapSampler)
+	void* LightingPipelinePass::PushLightData(GpuDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemoryShadow>& lightMemoryPool, GpuResources& renderResources, std::vector<LightBlockShadow>& lights, UInt64 lightSize, const Texture* shadowMap, const TextureSampler* shadowMapSampler)
 	{
 		if (lights.empty() || lights.back().lightCount >= maxLight)
 		{
@@ -714,7 +714,7 @@ namespace Nz
 		return AccessByOffset<void*>(lightBlock.uploadAllocation->mappedPtr, lightBlock.lightCount++ * lightSize);
 	}
 
-	void LightingPipelinePass::ReleaseLights(std::vector<LightBlockMemory>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlock>& lights)
+	void LightingPipelinePass::ReleaseLights(std::vector<LightBlockMemory>& lightMemoryPool, GpuResources& renderResources, std::vector<LightBlock>& lights)
 	{
 		for (auto& lightBlock : lights)
 		{
@@ -727,7 +727,7 @@ namespace Nz
 		lights.clear();
 	}
 
-	void LightingPipelinePass::ReleaseLights(std::vector<LightBlockMemoryShadow>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlockShadow>& lights)
+	void LightingPipelinePass::ReleaseLights(std::vector<LightBlockMemoryShadow>& lightMemoryPool, GpuResources& renderResources, std::vector<LightBlockShadow>& lights)
 	{
 		for (auto& lightBlock : lights)
 		{

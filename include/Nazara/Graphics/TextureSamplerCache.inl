@@ -6,7 +6,7 @@
 
 namespace Nz
 {
-	inline TextureSamplerCache::TextureSamplerCache(std::shared_ptr<RenderDevice> device) :
+	inline TextureSamplerCache::TextureSamplerCache(std::shared_ptr<GpuDevice> device) :
 	m_device(std::move(device))
 	{
 	}

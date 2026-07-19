@@ -124,7 +124,7 @@ namespace Nz::Vk
 			DestroyInstance();
 	}
 
-	bool Instance::Create(RenderAPIValidationLevel validationLevel, const VkInstanceCreateInfo& createInfo, const VkAllocationCallbacks* allocator)
+	bool Instance::Create(GpuValidationLevel validationLevel, const VkInstanceCreateInfo& createInfo, const VkAllocationCallbacks* allocator)
 	{
 		m_lastErrorCode = Loader::vkCreateInstance(&createInfo, allocator, &m_instance);
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
@@ -254,7 +254,7 @@ namespace Nz::Vk
 		return true;
 	}
 
-	void Instance::InstallDebugMessageCallback(RenderAPIValidationLevel validationLevel)
+	void Instance::InstallDebugMessageCallback(GpuValidationLevel validationLevel)
 	{
 		NazaraAssertMsg(m_internalData, "Instance must be created before callbacks are installed");
 
@@ -264,13 +264,13 @@ namespace Nz::Vk
 			callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 
 			callbackCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-			if (validationLevel >= RenderAPIValidationLevel::Debug)
+			if (validationLevel >= GpuValidationLevel::Debug)
 				callbackCreateInfo.messageSeverity |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
 
-			if (validationLevel >= RenderAPIValidationLevel::Verbose)
+			if (validationLevel >= GpuValidationLevel::Verbose)
 				callbackCreateInfo.messageSeverity |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
 
-			if (validationLevel >= RenderAPIValidationLevel::Warnings)
+			if (validationLevel >= GpuValidationLevel::Warnings)
 				callbackCreateInfo.messageSeverity |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
 
 			callbackCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;

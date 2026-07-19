@@ -46,7 +46,7 @@ namespace Nz
 		return m_engineShaderBindings[shaderBinding];
 	}
 
-	inline const std::shared_ptr<RenderPipelineLayout>& Material::GetRenderPipelineLayout() const
+	inline const std::shared_ptr<GpuPipelineLayout>& Material::GetRenderPipelineLayout() const
 	{
 		return m_renderPipelineLayout;
 	}

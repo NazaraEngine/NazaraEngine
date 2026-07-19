@@ -25,7 +25,7 @@ namespace Nz
 	*
 	* \return Pipeline instance
 	*/
-	const std::shared_ptr<RenderPipeline>& MaterialPipeline::GetRenderPipeline(const RenderPipelineInfo::VertexBufferData* vertexBuffers, std::size_t vertexBufferCount) const
+	const std::shared_ptr<GpuRenderPipeline>& MaterialPipeline::GetRenderPipeline(const RenderPipelineInfo::VertexBufferData* vertexBuffers, std::size_t vertexBufferCount) const
 	{
 		for (const auto& pipeline : m_renderPipelines)
 		{
@@ -68,7 +68,7 @@ namespace Nz
 			}
 		}
 
-		return m_renderPipelines.emplace_back(Graphics::Instance()->GetRenderDevice()->InstantiateRenderPipeline(std::move(renderPipelineInfo)));
+		return m_renderPipelines.emplace_back(Graphics::Instance()->GetGpuDevice()->InstantiateRenderPipeline(std::move(renderPipelineInfo)));
 	}
 
 	/*!

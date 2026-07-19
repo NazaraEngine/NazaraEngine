@@ -8,7 +8,7 @@
 #define NAZARA_VULKANRENDERER_VULKANRENDERPIPELINELAYOUT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/Export.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorPool.hpp>
@@ -23,7 +23,7 @@
 
 namespace Nz
 {
-	class NAZARA_VULKANRENDERER_API VulkanRenderPipelineLayout : public RenderPipelineLayout
+	class NAZARA_VULKANRENDERER_API VulkanRenderPipelineLayout : public GpuPipelineLayout
 	{
 		friend VulkanShaderBinding;
 
@@ -33,7 +33,7 @@ namespace Nz
 
 			ShaderBindingPtr AllocateShaderBinding(UInt32 setIndex) override;
 
-			bool Create(Vk::Device& device, RenderPipelineLayoutInfo layoutInfo);
+			bool Create(Vk::Device& device, GpuPipelineLayoutInfo layoutInfo);
 
 			inline Vk::Device* GetDevice() const;
 
@@ -62,7 +62,7 @@ namespace Nz
 			std::vector<DescriptorPool> m_descriptorPools;
 			std::vector<const Vk::DescriptorSetLayout*> m_descriptorSetLayouts;
 			Vk::PipelineLayout m_pipelineLayout;
-			RenderPipelineLayoutInfo m_layoutInfo;
+			GpuPipelineLayoutInfo m_layoutInfo;
 	};
 }
 

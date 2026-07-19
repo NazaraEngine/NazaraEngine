@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 
 namespace Nz
@@ -47,7 +47,7 @@ namespace Nz
 		try
 		{
 			newTexture = m_renderDevice.InstantiateTexture(textureInfo);
-			m_renderDevice.Execute([&](CommandBufferBuilder& builder)
+			m_renderDevice.Execute([&](GpuCommandBufferBuilder& builder)
 			{
 				builder.TextureBarrier({ .srcStageMask = PipelineStage::TopOfPipe, .dstStageMask = PipelineStage::AllGraphicsCommands, .srcAccessMask = {}, .dstAccessMask = MemoryAccess::ShaderRead, .oldLayout = TextureLayout::Undefined, .newLayout = TextureLayout::ColorInput, .texture = newTexture.get() });
 			}, QueueType::Graphics);
@@ -77,15 +77,15 @@ namespace Nz
 	{
 		Texture& dstTexture = SafeCast<Texture&>(image);
 
-		std::unique_ptr<AsyncRenderCommands> asyncTransfer = m_renderDevice.InstantiateAsyncCommands(QueueType::Graphics);
-		asyncTransfer->AddCommands([&](Nz::CommandBufferBuilder& builder)
+		std::unique_ptr<GpuAsyncCommands> asyncTransfer = m_renderDevice.InstantiateAsyncCommands(QueueType::Graphics);
+		asyncTransfer->AddCommands([&](Nz::GpuCommandBufferBuilder& builder)
 		{
 			builder.TextureBarrier({ .srcStageMask = PipelineStage::BottomOfPipe, .dstStageMask = PipelineStage::AllGraphicsCommands, .srcAccessMask = {}, .dstAccessMask = MemoryAccess::TransferWrite, .oldLayout = TextureLayout::ColorInput, .newLayout = TextureLayout::TransferDestination, .texture = &dstTexture });
 		});
 
 		dstTexture.Update(*asyncTransfer, ptr, Boxui(rect.x, rect.y, 0, rect.width, rect.height, 1), srcWidth, srcHeight);
 
-		asyncTransfer->AddCommands([&](Nz::CommandBufferBuilder& builder)
+		asyncTransfer->AddCommands([&](Nz::GpuCommandBufferBuilder& builder)
 		{
 			builder.TextureBarrier({ .srcStageMask = PipelineStage::Transfer, .dstStageMask = PipelineStage::AllGraphicsCommands, .srcAccessMask = MemoryAccess::TransferWrite, .dstAccessMask = MemoryAccess::ShaderRead, .oldLayout = TextureLayout::TransferDestination, .newLayout = TextureLayout::ColorInput, .texture = &dstTexture });
 		});

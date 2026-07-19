@@ -19,7 +19,7 @@ namespace Nz
 	class FramePass;
 	class FramePipeline;
 	class RenderFrame;
-	class RenderPipeline;
+	class GpuRenderPipeline;
 	class ShaderBinding;
 
 	class NAZARA_GRAPHICS_API PostProcessPipelinePass : public FramePipelinePass
@@ -46,9 +46,9 @@ namespace Nz
 
 			NazaraSlot(UberShader, OnShaderUpdated, m_onShaderUpdated);
 
-			std::shared_ptr<RenderPipelineLayout> m_renderPipelineLayout;
-			std::shared_ptr<RenderPipeline> m_renderPipeline;
-			std::shared_ptr<RenderPipeline> m_nextRenderPipeline;
+			std::shared_ptr<GpuPipelineLayout> m_renderPipelineLayout;
+			std::shared_ptr<GpuRenderPipeline> m_renderPipeline;
+			std::shared_ptr<GpuRenderPipeline> m_nextRenderPipeline;
 			std::string m_passName;
 			ShaderBindingPtr m_shaderBinding;
 			UberShader m_shader;

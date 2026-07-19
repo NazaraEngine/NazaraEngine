@@ -17,7 +17,7 @@ namespace Nz
 	{
 	}
 
-	void OpenGLRenderImage::Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags /*queueTypeFlags*/)
+	void OpenGLRenderImage::Execute(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback, QueueTypeFlags /*queueTypeFlags*/)
 	{
 		OpenGLCommandBuffer commandBuffer; //< TODO: Use a pool and remove default constructor
 		OpenGLCommandBufferBuilder builder(commandBuffer);
@@ -43,7 +43,7 @@ namespace Nz
 		FlushReleaseQueue();
 	}
 
-	void OpenGLRenderImage::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags /*queueTypeFlags*/)
+	void OpenGLRenderImage::SubmitCommandBuffer(GpuCommandBuffer* commandBuffer, QueueTypeFlags /*queueTypeFlags*/)
 	{
 		OpenGLCommandBuffer* oglCommandBuffer = SafeCast<OpenGLCommandBuffer*>(commandBuffer);
 		oglCommandBuffer->Execute();

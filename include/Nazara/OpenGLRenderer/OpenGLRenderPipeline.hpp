@@ -10,13 +10,13 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Export.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Program.hpp>
-#include <Nazara/Renderer/RenderPipeline.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <vector>
 
 namespace Nz
 {
-	class NAZARA_OPENGLRENDERER_API OpenGLRenderPipeline : public RenderPipeline
+	class NAZARA_OPENGLRENDERER_API OpenGLRenderPipeline : public GpuRenderPipeline
 	{
 		public:
 			OpenGLRenderPipeline(OpenGLDevice& device, RenderPipelineInfo pipelineInfo);

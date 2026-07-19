@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/ShadowAtlas.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 
 namespace Nz
 {
-	ShadowAtlas::ShadowAtlas(RenderDevice& renderDevice, UInt32 atlasSize) :
+	ShadowAtlas::ShadowAtlas(GpuDevice& renderDevice, UInt32 atlasSize) :
 	m_atlasSize(atlasSize),
 	m_renderDevice(renderDevice)
 	{

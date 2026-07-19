@@ -5,7 +5,7 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Image.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 
 namespace Nz
 {

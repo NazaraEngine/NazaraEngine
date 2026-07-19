@@ -15,7 +15,7 @@
 
 namespace Nz
 {
-	OpenGLComputePipeline::OpenGLComputePipeline(OpenGLDevice& device, ComputePipelineInfo pipelineInfo) :
+	OpenGLComputePipeline::OpenGLComputePipeline(OpenGLDevice& device, GpuComputePipelineInfo pipelineInfo) :
 	m_pipelineInfo(std::move(pipelineInfo))
 	{
 		if (!device.GetEnabledFeatures().computeShaders)

@@ -30,7 +30,7 @@ namespace Nz
 			void FillSkeletonBindings(const SkeletonInstance& skeleton, std::vector<ShaderBinding::Binding>& bindings) const override;
 			void FillViewerBindings(const AbstractViewer& viewer, std::vector<ShaderBinding::Binding>& bindings) const override;
 
-			const ShaderBinding& GetShaderBinding(RenderResources& renderResources) const override;
+			const ShaderBinding& GetShaderBinding(GpuResources& renderResources) const override;
 
 			void OverrideTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture, std::shared_ptr<TextureSampler> sampler = nullptr);
 

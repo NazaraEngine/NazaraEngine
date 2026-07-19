@@ -10,12 +10,12 @@
 
 namespace Nz
 {
-	CommandBufferPtr VulkanCommandPool::BuildPrimaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
+	GpuCommandBufferPtr VulkanCommandPool::BuildPrimaryCommandBuffer(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback)
 	{
 		return BuildCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, callback);
 	}
 
-	CommandBufferPtr VulkanCommandPool::BuildSecondaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
+	GpuCommandBufferPtr VulkanCommandPool::BuildSecondaryCommandBuffer(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback)
 	{
 		return BuildCommandBuffer(VK_COMMAND_BUFFER_LEVEL_SECONDARY, callback);
 	}
@@ -36,7 +36,7 @@ namespace Nz
 		return m_commandPools.emplace_back(std::move(pool));
 	}
 
-	void VulkanCommandPool::Release(CommandBuffer& binding)
+	void VulkanCommandPool::Release(GpuCommandBuffer& binding)
 	{
 		VulkanCommandBuffer& vulkanBinding = SafeCast<VulkanCommandBuffer&>(binding);
 
@@ -57,7 +57,7 @@ namespace Nz
 			TryToShrink();
 	}
 
-	CommandBufferPtr VulkanCommandPool::BuildCommandBuffer(VkCommandBufferLevel level, const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
+	GpuCommandBufferPtr VulkanCommandPool::BuildCommandBuffer(VkCommandBufferLevel level, const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback)
 	{
 		Vk::AutoCommandBuffer commandBuffer = m_commandPool.AllocateCommandBuffer(level);
 

@@ -18,7 +18,7 @@
 namespace Nz
 {
 	class OpenGLDevice;
-	class RenderPass;
+	class GpuRenderPass;
 	class Texture;
 
 	class NAZARA_OPENGLRENDERER_API OpenGLFboFramebuffer final : public OpenGLFramebuffer

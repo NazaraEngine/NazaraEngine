@@ -17,7 +17,7 @@ namespace Nz
 	{
 	}
 
-	inline void RenderFrame::Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags)
+	inline void RenderFrame::Execute(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags)
 	{
 		if NAZARA_UNLIKELY(!m_image)
 			throw std::runtime_error("frame is either invalid or has already been presented");
@@ -35,17 +35,17 @@ namespace Nz
 		return m_size;
 	}
 
-	inline RenderDevice& RenderFrame::GetRenderDevice()
+	inline GpuDevice& RenderFrame::GetGpuDevice()
 	{
-		return m_image->GetRenderDevice();
+		return m_image->GetGpuDevice();
 	}
 
-	inline RenderResources& RenderFrame::GetTransientResources()
+	inline GpuResources& RenderFrame::GetTransientResources()
 	{
 		return *m_image;
 	}
 
-	inline UploadPool& RenderFrame::GetUploadPool()
+	inline GpuUploadPool& RenderFrame::GetUploadPool()
 	{
 		if NAZARA_UNLIKELY(!m_image)
 			throw std::runtime_error("frame is either invalid or has already been presented");
@@ -85,7 +85,7 @@ namespace Nz
 		m_image = nullptr;
 	}
 
-	inline void RenderFrame::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags)
+	inline void RenderFrame::SubmitCommandBuffer(GpuCommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags)
 	{
 		if NAZARA_UNLIKELY(!m_image)
 			throw std::runtime_error("frame is either invalid or has already been presented");
@@ -98,7 +98,7 @@ namespace Nz
 		return m_image != nullptr;
 	}
 
-	inline RenderFrame::operator RenderResources&()
+	inline RenderFrame::operator GpuResources&()
 	{
 		return GetTransientResources();
 	}

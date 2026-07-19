@@ -31,7 +31,7 @@ namespace Nz
 		m_commandBuffer.BeginDebugRegion(regionNameEOS.data(), color);
 	}
 
-	void VulkanCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount)
+	void VulkanCommandBufferBuilder::BeginRenderPass(const GpuFramebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount)
 	{
 		const VulkanRenderPass& vkRenderPass = SafeCast<const VulkanRenderPass&>(renderPass);
 		const VulkanFramebuffer& vkFramebuffer = SafeCast<const VulkanFramebuffer&>(framebuffer);
@@ -45,7 +45,7 @@ namespace Nz
 			vkClearValues = NazaraStackArray(VkClearValue, attachmentCount);
 			for (std::size_t i = 0; i < attachmentCount; ++i)
 			{
-				const auto& values = (i < clearValueCount) ? clearValues[i] : CommandBufferBuilder::ClearValues{};
+				const auto& values = (i < clearValueCount) ? clearValues[i] : GpuCommandBufferBuilder::ClearValues{};
 				auto& vkValues = vkClearValues[i];
 
 				if (PixelFormatInfo::GetContent(vkRenderPass.GetAttachment(i).format) == PixelFormatContent::ColorRGBA)
@@ -80,7 +80,7 @@ namespace Nz
 		m_currentSubpassIndex = 0;
 	}
 
-	void VulkanCommandBufferBuilder::BindComputePipeline(const ComputePipeline& pipeline)
+	void VulkanCommandBufferBuilder::BindComputePipeline(const GpuComputePipeline& pipeline)
 	{
 		const VulkanComputePipeline& vkPipeline = SafeCast<const VulkanComputePipeline&>(pipeline);
 
@@ -95,7 +95,7 @@ namespace Nz
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet(), SafeCaster(dynamicOffsets.size()), dynamicOffsets.data());
 	}
 
-	void VulkanCommandBufferBuilder::BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
+	void VulkanCommandBufferBuilder::BindComputeShaderBinding(const GpuPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const VulkanRenderPipelineLayout& vkPipelineLayout = SafeCast<const VulkanRenderPipelineLayout&>(pipelineLayout);
 		const VulkanShaderBinding& vkBinding = SafeCast<const VulkanShaderBinding&>(binding);
@@ -103,14 +103,14 @@ namespace Nz
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_COMPUTE, vkPipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet(), SafeCaster(dynamicOffsets.size()), dynamicOffsets.data());
 	}
 
-	void VulkanCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset)
+	void VulkanCommandBufferBuilder::BindIndexBuffer(const GpuBuffer& indexBuffer, IndexType indexType, UInt64 offset)
 	{
 		const VulkanBuffer& vkBuffer = SafeCast<const VulkanBuffer&>(indexBuffer);
 
 		m_commandBuffer.BindIndexBuffer(vkBuffer.GetBuffer(), offset, ToVulkan(indexType));
 	}
 
-	void VulkanCommandBufferBuilder::BindRenderPipeline(const RenderPipeline& pipeline)
+	void VulkanCommandBufferBuilder::BindRenderPipeline(const GpuRenderPipeline& pipeline)
 	{
 		if (!m_currentRenderPass)
 			throw std::runtime_error("BindPipeline must be called in a RenderPass");
@@ -128,7 +128,7 @@ namespace Nz
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet(), SafeCaster(dynamicOffsets.size()), dynamicOffsets.data());
 	}
 
-	void VulkanCommandBufferBuilder::BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
+	void VulkanCommandBufferBuilder::BindRenderShaderBinding(const GpuPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const VulkanRenderPipelineLayout& vkPipelineLayout = SafeCast<const VulkanRenderPipelineLayout&>(pipelineLayout);
 		const VulkanShaderBinding& vkBinding = SafeCast<const VulkanShaderBinding&>(binding);
@@ -136,7 +136,7 @@ namespace Nz
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet(), SafeCaster(dynamicOffsets.size()), dynamicOffsets.data());
 	}
 
-	void VulkanCommandBufferBuilder::BindVertexBuffer(UInt32 binding, const RenderBuffer& vertexBuffer, UInt64 offset)
+	void VulkanCommandBufferBuilder::BindVertexBuffer(UInt32 binding, const GpuBuffer& vertexBuffer, UInt64 offset)
 	{
 		const VulkanBuffer& vkBuffer = SafeCast<const VulkanBuffer&>(vertexBuffer);
 
@@ -294,7 +294,7 @@ namespace Nz
 		m_commandBuffer.ImageBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, ToVulkan(dstStageMask), 0, VK_ACCESS_TRANSFER_WRITE_BIT, ToVulkan(dstAccessMask), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, ToVulkan(newLayout), vkImage, vkTexture.BuildSubresourceRange(levelCount - 1, 1));
 	}
 
-	void VulkanCommandBufferBuilder::CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
+	void VulkanCommandBufferBuilder::CopyBuffer(const GpuBufferView& source, const GpuBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
 		VulkanBuffer& sourceBuffer = *SafeCast<VulkanBuffer*>(source.GetBuffer());
 		VulkanBuffer& targetBuffer = *SafeCast<VulkanBuffer*>(target.GetBuffer());
@@ -302,7 +302,7 @@ namespace Nz
 		m_commandBuffer.CopyBuffer(sourceBuffer.GetBuffer(), targetBuffer.GetBuffer(), size, sourceOffset + source.GetOffset(), targetOffset + target.GetOffset());
 	}
 
-	void VulkanCommandBufferBuilder::CopyBuffer(const UploadPool::Allocation& allocation, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
+	void VulkanCommandBufferBuilder::CopyBuffer(const GpuUploadPool::Allocation& allocation, const GpuBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
 		const auto& vkAllocation = SafeCast<const VulkanUploadPool::VulkanAllocation&>(allocation);
 		VulkanBuffer& targetBuffer = *SafeCast<VulkanBuffer*>(target.GetBuffer());
@@ -359,14 +359,14 @@ namespace Nz
 		m_commandBuffer.DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 	}
 
-	void VulkanCommandBufferBuilder::DrawIndirect(const RenderBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
+	void VulkanCommandBufferBuilder::DrawIndirect(const GpuBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
 	{
 		const VulkanBuffer& indirectBuffer = SafeCast<const VulkanBuffer&>(buffer);
 
 		m_commandBuffer.DrawIndirect(indirectBuffer.GetBuffer(), offset, drawCount, stride);
 	}
 
-	void VulkanCommandBufferBuilder::DrawIndirectCount(const RenderBuffer& buffer, UInt64 offset, const RenderBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
+	void VulkanCommandBufferBuilder::DrawIndirectCount(const GpuBuffer& buffer, UInt64 offset, const GpuBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
 	{
 		const VulkanBuffer& indirectBuffer = SafeCast<const VulkanBuffer&>(buffer);
 		const VulkanBuffer& indirectCountBuffer = SafeCast<const VulkanBuffer&>(countBuffer);
@@ -374,14 +374,14 @@ namespace Nz
 		m_commandBuffer.DrawIndirectCount(indirectBuffer.GetBuffer(), offset, indirectCountBuffer.GetBuffer(), countBufferOffset, maxDrawCount, stride);
 	}
 
-	void VulkanCommandBufferBuilder::DrawIndexedIndirect(const RenderBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
+	void VulkanCommandBufferBuilder::DrawIndexedIndirect(const GpuBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
 	{
 		const VulkanBuffer& indirectBuffer = SafeCast<const VulkanBuffer&>(buffer);
 
 		m_commandBuffer.DrawIndexedIndirect(indirectBuffer.GetBuffer(), offset, drawCount, stride);
 	}
 
-	void VulkanCommandBufferBuilder::DrawIndexedIndirectCount(const RenderBuffer& buffer, UInt64 offset, const RenderBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
+	void VulkanCommandBufferBuilder::DrawIndexedIndirectCount(const GpuBuffer& buffer, UInt64 offset, const GpuBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
 	{
 		const VulkanBuffer& indirectBuffer = SafeCast<const VulkanBuffer&>(buffer);
 		const VulkanBuffer& indirectCountBuffer = SafeCast<const VulkanBuffer&>(countBuffer);
@@ -400,7 +400,7 @@ namespace Nz
 		m_currentRenderPass = nullptr;
 	}
 
-	void VulkanCommandBufferBuilder::ExecuteCommands(std::span<const CommandBuffer*> commandBuffers)
+	void VulkanCommandBufferBuilder::ExecuteCommands(std::span<const GpuCommandBuffer*> commandBuffers)
 	{
 		StackArray<VkCommandBuffer> vkCommandBuffers = NazaraStackArrayNoInit(VkCommandBuffer, commandBuffers.size());
 		for (std::size_t i = 0; i < commandBuffers.size(); ++i)
@@ -513,7 +513,7 @@ namespace Nz
 		}
 	}
 
-	void VulkanCommandBufferBuilder::PushConstants(const RenderPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data)
+	void VulkanCommandBufferBuilder::PushConstants(const GpuPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data)
 	{
 		const VulkanRenderPipelineLayout& vkPipelineLayout = SafeCast<const VulkanRenderPipelineLayout&>(pipelineLayout);
 

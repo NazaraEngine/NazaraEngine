@@ -17,10 +17,10 @@
 
 namespace Nz
 {
-	class CommandBuffer;
-	class CommandBufferBuilder;
-	class RenderDevice;
-	class UploadPool;
+	class GpuCommandBuffer;
+	class GpuCommandBufferBuilder;
+	class GpuDevice;
+	class GpuUploadPool;
 
 	class NAZARA_RENDERER_API RenderFrame
 	{
@@ -31,13 +31,13 @@ namespace Nz
 			RenderFrame(RenderFrame&&) = delete;
 			~RenderFrame() = default;
 
-			inline void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags);
+			inline void Execute(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags);
 
 			inline std::size_t GetImageIndex() const;
 			const Vector2ui& GetSize() const;
-			inline RenderDevice& GetRenderDevice();
-			inline RenderResources& GetTransientResources();
-			inline UploadPool& GetUploadPool();
+			inline GpuDevice& GetGpuDevice();
+			inline GpuResources& GetTransientResources();
+			inline GpuUploadPool& GetUploadPool();
 
 			inline bool IsFramebufferInvalidated() const;
 
@@ -46,10 +46,10 @@ namespace Nz
 
 			void Present();
 
-			void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) ;
+			void SubmitCommandBuffer(GpuCommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) ;
 
 			inline explicit operator bool();
-			inline operator RenderResources&();
+			inline operator GpuResources&();
 
 			RenderFrame& operator=(const RenderFrame&) = delete;
 			RenderFrame& operator=(RenderFrame&&) = delete;

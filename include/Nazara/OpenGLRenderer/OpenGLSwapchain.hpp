@@ -29,7 +29,7 @@ namespace Nz
 
 			RenderFrame AcquireFrame() override;
 
-			std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
+			std::shared_ptr<GpuCommandPool> CreateCommandPool(QueueType queueType) override;
 
 			inline GL::Context& GetContext();
 			inline OpenGLDevice& GetDevice();
@@ -46,7 +46,7 @@ namespace Nz
 
 			void SetPresentMode(PresentMode presentMode) override;
 
-			RenderResources& GetTransientResources() override;
+			GpuResources& GetTransientResources() override;
 
 		private:
 			std::optional<OpenGLRenderPass> m_renderPass;

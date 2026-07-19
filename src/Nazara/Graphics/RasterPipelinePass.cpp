@@ -46,7 +46,7 @@ namespace Nz
 
 		preparePass.AddOutput(prepareAttachment);
 
-		preparePass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		preparePass.SetCommandCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
@@ -102,7 +102,7 @@ namespace Nz
 		cullPass.AddInput(prepareAttachment);
 		cullPass.AddOutput(cullAttachment);
 
-		cullPass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		cullPass.SetCommandCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			builder.BindComputePipeline(*m_computePipeline);
 
@@ -111,7 +111,7 @@ namespace Nz
 				if (elementType >= m_elementRendererData.size() || !m_elementRendererData[elementType])
 					return;
 
-				elementRenderer.ForEachIndirectBuffer(*m_elementRendererData[elementType], [&](RenderBuffer& buffer, std::size_t commandCount)
+				elementRenderer.ForEachIndirectBuffer(*m_elementRendererData[elementType], [&](GpuBuffer& buffer, std::size_t commandCount)
 				{
 					ShaderBindingPtr computeShaderBinding = m_computePipelineLayout->AllocateShaderBinding(0);
 					computeShaderBinding->Update({
@@ -202,7 +202,7 @@ namespace Nz
 			return FramePassExecution::UpdateAndExecute;
 		});
 
-		renderPass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		renderPass.SetRenderCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			Recti viewport = m_viewer->GetViewport();
 
@@ -287,11 +287,11 @@ namespace Nz
 	void RasterPipelinePass::BuildCullingPipeline()
 	{
 		Graphics* graphics = Graphics::Instance();
-		auto& renderDevice = *graphics->GetRenderDevice();
+		auto& renderDevice = *graphics->GetGpuDevice();
 
 		m_frustumCullingShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Compute, "Compute.FrustumCulling");
 
-		RenderPipelineLayoutInfo cullingPipelineLayoutInfo;
+		GpuPipelineLayoutInfo cullingPipelineLayoutInfo;
 		cullingPipelineLayoutInfo.bindings.push_back({
 			.bindingIndex = 0,
 			.type = ShaderBindingType::StorageBuffer,

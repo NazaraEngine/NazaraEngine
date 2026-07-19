@@ -39,12 +39,12 @@ namespace Nz
 			inline VkImageSubresourceRange BuildSubresourceRange(UInt32 baseLevel, UInt32 levelCount, UInt32 baseLayer, UInt32 layerCount) const;
 
 			bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos = Vector3ui32::Zero()) override;
-			bool Copy(AsyncRenderCommands& asyncTransfer, const Texture& source, const Boxui32& srcBox, const Vector3ui32& dstPos = Vector3ui32::Zero()) override;
+			bool Copy(GpuAsyncCommands& asyncTransfer, const Texture& source, const Boxui32& srcBox, const Vector3ui32& dstPos = Vector3ui32::Zero()) override;
 
 			std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) override;
 
-			RenderDevice* GetDevice() override;
-			const RenderDevice* GetDevice() const override;
+			GpuDevice* GetDevice() override;
+			const GpuDevice* GetDevice() const override;
 			inline PixelFormat GetFormat() const override;
 			inline VkImage GetImage() const;
 			inline VkImageView GetImageView() const;
@@ -58,9 +58,9 @@ namespace Nz
 			bool Update(const void* ptr, bool buildMipmaps = true, UInt32 srcWidth = 0, UInt32 srcHeight = 0) override;
 			bool Update(const void* ptr, const Boxui& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) override;
 			bool Update(Nz::FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level = 0) override;
-			bool Update(AsyncRenderCommands& asyncTransfer, const void* ptr, bool buildMipmaps = true, UInt32 srcWidth = 0, UInt32 srcHeight = 0) override;
-			bool Update(AsyncRenderCommands& asyncTransfer, const void* ptr, const Boxui& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) override;
-			bool Update(AsyncRenderCommands& asyncTransfer, Nz::FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level = 0) override;
+			bool Update(GpuAsyncCommands& asyncTransfer, const void* ptr, bool buildMipmaps = true, UInt32 srcWidth = 0, UInt32 srcHeight = 0) override;
+			bool Update(GpuAsyncCommands& asyncTransfer, const void* ptr, const Boxui& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) override;
+			bool Update(GpuAsyncCommands& asyncTransfer, Nz::FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level = 0) override;
 			bool Update(Vk::CommandBuffer& commandBuffer, std::unique_ptr<VulkanBuffer>& uploadBuffer, Nz::FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level);
 
 			void UpdateDebugName(std::string_view name) override;

@@ -85,8 +85,8 @@ int main(int argc, char* argv[])
 	meshParams.vertexScale = Nz::Vector3f(0.002f);
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
-	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
-	const Nz::RenderDeviceInfo& deviceInfo = device->GetDeviceInfo();
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Graphics::Instance()->GetGpuDevice();
+	const Nz::GpuDeviceInfo& deviceInfo = device->GetDeviceInfo();
 
 	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 
@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<Nz::GraphicalMesh> cubeMeshGfx = Nz::GraphicalMesh::BuildFromMesh(*cubeMesh);
 
-	Nz::RenderPipelineLayoutInfo skyboxPipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo skyboxPipelineLayoutInfo;
 	skyboxPipelineLayoutInfo.bindings.push_back({
 		0, 0, 1,
 		Nz::ShaderBindingType::UniformBuffer,
@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
 	textureBinding.shaderStageFlags = nzsl::ShaderStageType::Fragment;
 	textureBinding.type = Nz::ShaderBindingType::Sampler;
 
-	std::shared_ptr<Nz::RenderPipelineLayout> skyboxPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(skyboxPipelineLayoutInfo));
+	std::shared_ptr<Nz::GpuPipelineLayout> skyboxPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(skyboxPipelineLayoutInfo));
 
 	Nz::RenderPipelineInfo skyboxPipelineInfo;
 	skyboxPipelineInfo.depthBuffer = true;
@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
 		meshPrimitiveParams.vertexDeclaration
 	});
 
-	std::shared_ptr<Nz::RenderPipeline> skyboxPipeline = device->InstantiateRenderPipeline(std::move(skyboxPipelineInfo));
+	std::shared_ptr<Nz::GpuRenderPipeline> skyboxPipeline = device->InstantiateRenderPipeline(std::move(skyboxPipelineInfo));
 
 	// Skybox
 	std::shared_ptr<Nz::Texture> skyboxTexture;
@@ -262,7 +262,7 @@ int main(int argc, char* argv[])
 	SetInstanceWorldMatrix(modelInstance2, Nz::Matrix4f::Translate(Nz::Vector3f::Right() + Nz::Vector3f::Up()));
 	SetInstanceWorldMatrix(planeInstance, Nz::Matrix4f::Identity());
 
-	Nz::RenderPipelineLayoutInfo lightingPipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo lightingPipelineLayoutInfo;
 	lightingPipelineLayoutInfo.bindings.push_back({
 		0, 0, 1,
 		Nz::ShaderBindingType::UniformBuffer,
@@ -328,7 +328,7 @@ int main(int argc, char* argv[])
 
 	constexpr std::size_t MaxPointLight = 2000;
 
-	std::shared_ptr<Nz::RenderBuffer> lightUbo = device->InstantiateBuffer(MaxPointLight * alignedSpotLightSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal);
+	std::shared_ptr<Nz::GpuBuffer> lightUbo = device->InstantiateBuffer(MaxPointLight * alignedSpotLightSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal);
 
 	std::vector<SpotLight> spotLights;
 	/*auto& firstSpot = spotLights.emplace_back();
@@ -355,7 +355,7 @@ int main(int argc, char* argv[])
 
 	// Bloom data
 
-	Nz::RenderPipelineLayoutInfo fullscreenPipelineLayoutInfoViewer;
+	Nz::GpuPipelineLayoutInfo fullscreenPipelineLayoutInfoViewer;
 	fullscreenPipelineLayoutInfoViewer.bindings.push_back({
 		0, 0, 1,
 		Nz::ShaderBindingType::UniformBuffer,
@@ -376,11 +376,11 @@ int main(int argc, char* argv[])
 
 	Nz::ShaderBindingPtr bloomBrightShaderBinding;
 
-	std::shared_ptr<Nz::RenderPipeline> bloomBrightPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfoViewer);
+	std::shared_ptr<Nz::GpuRenderPipeline> bloomBrightPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfoViewer);
 
 	// Gaussian Blur
 
-	Nz::RenderPipelineLayoutInfo gaussianBlurPipelineLayoutInfo = fullscreenPipelineLayoutInfoViewer;
+	Nz::GpuPipelineLayoutInfo gaussianBlurPipelineLayoutInfo = fullscreenPipelineLayoutInfoViewer;
 
 	gaussianBlurPipelineLayoutInfo.bindings.push_back({
 		0, 2, 1,
@@ -398,11 +398,11 @@ int main(int argc, char* argv[])
 	gaussianBlurPipelineInfo.shaderModules.clear();
 	gaussianBlurPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "gaussian_blur.nzsl", states));
 
-	std::shared_ptr<Nz::RenderPipeline> gaussianBlurPipeline = device->InstantiateRenderPipeline(gaussianBlurPipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> gaussianBlurPipeline = device->InstantiateRenderPipeline(gaussianBlurPipelineInfo);
 	std::vector<Nz::ShaderBindingPtr> gaussianBlurShaderBinding(BloomSubdivisionCount * 2);
 
 	std::vector<Nz::UInt8> gaussianBlurData(gaussianBlurDataOffsets.GetSize());
-	std::vector<std::shared_ptr<Nz::RenderBuffer>> gaussianBlurUbos;
+	std::vector<std::shared_ptr<Nz::GpuBuffer>> gaussianBlurUbos;
 
 	float sizeFactor = 2.f;
 	for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
@@ -410,11 +410,11 @@ int main(int argc, char* argv[])
 		Nz::AccessByOffset<Nz::Vector2f&>(gaussianBlurData.data(), gaussianBlurDataDirection) = Nz::Vector2f(1.f, 0.f);
 		Nz::AccessByOffset<float&>(gaussianBlurData.data(), gaussianBlurDataSize) = sizeFactor;
 
-		std::shared_ptr<Nz::RenderBuffer> horizontalBlurData = device->InstantiateBuffer(gaussianBlurDataOffsets.GetSize(), Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal, gaussianBlurData.data());
+		std::shared_ptr<Nz::GpuBuffer> horizontalBlurData = device->InstantiateBuffer(gaussianBlurDataOffsets.GetSize(), Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal, gaussianBlurData.data());
 
 		Nz::AccessByOffset<Nz::Vector2f&>(gaussianBlurData.data(), gaussianBlurDataDirection) = Nz::Vector2f(0.f, 1.f);
 
-		std::shared_ptr<Nz::RenderBuffer> verticalBlurData = device->InstantiateBuffer(gaussianBlurDataOffsets.GetSize(), Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal, gaussianBlurData.data());
+		std::shared_ptr<Nz::GpuBuffer> verticalBlurData = device->InstantiateBuffer(gaussianBlurDataOffsets.GetSize(), Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal, gaussianBlurData.data());
 
 		sizeFactor *= 2.f;
 
@@ -428,13 +428,13 @@ int main(int argc, char* argv[])
 	fullscreenPipelineInfoViewer.shaderModules.clear();
 	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "tone_mapping.nzsl", states));
 
-	std::shared_ptr<Nz::RenderPipeline> toneMappingPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfoViewer);
+	std::shared_ptr<Nz::GpuRenderPipeline> toneMappingPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfoViewer);
 
 	// Bloom blend
 
 	Nz::ShaderBindingPtr bloomBlitBinding;
 
-	Nz::RenderPipelineLayoutInfo bloomBlendPipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo bloomBlendPipelineLayoutInfo;
 	bloomBlendPipelineLayoutInfo.bindings.push_back({
 		0, 0, 1,
 		Nz::ShaderBindingType::UniformBuffer,
@@ -463,13 +463,13 @@ int main(int argc, char* argv[])
 
 	bloomBlendPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "bloom_final.nzsl", states));
 
-	std::shared_ptr<Nz::RenderPipeline> bloomBlendPipeline = device->InstantiateRenderPipeline(bloomBlendPipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> bloomBlendPipeline = device->InstantiateRenderPipeline(bloomBlendPipelineInfo);
 
 	std::vector<Nz::ShaderBindingPtr> bloomBlendShaderBinding(BloomSubdivisionCount);
 
 	// Gamma correction
 
-	Nz::RenderPipelineLayoutInfo fullscreenPipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo fullscreenPipelineLayoutInfo;
 
 	fullscreenPipelineLayoutInfo.bindings.push_back({
 		0, 0, 1,
@@ -485,7 +485,7 @@ int main(int argc, char* argv[])
 
 	// God rays
 
-	Nz::RenderPipelineLayoutInfo godraysPipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo godraysPipelineLayoutInfo;
 
 	godraysPipelineLayoutInfo.bindings = {
 		{
@@ -513,7 +513,7 @@ int main(int argc, char* argv[])
 
 	godraysPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "god_rays.nzsl", states));
 
-	std::shared_ptr<Nz::RenderPipeline> godraysPipeline = device->InstantiateRenderPipeline(godraysPipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> godraysPipeline = device->InstantiateRenderPipeline(godraysPipelineInfo);
 
 	nzsl::FieldOffsets godraysFieldOffsets(nzsl::StructLayout::Std140);
 	std::size_t gr_exposureOffset = godraysFieldOffsets.AddField(nzsl::StructFieldType::Float1);
@@ -538,12 +538,12 @@ int main(int argc, char* argv[])
 	Nz::AccessByOffset<float&>(godRaysData.data(), gr_weightOffset) = 5.65f;
 	Nz::AccessByOffset<Nz::Vector2f&>(godRaysData.data(), gr_lightPositionOffset) = Nz::Vector2f(0.5f, 0.1f);
 
-	std::shared_ptr<Nz::RenderBuffer> godRaysUBO = device->InstantiateBuffer(godRaysData.size(), Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal, godRaysData.data());
+	std::shared_ptr<Nz::GpuBuffer> godRaysUBO = device->InstantiateBuffer(godRaysData.size(), Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal, godRaysData.data());
 
 	Nz::ShaderBindingPtr godRaysBlitShaderBinding;
 
 
-	std::shared_ptr<Nz::RenderPipeline> fullscreenPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> fullscreenPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfo);
 
 	Nz::RenderPipelineInfo lightingPipelineInfo;
 	lightingPipelineInfo.blending = true;
@@ -565,7 +565,7 @@ int main(int argc, char* argv[])
 
 	lightingPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "lighting.nzsl", states));
 
-	std::shared_ptr<Nz::RenderPipeline> lightingPipeline = device->InstantiateRenderPipeline(lightingPipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> lightingPipeline = device->InstantiateRenderPipeline(lightingPipelineInfo);
 
 	Nz::RenderPipelineInfo stencilPipelineInfo;
 	stencilPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
@@ -587,7 +587,7 @@ int main(int argc, char* argv[])
 
 	stencilPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "lighting.nzsl", states));
 
-	std::shared_ptr<Nz::RenderPipeline> stencilPipeline = device->InstantiateRenderPipeline(stencilPipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> stencilPipeline = device->InstantiateRenderPipeline(stencilPipelineInfo);
 
 
 	std::vector<Nz::ShaderBindingPtr> lightingShaderBindings;
@@ -785,7 +785,7 @@ int main(int argc, char* argv[])
 			return Nz::FramePassExecution::Execute;
 		});
 
-		gbufferPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		gbufferPass.SetCommandCallback([&](Nz::GpuCommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			elements.clear();
 
@@ -822,7 +822,7 @@ int main(int argc, char* argv[])
 			submeshRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
 		});
 
-		gbufferPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		gbufferPass.SetRenderCallback([&](Nz::GpuCommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			builder.SetViewport(env.renderRect);
 
@@ -840,7 +840,7 @@ int main(int argc, char* argv[])
 			return (lightUpdate) ? Nz::FramePassExecution::UpdateAndExecute : Nz::FramePassExecution::Execute;
 		});
 
-		lightingPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		lightingPass.SetRenderCallback([&](Nz::GpuCommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
@@ -872,7 +872,7 @@ int main(int argc, char* argv[])
 		lightingPass.SetDepthStencilOutput(depthBuffer1);
 
 		Nz::FramePass& forwardPass = graph.AddPass("Forward pass");
-		forwardPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		forwardPass.SetCommandCallback([&](Nz::GpuCommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			Nz::InstancedRenderable::ElementData elementData;
 			elementData.instanceIndex = flareInstance;
@@ -897,7 +897,7 @@ int main(int argc, char* argv[])
 			spritechainRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
 		});
 
-		forwardPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		forwardPass.SetRenderCallback([&](Nz::GpuCommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
@@ -929,7 +929,7 @@ int main(int argc, char* argv[])
 
 
 		Nz::FramePass& occluderPass = graph.AddPass("Occluder pass");
-		occluderPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		occluderPass.SetCommandCallback([&](Nz::GpuCommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			Nz::InstancedRenderable::ElementData elementData;
 			elementData.scissorBox = &env.renderRect;
@@ -957,7 +957,7 @@ int main(int argc, char* argv[])
 			spritechainRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
 		});
 
-		occluderPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		occluderPass.SetRenderCallback([&](Nz::GpuCommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			builder.SetViewport(env.renderRect);
 
@@ -992,7 +992,7 @@ int main(int argc, char* argv[])
 		occluderPass.SetDepthStencilInput(depthBuffer1);
 
 		Nz::FramePass& godraysPass = graph.AddPass("Light scattering pass");
-		godraysPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		godraysPass.SetRenderCallback([&](Nz::GpuCommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
@@ -1008,7 +1008,7 @@ int main(int argc, char* argv[])
 		godraysPass.AddOutput(godRaysTexture);
 
 		Nz::FramePass& bloomBrightPass = graph.AddPass("Bloom pass - extract bright pixels");
-		bloomBrightPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		bloomBrightPass.SetRenderCallback([&](Nz::GpuCommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
@@ -1031,7 +1031,7 @@ int main(int argc, char* argv[])
 		for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
 		{
 			Nz::FramePass& bloomBlurPassHorizontal = graph.AddPass("Bloom pass - gaussian blur #" + std::to_string(i) + " - horizontal");
-			bloomBlurPassHorizontal.SetRenderCallback([&, i](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+			bloomBlurPassHorizontal.SetRenderCallback([&, i](Nz::GpuCommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 			{
 				builder.SetScissor(env.renderRect);
 				builder.SetViewport(env.renderRect);
@@ -1051,7 +1051,7 @@ int main(int argc, char* argv[])
 			bloomBlurPassHorizontal.AddOutput(bloomTextures[bloomTextureIndex]);
 
 			Nz::FramePass& bloomBlurPassVertical = graph.AddPass("Bloom pass - gaussian blur #" + std::to_string(i) + " - vertical");
-			bloomBlurPassVertical.SetRenderCallback([&, i](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+			bloomBlurPassVertical.SetRenderCallback([&, i](Nz::GpuCommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 			{
 				builder.SetScissor(env.renderRect);
 				builder.SetViewport(env.renderRect);
@@ -1072,7 +1072,7 @@ int main(int argc, char* argv[])
 		}
 
 		Nz::FramePass& bloomBlendPass = graph.AddPass("Bloom pass - blend");
-		bloomBlendPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		bloomBlendPass.SetRenderCallback([&](Nz::GpuCommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
@@ -1107,7 +1107,7 @@ int main(int argc, char* argv[])
 		Nz::FramePass& toneMappingPass = graph.AddPass("Tone mapping");
 		toneMappingPass.AddInput(bloomOutput);
 		toneMappingPass.AddOutput(toneMappingOutput);
-		toneMappingPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		toneMappingPass.SetRenderCallback([&](Nz::GpuCommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
@@ -1513,9 +1513,9 @@ int main(int argc, char* argv[])
 			});
 		}
 
-		Nz::UploadPool& uploadPool = frame.GetUploadPool();
+		Nz::GpuUploadPool& uploadPool = frame.GetUploadPool();
 
-		frame.Execute([&](Nz::CommandBufferBuilder& builder)
+		frame.Execute([&](Nz::GpuCommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow());
 			{
@@ -1593,13 +1593,13 @@ int main(int argc, char* argv[])
 		bakedGraph.Execute(frame);
 
 		const Nz::WindowSwapchain* windowRT = &windowSwapchain;
-		frame.Execute([&](Nz::CommandBufferBuilder& builder)
+		frame.Execute([&](Nz::GpuCommandBufferBuilder& builder)
 		{
 			Nz::Recti windowRenderRect(0, 0, window.GetSize().x, window.GetSize().y);
 
 			builder.TextureBarrier({ .srcStageMask = Nz::PipelineStage::ColorOutput, .dstStageMask = Nz::PipelineStage::FragmentShader, .srcAccessMask = Nz::MemoryAccess::ColorWrite, .dstAccessMask = Nz::MemoryAccess::ShaderRead, .oldLayout = Nz::TextureLayout::ColorOutput, .newLayout = Nz::TextureLayout::ColorInput, .texture = bakedGraph.GetAttachmentTexture(toneMappingOutput).get() });
 
-			Nz::CommandBufferBuilder::ClearValues clearValues[2];
+			Nz::GpuCommandBufferBuilder::ClearValues clearValues[2];
 			clearValues[0].color = Nz::Color::Black();
 			clearValues[1].depth = 1.f;
 			clearValues[1].stencil = 0;

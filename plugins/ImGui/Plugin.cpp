@@ -3,10 +3,10 @@
 #include <Nazara/Platform/Clipboard.hpp>
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Platform/WindowEventHandler.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/RenderPipeline.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
+#include <Nazara/Renderer/GpuPipelineLayout.hpp>
 #include <Nazara/Renderer/WindowSwapchain.hpp>
 #include <Nazara/Renderer/Plugins/ImGuiPlugin.hpp>
 #include <Nazara/Renderer/Plugins/ImGuiFunctions.hpp>
@@ -201,8 +201,8 @@ namespace NzImGui
 
 	struct ImGuiPool
 	{
-		Nz::HybridVector<std::shared_ptr<Nz::RenderBuffer>, 4> indexBuffers;
-		Nz::HybridVector<std::shared_ptr<Nz::RenderBuffer>, 4> vertexBuffers;
+		Nz::HybridVector<std::shared_ptr<Nz::GpuBuffer>, 4> indexBuffers;
+		Nz::HybridVector<std::shared_ptr<Nz::GpuBuffer>, 4> vertexBuffers;
 	};
 
 	struct ImGuiPlatformBackend
@@ -221,11 +221,11 @@ namespace NzImGui
 
 	struct ImGuiRendererBackend
 	{
-		std::shared_ptr<Nz::RenderBuffer> indexBuffer;
-		std::shared_ptr<Nz::RenderBuffer> vertexBuffer;
-		std::shared_ptr<Nz::RenderDevice> device;
-		std::shared_ptr<Nz::RenderPipeline> renderPipeline;
-		std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout;
+		std::shared_ptr<Nz::GpuBuffer> indexBuffer;
+		std::shared_ptr<Nz::GpuBuffer> vertexBuffer;
+		std::shared_ptr<Nz::GpuDevice> device;
+		std::shared_ptr<Nz::GpuRenderPipeline> renderPipeline;
+		std::shared_ptr<Nz::GpuPipelineLayout> renderPipelineLayout;
 		std::shared_ptr<Nz::Texture> fontTexture;
 		std::shared_ptr<Nz::TextureSampler> fontTextureSampler;
 		std::shared_ptr<Nz::VertexDeclaration> vertexDeclaration;
@@ -267,7 +267,7 @@ namespace NzImGui
 			}
 
 		private:
-			void Draw(ImGuiContext* context, Nz::CommandBufferBuilder& commandBufferBuilder) override
+			void Draw(ImGuiContext* context, Nz::GpuCommandBufferBuilder& commandBufferBuilder) override
 			{
 				ImGui::SetCurrentContext(context);
 
@@ -373,7 +373,7 @@ namespace NzImGui
 				io.DeltaTime = updateTime.AsSeconds();
 			}
 
-			void Prepare(ImGuiContext* context, Nz::RenderResources& renderResources) override
+			void Prepare(ImGuiContext* context, Nz::GpuResources& renderResources) override
 			{
 				ImDrawData* drawData = ImGui::GetDrawData();
 				if (!drawData || drawData->CmdListsCount == 0)
@@ -450,10 +450,10 @@ namespace NzImGui
 				if (!rendererBackend->vertexBuffer)
 					rendererBackend->vertexBuffer = rendererBackend->device->InstantiateBuffer(totalVertexCount * sizeof(ImDrawVert), Nz::BufferUsage::VertexBuffer | Nz::BufferUsage::DeviceLocal, nullptr);
 
-				renderResources.Execute([&](Nz::CommandBufferBuilder& builder)
+				renderResources.Execute([&](Nz::GpuCommandBufferBuilder& builder)
 				{
-					builder.CopyBuffer(indexAllocation, Nz::RenderBufferView(rendererBackend->indexBuffer.get()));
-					builder.CopyBuffer(vertexAllocation, Nz::RenderBufferView(rendererBackend->vertexBuffer.get()));
+					builder.CopyBuffer(indexAllocation, Nz::GpuBufferView(rendererBackend->indexBuffer.get()));
+					builder.CopyBuffer(vertexAllocation, Nz::GpuBufferView(rendererBackend->vertexBuffer.get()));
 
 					builder.MemoryBarrier({ .srcStageMask = Nz::PipelineStage::Transfer, .dstStageMask = Nz::PipelineStage::VertexInput, .srcAccessMask = Nz::MemoryAccess::TransferWrite, .dstAccessMask = Nz::MemoryAccess::VertexBufferRead });
 				}, Nz::QueueType::Transfer);
@@ -652,7 +652,7 @@ namespace NzImGui
 				ImGuiRendererBackend* backend = static_cast<ImGuiRendererBackend*>(io.BackendRendererUserData);
 				backend->pool = std::make_shared<ImGuiPool>();
 				backend->windowSwapchain = &windowSwapchain;
-				backend->device = backend->windowSwapchain->GetRenderDevice();
+				backend->device = backend->windowSwapchain->GetGpuDevice();
 				if (backend->device->GetEnabledFeatures().drawBaseVertex)
 					io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
 

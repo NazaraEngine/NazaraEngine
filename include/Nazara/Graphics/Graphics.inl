@@ -4,12 +4,12 @@
 
 namespace Nz
 {
-	inline const std::shared_ptr<RenderPipeline>& Graphics::GetBlitPipeline(bool transparent) const
+	inline const std::shared_ptr<GpuRenderPipeline>& Graphics::GetBlitPipeline(bool transparent) const
 	{
 		return (transparent) ? m_blitPipelineTransparent : m_blitPipeline;
 	}
 
-	inline const std::shared_ptr<RenderPipelineLayout>& Graphics::GetBlitPipelineLayout() const
+	inline const std::shared_ptr<GpuPipelineLayout>& Graphics::GetBlitPipelineLayout() const
 	{
 		return m_blitPipelineLayout;
 	}
@@ -94,12 +94,12 @@ namespace Nz
 		return m_preferredDepthStencilFormat;
 	}
 
-	inline const std::shared_ptr<RenderDevice>& Graphics::GetRenderDevice() const
+	inline const std::shared_ptr<GpuDevice>& Graphics::GetGpuDevice() const
 	{
 		return m_renderDevice;
 	}
 
-	inline const RenderPassCache& Graphics::GetRenderPassCache() const
+	inline const GpuRenderPassCache& Graphics::GetRenderPassCache() const
 	{
 		assert(m_renderPassCache);
 		return *m_renderPassCache;

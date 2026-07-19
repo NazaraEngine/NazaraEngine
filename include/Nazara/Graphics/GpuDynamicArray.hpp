@@ -19,13 +19,13 @@
 
 namespace Nz
 {
-	class RenderBuffer;
-	class RenderDevice;
+	class GpuBuffer;
+	class GpuDevice;
 
 	class NAZARA_GRAPHICS_API GpuDynamicArray : public TransferInterface
 	{
 		public:
-			GpuDynamicArray(RenderDevice& renderDevice, UInt32 entrySize, UInt32 initialCapacity = 512, UInt32 headerSize = 0, BufferUsageFlags bufferUsageFlags = BufferUsage::DeviceLocal | BufferUsage::StorageBuffer);
+			GpuDynamicArray(GpuDevice& renderDevice, UInt32 entrySize, UInt32 initialCapacity = 512, UInt32 headerSize = 0, BufferUsageFlags bufferUsageFlags = BufferUsage::DeviceLocal | BufferUsage::StorageBuffer);
 			GpuDynamicArray(const GpuDynamicArray&) = delete;
 			GpuDynamicArray(GpuDynamicArray&&) = delete;
 			~GpuDynamicArray() = default;
@@ -33,7 +33,7 @@ namespace Nz
 			UInt8* AccessEntry(UInt32 entryIndex);
 			UInt8* AccessHeader();
 
-			inline const std::shared_ptr<RenderBuffer>& GetBuffer() const;
+			inline const std::shared_ptr<GpuBuffer>& GetBuffer() const;
 			inline UInt32 GetCapacity() const;
 			inline const UInt8* GetEntryData(UInt32 entryIndex) const;
 			inline UInt32 GetEntrySize() const;
@@ -41,7 +41,7 @@ namespace Nz
 			inline UInt32 GetHeaderSize() const;
 			inline UInt32 GetSize() const;
 
-			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
+			void OnTransfer(GpuResources& renderResources, GpuCommandBufferBuilder& builder) override;
 
 			UInt32 Push();
 
@@ -65,7 +65,7 @@ namespace Nz
 				UInt64 end = 0;
 			};
 
-			std::shared_ptr<RenderBuffer> m_gpuBuffer;
+			std::shared_ptr<GpuBuffer> m_gpuBuffer;
 			std::string m_debugName;
 			std::vector<UInt8> m_memory;
 			BufferUsageFlags m_bufferUsageFlags;
@@ -74,7 +74,7 @@ namespace Nz
 			UInt32 m_entrySize;
 			UInt32 m_headerSize;
 			UInt32 m_size;
-			RenderDevice& m_renderDevice;
+			GpuDevice& m_renderDevice;
 	};
 }
 

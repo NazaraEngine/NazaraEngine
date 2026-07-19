@@ -90,15 +90,15 @@ int main()
 #ifndef NAZARA_PLATFORM_WEB
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;
 	if (std::getchar() == 'y')
-		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
+		rendererConfig.preferredAPI = Nz::GpuBackend::Vulkan;
 	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+		rendererConfig.preferredAPI = Nz::GpuBackend::OpenGL;
 #endif
 
 	Nz::Application<Nz::Renderer> app(rendererConfig);
 	auto& windowingApp = app.AddComponent<Nz::WindowingAppComponent>();
 
-	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0);
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Renderer::Instance()->InstanciateGpuDevice(0);
 
 	std::string windowTitle = "Render Test";
 	Nz::Window& window = windowingApp.CreateWindow(Nz::VideoMode(1280, 720), windowTitle);
@@ -152,8 +152,8 @@ int main()
 	const Nz::SoftwareBuffer* indexBufferContent = static_cast<const Nz::SoftwareBuffer*>(meshIB->GetBuffer().get());
 	const Nz::SoftwareBuffer* vertexBufferContent = static_cast<const Nz::SoftwareBuffer*>(meshVB->GetBuffer().get());
 
-	std::shared_ptr<Nz::RenderBuffer> renderBufferIB = device->InstantiateBuffer(indexBufferContent->GetSize(), Nz::BufferUsage::IndexBuffer | Nz::BufferUsage::DeviceLocal, indexBufferContent->GetData());
-	std::shared_ptr<Nz::RenderBuffer> renderBufferVB = device->InstantiateBuffer(vertexBufferContent->GetSize(), Nz::BufferUsage::VertexBuffer | Nz::BufferUsage::DeviceLocal, vertexBufferContent->GetData());
+	std::shared_ptr<Nz::GpuBuffer> renderBufferIB = device->InstantiateBuffer(indexBufferContent->GetSize(), Nz::BufferUsage::IndexBuffer | Nz::BufferUsage::DeviceLocal, indexBufferContent->GetData());
+	std::shared_ptr<Nz::GpuBuffer> renderBufferVB = device->InstantiateBuffer(vertexBufferContent->GetSize(), Nz::BufferUsage::VertexBuffer | Nz::BufferUsage::DeviceLocal, vertexBufferContent->GetData());
 
 	// Texture
 	Nz::TextureParams texParams;
@@ -178,7 +178,7 @@ int main()
 
 	Nz::UInt32 uniformSize = sizeof(ubo);
 
-	Nz::RenderPipelineLayoutInfo pipelineLayoutInfo;
+	Nz::GpuPipelineLayoutInfo pipelineLayoutInfo;
 
 	auto& uboBinding = pipelineLayoutInfo.bindings.emplace_back();
 	uboBinding.setIndex = 0;
@@ -186,7 +186,7 @@ int main()
 	uboBinding.shaderStageFlags = nzsl::ShaderStageType::Vertex;
 	uboBinding.type = Nz::ShaderBindingType::UniformBuffer;
 
-	std::shared_ptr<Nz::RenderPipelineLayout> basePipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
+	std::shared_ptr<Nz::GpuPipelineLayout> basePipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
 
 	auto& pipelineTextureBinding = pipelineLayoutInfo.bindings.emplace_back();
 	pipelineTextureBinding.setIndex = 1;
@@ -194,12 +194,12 @@ int main()
 	pipelineTextureBinding.shaderStageFlags = nzsl::ShaderStageType::Fragment;
 	pipelineTextureBinding.type = Nz::ShaderBindingType::Sampler;
 
-	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
+	std::shared_ptr<Nz::GpuPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 
 	Nz::ShaderBindingPtr viewerShaderBinding = basePipelineLayout->AllocateShaderBinding(0);
 	Nz::ShaderBindingPtr textureShaderBinding = renderPipelineLayout->AllocateShaderBinding(1);
 
-	std::shared_ptr<Nz::RenderBuffer> uniformBuffer = device->InstantiateBuffer(uniformSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal);
+	std::shared_ptr<Nz::GpuBuffer> uniformBuffer = device->InstantiateBuffer(uniformSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal);
 
 	viewerShaderBinding->Update({
 		{
@@ -234,9 +234,9 @@ int main()
 	pipelineVertexBuffer.binding = 0;
 	pipelineVertexBuffer.declaration = meshVB->GetVertexDeclaration();
 
-	std::shared_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
+	std::shared_ptr<Nz::GpuRenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
 
-	std::shared_ptr<Nz::CommandPool> commandPool = device->InstantiateCommandPool(Nz::QueueType::Graphics);
+	std::shared_ptr<Nz::GpuCommandPool> commandPool = device->InstantiateCommandPool(Nz::QueueType::Graphics);
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
@@ -338,7 +338,7 @@ int main()
 
 			std::memcpy(allocation.mappedPtr, &ubo, sizeof(ubo));
 
-			frame.Execute([&](Nz::CommandBufferBuilder& builder)
+			frame.Execute([&](Nz::GpuCommandBufferBuilder& builder)
 			{
 				builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow());
 				{
@@ -355,12 +355,12 @@ int main()
 		debugDrawer.Prepare(frame);
 
 		const Nz::WindowSwapchain* windowRT = &windowSwapchain;
-		frame.Execute([&](Nz::CommandBufferBuilder& builder)
+		frame.Execute([&](Nz::GpuCommandBufferBuilder& builder)
 		{
 			windowSize = window.GetSize();
 			Nz::Recti renderRect(0, 0, windowSize.x, windowSize.y);
 
-			Nz::CommandBufferBuilder::ClearValues clearValues[2];
+			Nz::GpuCommandBufferBuilder::ClearValues clearValues[2];
 			clearValues[0].color = Nz::Color::Black();
 			clearValues[1].depth = 1.f;
 			clearValues[1].stencil = 0;

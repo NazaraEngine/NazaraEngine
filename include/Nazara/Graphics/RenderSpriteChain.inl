@@ -6,7 +6,7 @@
 
 namespace Nz
 {
-	inline RenderSpriteChain::RenderSpriteChain(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox, UInt32 renderMask) :
+	inline RenderSpriteChain::RenderSpriteChain(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<GpuRenderPipeline> renderPipeline, UInt32 instanceIndex, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox, UInt32 renderMask) :
 	RenderElement(BasicRenderElement::SpriteChain, instanceIndex, renderLayer, renderMask),
 	m_materialProxy(std::move(materialProxy)),
 	m_renderPipeline(std::move(renderPipeline)),
@@ -24,7 +24,7 @@ namespace Nz
 		return *m_materialProxy;
 	}
 
-	inline const RenderPipeline& RenderSpriteChain::GetRenderPipeline() const
+	inline const GpuRenderPipeline& RenderSpriteChain::GetRenderPipeline() const
 	{
 		return *m_renderPipeline;
 	}

@@ -8,14 +8,14 @@
 #define NAZARA_RENDERER_RENDERIMAGE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API RenderImage : public RenderResources
+	class NAZARA_RENDERER_API RenderImage : public GpuResources
 	{
 		public:
-			using RenderResources::RenderResources;
+			using GpuResources::GpuResources;
 
 			virtual void Present() = 0;
 	};

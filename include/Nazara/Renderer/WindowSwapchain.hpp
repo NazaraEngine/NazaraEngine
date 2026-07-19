@@ -16,14 +16,14 @@
 
 namespace Nz
 {
-	class Framebuffer;
-	class RenderDevice;
+	class GpuFramebuffer;
+	class GpuDevice;
 	class Window;
 
 	class NAZARA_RENDERER_API WindowSwapchain
 	{
 		public:
-			WindowSwapchain(std::shared_ptr<RenderDevice> renderDevice, Window& window, SwapchainParameters parameters = SwapchainParameters());
+			WindowSwapchain(std::shared_ptr<GpuDevice> renderDevice, Window& window, SwapchainParameters parameters = SwapchainParameters());
 			WindowSwapchain(const WindowSwapchain&) = delete;
 			WindowSwapchain(WindowSwapchain&&) = delete;
 			~WindowSwapchain() = default;
@@ -34,14 +34,14 @@ namespace Nz
 
 			inline void EnableRenderOnlyIfFocused(bool enable = true);
 
-			inline const Framebuffer& GetFramebuffer(std::size_t i) const;
+			inline const GpuFramebuffer& GetFramebuffer(std::size_t i) const;
 			inline std::size_t GetFramebufferCount() const;
-			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
-			inline const RenderPass& GetRenderPass() const;
+			inline const std::shared_ptr<GpuDevice>& GetGpuDevice() const;
+			inline const GpuRenderPass& GetRenderPass() const;
 			const Vector2ui& GetSize() const;
 			inline Swapchain* GetSwapchain();
 			inline const Swapchain* GetSwapchain() const;
-			inline RenderResources& GetTransientResources();
+			inline GpuResources& GetTransientResources();
 
 			WindowSwapchain& operator=(const WindowSwapchain&) = delete;
 			WindowSwapchain& operator=(WindowSwapchain&& windowSwapchain) = delete;
@@ -61,7 +61,7 @@ namespace Nz
 			NazaraSlot(WindowEventHandler, OnResized, m_onResized);
 			NazaraSlot(WindowEventHandler, OnRestored, m_onRestored);
 
-			std::shared_ptr<RenderDevice> m_renderDevice;
+			std::shared_ptr<GpuDevice> m_renderDevice;
 			std::shared_ptr<Swapchain> m_swapchain;
 			MovablePtr<Window> m_window;
 			SwapchainParameters m_parameters;

@@ -16,13 +16,13 @@
 
 namespace Nz
 {
-	class RenderDevice;
+	class GpuDevice;
 	class Texture;
 
 	class NAZARA_GRAPHICS_API ShadowAtlas
 	{
 		public:
-			ShadowAtlas(RenderDevice& renderDevice, UInt32 atlasSize);
+			ShadowAtlas(GpuDevice& renderDevice, UInt32 atlasSize);
 			ShadowAtlas(const ShadowAtlas&) = delete;
 			ShadowAtlas(ShadowAtlas&&) = delete;
 			~ShadowAtlas() = default;
@@ -55,7 +55,7 @@ namespace Nz
 			std::vector<Entry> m_entries;
 			GuillotineBinPack m_binPacker;
 			UInt32 m_atlasSize;
-			RenderDevice& m_renderDevice;
+			GpuDevice& m_renderDevice;
 	};
 }
 

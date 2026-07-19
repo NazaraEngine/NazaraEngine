@@ -5,7 +5,7 @@
 
 namespace Nz
 {
-	inline const RenderPipelineLayoutInfo& OpenGLRenderPipelineLayout::GetLayoutInfo() const
+	inline const GpuPipelineLayoutInfo& OpenGLRenderPipelineLayout::GetLayoutInfo() const
 	{
 		return m_layoutInfo;
 	}

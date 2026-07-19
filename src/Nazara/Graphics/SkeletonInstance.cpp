@@ -8,9 +8,9 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 
 namespace Nz
 {
@@ -20,7 +20,7 @@ namespace Nz
 	{
 		NazaraAssertMsg(m_skeleton, "invalid skeleton");
 
-		m_skeletalDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(PredefinedSkeletalOffsets.totalSize, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal);
+		m_skeletalDataBuffer = Graphics::Instance()->GetGpuDevice()->InstantiateBuffer(PredefinedSkeletalOffsets.totalSize, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal);
 		m_skeletalDataBuffer->UpdateDebugName("Skeletal data");
 
 		m_onSkeletonJointsInvalidated.Connect(m_skeleton->OnSkeletonJointsInvalidated, [this](const Skeleton*)
@@ -42,7 +42,7 @@ namespace Nz
 		});
 	}
 
-	void SkeletonInstance::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)
+	void SkeletonInstance::OnTransfer(GpuResources& renderResources, GpuCommandBufferBuilder& builder)
 	{
 		if (!m_dataInvalidated)
 			return;

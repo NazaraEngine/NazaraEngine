@@ -563,7 +563,7 @@ namespace Nz
 		}
 	}
 
-	void FrameGraph::BuildPhysicalPassDependencies(std::size_t colorAttachmentCount, bool hasDepthStencilAttachment, std::vector<RenderPass::Attachment>& renderPassAttachments, std::vector<RenderPass::SubpassDescription>& subpasses, std::vector<RenderPass::SubpassDependency>& dependencies)
+	void FrameGraph::BuildPhysicalPassDependencies(std::size_t colorAttachmentCount, bool hasDepthStencilAttachment, std::vector<GpuRenderPass::Attachment>& renderPassAttachments, std::vector<GpuRenderPass::SubpassDescription>& subpasses, std::vector<GpuRenderPass::SubpassDependency>& dependencies)
 	{
 		if (hasDepthStencilAttachment)
 		{
@@ -597,7 +597,7 @@ namespace Nz
 			bool used = false; //< has the attachment already been used in a previous subpass
 			TextureLayout currentLayout = renderPassAttachments[attachmentIndex].initialLayout;
 
-			auto FindColor = [&](std::size_t subpassIndex) -> RenderPass::AttachmentReference*
+			auto FindColor = [&](std::size_t subpassIndex) -> GpuRenderPass::AttachmentReference*
 			{
 				auto& subpassDesc = subpasses[subpassIndex];
 				for (auto& colorReference : subpassDesc.colorAttachment)
@@ -609,7 +609,7 @@ namespace Nz
 				return nullptr;
 			};
 
-			auto FindDepthStencil = [&](std::size_t subpassIndex) -> RenderPass::AttachmentReference*
+			auto FindDepthStencil = [&](std::size_t subpassIndex) -> GpuRenderPass::AttachmentReference*
 			{
 				auto& subpassDesc = subpasses[subpassIndex];
 				if (subpassDesc.depthStencilAttachment && subpassDesc.depthStencilAttachment->attachmentIndex == attachmentIndex)
@@ -620,10 +620,10 @@ namespace Nz
 
 			for (std::size_t subpassIndex = 0; subpassIndex < subpasses.size(); ++subpassIndex)
 			{
-				RenderPass::SubpassDescription& subpassDesc = subpasses[subpassIndex];
+				GpuRenderPass::SubpassDescription& subpassDesc = subpasses[subpassIndex];
 
-				RenderPass::AttachmentReference* colorAttachment = FindColor(subpassIndex);
-				RenderPass::AttachmentReference* depthStencilAttachment = FindDepthStencil(subpassIndex);
+				GpuRenderPass::AttachmentReference* colorAttachment = FindColor(subpassIndex);
+				GpuRenderPass::AttachmentReference* depthStencilAttachment = FindDepthStencil(subpassIndex);
 
 				if (!colorAttachment && !depthStencilAttachment)
 				{
@@ -678,7 +678,7 @@ namespace Nz
 				continue;
 
 			auto& subpassDependency = dependencies.emplace_back();
-			subpassDependency.fromSubpassIndex = RenderPass::ExternalSubpassIndex;
+			subpassDependency.fromSubpassIndex = GpuRenderPass::ExternalSubpassIndex;
 			subpassDependency.toSubpassIndex = subpassIndex;
 			subpassDependency.tilable = true;
 
@@ -762,7 +762,7 @@ namespace Nz
 
 	void FrameGraph::BuildPhysicalPasses()
 	{
-		const RenderPassCache& renderPassCache = Graphics::Instance()->GetRenderPassCache();
+		const GpuRenderPassCache& renderPassCache = Graphics::Instance()->GetRenderPassCache();
 
 		std::vector<TextureLayout> textureLayouts(m_pending.textures.size(), TextureLayout::Undefined);
 
@@ -770,9 +770,9 @@ namespace Nz
 		std::optional<std::size_t> depthStencilAttachmentIndex;
 		std::size_t depthStencilAttachmentId;
 		std::unordered_map<std::size_t /*textureId*/, std::size_t /*attachmentIndex*/> usedTextureAttachments;
-		std::vector<RenderPass::Attachment> renderPassAttachments;
-		std::vector<RenderPass::SubpassDescription> subpassesDesc;
-		std::vector<RenderPass::SubpassDependency> subpassesDeps;
+		std::vector<GpuRenderPass::Attachment> renderPassAttachments;
+		std::vector<GpuRenderPass::SubpassDescription> subpassesDesc;
+		std::vector<GpuRenderPass::SubpassDependency> subpassesDeps;
 
 		auto RegisterColorInputRead = [&](const FramePass::Input& input)
 		{
@@ -833,7 +833,7 @@ namespace Nz
 			return attachmentIndex;
 		};
 
-		auto RegisterDepthStencil = [&](std::size_t attachmentId, TextureLayout textureLayout, bool* first) -> RenderPass::Attachment*
+		auto RegisterDepthStencil = [&](std::size_t attachmentId, TextureLayout textureLayout, bool* first) -> GpuRenderPass::Attachment*
 		{
 			if (depthStencilAttachmentIndex)
 			{
@@ -878,7 +878,7 @@ namespace Nz
 
 			std::size_t subpassIndex = 0;
 
-			std::vector<RenderPass::AttachmentReference> colorAttachments;
+			std::vector<GpuRenderPass::AttachmentReference> colorAttachments;
 			for (auto& subpass : physicalPass.passes)
 			{
 				const FramePass& framePass = m_framePasses[subpass.passIndex];
@@ -914,7 +914,7 @@ namespace Nz
 
 			std::size_t colorAttachmentCount = renderPassAttachments.size();
 
-			std::optional<RenderPass::AttachmentReference> depthStencilAttachment;
+			std::optional<GpuRenderPass::AttachmentReference> depthStencilAttachment;
 			for (auto& subpass : physicalPass.passes)
 			{
 				const FramePass& framePass = m_framePasses[subpass.passIndex];
@@ -930,7 +930,7 @@ namespace Nz
 
 					// DS input/output
 					bool first;
-					RenderPass::Attachment* dsAttachment = RegisterDepthStencil(dsInputAttachment, layout, &first);
+					GpuRenderPass::Attachment* dsAttachment = RegisterDepthStencil(dsInputAttachment, layout, &first);
 					if (dsAttachment)
 					{
 						if (first)
@@ -939,7 +939,7 @@ namespace Nz
 							dsAttachment->storeOp = AttachmentStoreOp::Store;
 						}
 
-						depthStencilAttachment = RenderPass::AttachmentReference{
+						depthStencilAttachment = GpuRenderPass::AttachmentReference{
 							depthStencilAttachmentIndex.value(),
 							layout
 						};
@@ -949,7 +949,7 @@ namespace Nz
 				{
 					// DS input-only
 					bool first;
-					RenderPass::Attachment* dsAttachment = RegisterDepthStencil(dsInputAttachment, TextureLayout::DepthStencilReadOnly, &first);
+					GpuRenderPass::Attachment* dsAttachment = RegisterDepthStencil(dsInputAttachment, TextureLayout::DepthStencilReadOnly, &first);
 					if (dsAttachment)
 					{
 						if (first)
@@ -978,7 +978,7 @@ namespace Nz
 							dsAttachment->storeOp = (canDiscard) ? AttachmentStoreOp::Discard : AttachmentStoreOp::Store;
 						}
 
-						depthStencilAttachment = RenderPass::AttachmentReference{
+						depthStencilAttachment = GpuRenderPass::AttachmentReference{
 							depthStencilAttachmentIndex.value(),
 							TextureLayout::DepthStencilReadOnly
 						};
@@ -990,7 +990,7 @@ namespace Nz
 
 					// DS output-only
 					bool first;
-					RenderPass::Attachment* dsAttachment = RegisterDepthStencil(dsOutputAttachement, layout, &first);
+					GpuRenderPass::Attachment* dsAttachment = RegisterDepthStencil(dsOutputAttachement, layout, &first);
 					if (dsAttachment)
 					{
 						if (first)
@@ -1000,7 +1000,7 @@ namespace Nz
 							dsAttachment->storeOp = AttachmentStoreOp::Store;
 						}
 
-						depthStencilAttachment = RenderPass::AttachmentReference{
+						depthStencilAttachment = GpuRenderPass::AttachmentReference{
 							depthStencilAttachmentIndex.value(),
 							layout
 						};

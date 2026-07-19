@@ -23,7 +23,7 @@ namespace Nz
 	}
 
 	template<typename... Args>
-	CommandBufferPtr VulkanCommandPool::AllocateFromPool(std::size_t poolIndex, Args&&... args)
+	GpuCommandBufferPtr VulkanCommandPool::AllocateFromPool(std::size_t poolIndex, Args&&... args)
 	{
 		auto& pool = m_commandPools[poolIndex];
 
@@ -34,7 +34,7 @@ namespace Nz
 		pool.freeCommands.Reset(freeBindingId);
 
 		VulkanCommandBuffer* freeBindingMemory = reinterpret_cast<VulkanCommandBuffer*>(&pool.storage[freeBindingId]);
-		return CommandBufferPtr(PlacementNew(freeBindingMemory, *this, poolIndex, freeBindingId, std::forward<Args>(args)...));
+		return GpuCommandBufferPtr(PlacementNew(freeBindingMemory, *this, poolIndex, freeBindingId, std::forward<Args>(args)...));
 	}
 
 	inline void VulkanCommandPool::TryToShrink()

@@ -5,7 +5,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLSwapchain.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderer.hpp>
-#include <Nazara/Renderer/CommandPool.hpp>
+#include <Nazara/Renderer/GpuCommandPool.hpp>
 
 namespace Nz
 {
@@ -70,9 +70,9 @@ namespace Nz
 			}
 		}
 
-		std::vector<RenderPass::Attachment> attachments;
-		std::vector<RenderPass::SubpassDescription> subpassDescriptions;
-		std::vector<RenderPass::SubpassDependency> subpassDependencies;
+		std::vector<GpuRenderPass::Attachment> attachments;
+		std::vector<GpuRenderPass::SubpassDescription> subpassDescriptions;
+		std::vector<GpuRenderPass::SubpassDependency> subpassDependencies;
 
 		BuildRenderPass(colorFormat, depthFormat, attachments, subpassDescriptions, subpassDependencies);
 		m_renderPass.emplace(std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies));
@@ -97,7 +97,7 @@ namespace Nz
 		return RenderFrame(&renderImage, sizeInvalidated, m_size);
 	}
 
-	std::shared_ptr<CommandPool> OpenGLSwapchain::CreateCommandPool(QueueType /*queueType*/)
+	std::shared_ptr<GpuCommandPool> OpenGLSwapchain::CreateCommandPool(QueueType /*queueType*/)
 	{
 		return std::make_shared<OpenGLCommandPool>();
 	}
@@ -157,7 +157,7 @@ namespace Nz
 		}
 	}
 
-	RenderResources& OpenGLSwapchain::GetTransientResources()
+	GpuResources& OpenGLSwapchain::GetTransientResources()
 	{
 		return *m_renderImage[m_currentImageIndex];
 	}

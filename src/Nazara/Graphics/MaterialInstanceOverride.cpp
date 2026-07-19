@@ -52,7 +52,7 @@ namespace Nz
 		return m_materialInstance->FillViewerBindings(viewer, bindings);
 	}
 
-	const ShaderBinding& MaterialInstanceOverride::GetShaderBinding(RenderResources& renderResources) const
+	const ShaderBinding& MaterialInstanceOverride::GetShaderBinding(GpuResources& renderResources) const
 	{
 		if (m_shaderBinding && !m_isShaderBindingInvalidated)
 			return *m_shaderBinding;

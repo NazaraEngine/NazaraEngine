@@ -9,7 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Export.hpp>
-#include <Nazara/Renderer/RenderPipeline.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <NazaraUtils/StringHash.hpp>
 #include <NZSL/ModuleResolver.hpp>

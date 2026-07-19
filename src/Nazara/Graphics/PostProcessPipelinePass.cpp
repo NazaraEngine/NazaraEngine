@@ -15,17 +15,17 @@ namespace Nz
 	m_shader(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, std::move(shaderName)),
 	m_inputCount(inputCount)
 	{
-		RenderPipelineLayoutInfo layoutInfo;
+		GpuPipelineLayoutInfo layoutInfo;
 		for (UInt32 inputIndex = 0; inputIndex < m_inputCount; ++inputIndex)
 		{
-			layoutInfo.bindings.push_back(RenderPipelineLayoutInfo::Binding{
+			layoutInfo.bindings.push_back(GpuPipelineLayoutInfo::Binding{
 				0, inputIndex, 1,
 				ShaderBindingType::Sampler,
 				nzsl::ShaderStageType::Fragment
 			});
 		}
 
-		std::shared_ptr<RenderDevice> renderDevice = Graphics::Instance()->GetRenderDevice();
+		std::shared_ptr<GpuDevice> renderDevice = Graphics::Instance()->GetGpuDevice();
 		m_renderPipelineLayout = renderDevice->InstantiateRenderPipelineLayout(std::move(layoutInfo));
 		if (!m_renderPipelineLayout)
 			throw std::runtime_error("failed to instantiate post-process RenderPipelineLayout");
@@ -79,7 +79,7 @@ namespace Nz
 			return (m_rebuildFramePass) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
 		});
 
-		postProcess.SetRenderCallback([this, inputIndices](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		postProcess.SetRenderCallback([this, inputIndices](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			if (m_shaderBinding)
 				env.renderResources.PushForRelease(std::move(m_shaderBinding));
@@ -149,7 +149,7 @@ namespace Nz
 
 	void PostProcessPipelinePass::BuildPipeline()
 	{
-		std::shared_ptr<RenderDevice> renderDevice = Graphics::Instance()->GetRenderDevice();
+		std::shared_ptr<GpuDevice> renderDevice = Graphics::Instance()->GetGpuDevice();
 
 		RenderPipelineInfo pipelineInfo;
 		pipelineInfo.pipelineLayout = m_renderPipelineLayout;

@@ -10,12 +10,12 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Export.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
-#include <Nazara/Renderer/CommandPool.hpp>
+#include <Nazara/Renderer/GpuCommandPool.hpp>
 #include <NazaraUtils/Bitset.hpp>
 
 namespace Nz
 {
-	class NAZARA_OPENGLRENDERER_API OpenGLCommandPool final : public CommandPool
+	class NAZARA_OPENGLRENDERER_API OpenGLCommandPool final : public GpuCommandPool
 	{
 		friend OpenGLCommandBuffer;
 
@@ -25,8 +25,8 @@ namespace Nz
 			OpenGLCommandPool(OpenGLCommandPool&&) noexcept = default;
 			~OpenGLCommandPool() = default;
 
-			CommandBufferPtr BuildPrimaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) override;
-			CommandBufferPtr BuildSecondaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) override;
+			GpuCommandBufferPtr BuildPrimaryCommandBuffer(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback) override;
+			GpuCommandBufferPtr BuildSecondaryCommandBuffer(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback) override;
 
 			void UpdateDebugName(std::string_view name) override;
 
@@ -37,9 +37,9 @@ namespace Nz
 			struct CommandPool;
 
 			CommandPool& AllocatePool();
-			CommandBufferPtr AllocateFromPool(std::size_t poolIndex);
-			CommandBufferPtr BuildCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback);
-			void Release(CommandBuffer& commandBuffer);
+			GpuCommandBufferPtr AllocateFromPool(std::size_t poolIndex);
+			GpuCommandBufferPtr BuildCommandBuffer(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback);
+			void Release(GpuCommandBuffer& commandBuffer);
 			inline void TryToShrink();
 
 			struct CommandPool

@@ -12,17 +12,17 @@
 #include <Nazara/Graphics/FrameGraphStructs.hpp>
 #include <Nazara/Graphics/FramePass.hpp>
 #include <Nazara/Math/Rect.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/CommandPool.hpp>
-#include <Nazara/Renderer/Framebuffer.hpp>
-#include <Nazara/Renderer/RenderPass.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuCommandPool.hpp>
+#include <Nazara/Renderer/GpuFramebuffer.hpp>
+#include <Nazara/Renderer/GpuRenderPass.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <span>
 #include <vector>
 
 namespace Nz
 {
-	class RenderResources;
+	class GpuResources;
 
 	class NAZARA_GRAPHICS_API BakedFrameGraph
 	{
@@ -34,12 +34,12 @@ namespace Nz
 			BakedFrameGraph(BakedFrameGraph&&) noexcept = default;
 			~BakedFrameGraph() = default;
 
-			void Execute(RenderResources& renderResources);
+			void Execute(GpuResources& renderResources);
 
 			const std::shared_ptr<Texture>& GetAttachmentTexture(std::size_t attachmentIndex) const;
-			const std::shared_ptr<RenderPass>& GetRenderPass(std::size_t passIndex) const;
+			const std::shared_ptr<GpuRenderPass>& GetRenderPass(std::size_t passIndex) const;
 
-			bool Resize(RenderResources& renderResources, std::span<Vector2ui> viewerTargetSizes);
+			bool Resize(GpuResources& renderResources, std::span<Vector2ui> viewerTargetSizes);
 
 			BakedFrameGraph& operator=(const BakedFrameGraph&) = delete;
 			BakedFrameGraph& operator=(BakedFrameGraph&&) noexcept = default;
@@ -65,17 +65,17 @@ namespace Nz
 
 			struct PassData
 			{
-				std::shared_ptr<Framebuffer> framebuffer;
-				std::shared_ptr<RenderPass> renderPass;
+				std::shared_ptr<GpuFramebuffer> framebuffer;
+				std::shared_ptr<GpuRenderPass> renderPass;
 				std::string name;
 				std::vector<std::size_t> outputTextureIndices;
-				std::vector<CommandBufferBuilder::ClearValues> outputClearValues;
+				std::vector<GpuCommandBufferBuilder::ClearValues> outputClearValues;
 				std::vector<TextureBarrier> invalidationBarriers;
 				FramePass::CommandCallback commandCallback;
 				FramePass::CommandCallback renderCallback;
 				FramePass::ExecutionCallback executionCallback;
 				Color regionColor;
-				CommandBufferPtr commandBuffer;
+				GpuCommandBufferPtr commandBuffer;
 				Recti renderRect;
 				bool forceCommandBufferRegeneration = true;
 			};
@@ -85,7 +85,7 @@ namespace Nz
 				std::shared_ptr<Texture> texture;
 			};
 
-			std::shared_ptr<CommandPool> m_commandPool;
+			std::shared_ptr<GpuCommandPool> m_commandPool;
 			std::vector<PassData> m_passes;
 			std::vector<TextureData> m_textures;
 			std::vector<Vector2ui> m_viewerSizes;

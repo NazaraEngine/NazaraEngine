@@ -1,0 +1,145 @@
+// Copyright (C) 2026 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Renderer module"
+// For conditions of distribution and use, see copyright notice in Export.hpp
+
+#pragma once
+
+#ifndef NAZARA_RENDERER_GPUCOMMANDBUFFERBUILDER_HPP
+#define NAZARA_RENDERER_GPUCOMMANDBUFFERBUILDER_HPP
+
+#include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/Enums.hpp>
+#include <Nazara/Math/Box.hpp>
+#include <Nazara/Math/Rect.hpp>
+#include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/Export.hpp>
+#include <Nazara/Renderer/GpuBufferView.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
+#include <span>
+#include <string_view>
+
+namespace Nz
+{
+	class GpuCommandBuffer;
+	class GpuComputePipeline;
+	class GpuFramebuffer;
+	class GpuRenderPass;
+	class GpuRenderPipeline;
+	class GpuPipelineLayout;
+	class ShaderBinding;
+	class Swapchain;
+	class Texture;
+
+	class NAZARA_RENDERER_API GpuCommandBufferBuilder
+	{
+		public:
+			struct BufferBarrierInfo;
+			struct ClearValues;
+			struct MemoryBarrierInfo;
+			struct TextureBarrierInfo;
+
+			GpuCommandBufferBuilder() = default;
+			GpuCommandBufferBuilder(const GpuCommandBufferBuilder&) = delete;
+			GpuCommandBufferBuilder(GpuCommandBufferBuilder&&) = default;
+			virtual ~GpuCommandBufferBuilder();
+
+			virtual void BeginDebugRegion(std::string_view regionName, const Color& color) = 0;
+			virtual void BeginRenderPass(const GpuFramebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) = 0;
+			inline void BeginRenderPass(const GpuFramebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect);
+			inline void BeginRenderPass(const GpuFramebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, std::initializer_list<ClearValues> clearValues);
+
+			virtual void BindComputePipeline(const GpuComputePipeline& pipeline) = 0;
+			virtual void BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
+			virtual void BindComputeShaderBinding(const GpuPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
+			virtual void BindIndexBuffer(const GpuBuffer& indexBuffer, IndexType indexType, UInt64 offset = 0) = 0;
+			virtual void BindRenderPipeline(const GpuRenderPipeline& pipeline) = 0;
+			virtual void BindRenderShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
+			virtual void BindRenderShaderBinding(const GpuPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
+			virtual void BindVertexBuffer(UInt32 binding, const GpuBuffer& vertexBuffer, UInt64 offset = 0) = 0;
+
+			virtual void BlitTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Boxui& toBox, TextureLayout toLayout, SamplerFilter filter) = 0;
+			virtual void BlitTextureToSwapchain(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Swapchain& swapchain, std::size_t imageIndex) = 0;
+
+			inline void BufferBarrier(const BufferBarrierInfo& barrierInfo);
+
+			virtual void BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 levelCount, PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout) = 0;
+
+			inline void CopyBuffer(const GpuBufferView& source, const GpuBufferView& target);
+			virtual void CopyBuffer(const GpuBufferView& source, const GpuBufferView& target, UInt64 size, UInt64 fromOffset = 0, UInt64 toOffset = 0) = 0;
+			inline void CopyBuffer(const GpuUploadPool::Allocation& allocation, const GpuBufferView& target);
+			virtual void CopyBuffer(const GpuUploadPool::Allocation& allocation, const GpuBufferView& target, UInt64 size, UInt64 fromOffset = 0, UInt64 toOffset = 0) = 0;
+			virtual void CopyTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Vector3ui& toPos, TextureLayout toLayout) = 0;
+
+			virtual void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0) = 0;
+			virtual void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstIndex = 0, UInt32 vertexOffset = 0, UInt32 firstInstance = 0) = 0;
+			virtual void DrawIndirect(const GpuBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride) = 0;
+			virtual void DrawIndirectCount(const GpuBuffer& buffer, UInt64 offset, const GpuBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride) = 0;
+			virtual void DrawIndexedIndirect(const GpuBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride) = 0;
+			virtual void DrawIndexedIndirectCount(const GpuBuffer& buffer, UInt64 offset, const GpuBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride) = 0;
+
+			virtual void Dispatch(UInt32 workgroupX, UInt32 workgroupY, UInt32 workgroupZ) = 0;
+
+			virtual void EndDebugRegion() = 0;
+			virtual void EndRenderPass() = 0;
+
+			virtual void ExecuteCommands(std::span<const GpuCommandBuffer*> commandBuffers) = 0;
+
+			virtual void InsertDebugLabel(std::string_view label, const Color& color) = 0;
+
+			inline void MemoryBarrier(const MemoryBarrierInfo& barrierInfo);
+
+			virtual void NextSubpass() = 0;
+
+			virtual void PipelineBarrier(std::span<const MemoryBarrierInfo> memoryBarriers, std::span<const BufferBarrierInfo> bufferBarriers, std::span<const TextureBarrierInfo> textureBarriers) = 0;
+
+			virtual void PushConstants(const GpuPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data) = 0;
+
+			virtual void SetScissor(const Recti& scissorRegion) = 0;
+			virtual void SetViewport(const Recti& viewportRegion) = 0;
+
+			inline void TextureBarrier(const TextureBarrierInfo& barrierInfo);
+
+			GpuCommandBufferBuilder& operator=(const GpuCommandBufferBuilder&) = delete;
+			GpuCommandBufferBuilder& operator=(GpuCommandBufferBuilder&&) = default;
+
+			struct MemoryBarrierInfo
+			{
+				PipelineStageFlags srcStageMask;
+				PipelineStageFlags dstStageMask;
+				MemoryAccessFlags srcAccessMask;
+				MemoryAccessFlags dstAccessMask;
+			};
+
+			struct BufferBarrierInfo
+			{
+				PipelineStageFlags srcStageMask;
+				PipelineStageFlags dstStageMask;
+				MemoryAccessFlags srcAccessMask;
+				MemoryAccessFlags dstAccessMask;
+				const GpuBuffer* buffer;
+			};
+
+			struct TextureBarrierInfo
+			{
+				PipelineStageFlags srcStageMask;
+				PipelineStageFlags dstStageMask;
+				MemoryAccessFlags srcAccessMask;
+				MemoryAccessFlags dstAccessMask;
+				TextureLayout oldLayout;
+				TextureLayout newLayout;
+				const Texture* texture;
+			};
+
+			struct ClearValues
+			{
+				Color color = Color::Black();
+				float depth = 1.f;
+				UInt32 stencil = 0;
+			};
+	};
+}
+
+#include <Nazara/Renderer/GpuCommandBufferBuilder.inl>
+
+#endif // NAZARA_RENDERER_GPUCOMMANDBUFFERBUILDER_HPP

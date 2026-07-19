@@ -26,9 +26,9 @@ namespace Nz
 	class LightShadowData;
 	class MaterialInstance;
 	class PipelineViewer;
-	class RenderBuffer;
+	class GpuBuffer;
 	class RenderQueue;
-	class RenderResources;
+	class GpuResources;
 	class ShaderBindingCache;
 
 	class NAZARA_GRAPHICS_API FramePipeline
@@ -45,16 +45,16 @@ namespace Nz
 			virtual void ForEachShadowCastingLight(FunctionRef<void(std::size_t lightIndex, const Light* light, LightShadowData* lightShadowData)> callback) = 0;
 
 			// TODO: Move to another class
-			virtual const std::shared_ptr<RenderBuffer>& GetDirectionalLightBuffer() const = 0;
-			virtual const std::shared_ptr<RenderBuffer>& GetDirectionalShadowMappingBuffer() const = 0;
-			virtual const std::shared_ptr<RenderBuffer>& GetInstanceBuffer() const = 0;
-			virtual const std::shared_ptr<RenderBuffer>& GetPointLightBuffer() const = 0;
-			virtual const std::shared_ptr<RenderBuffer>& GetPointShadowMappingBuffer() const = 0;
+			virtual const std::shared_ptr<GpuBuffer>& GetDirectionalLightBuffer() const = 0;
+			virtual const std::shared_ptr<GpuBuffer>& GetDirectionalShadowMappingBuffer() const = 0;
+			virtual const std::shared_ptr<GpuBuffer>& GetInstanceBuffer() const = 0;
+			virtual const std::shared_ptr<GpuBuffer>& GetPointLightBuffer() const = 0;
+			virtual const std::shared_ptr<GpuBuffer>& GetPointShadowMappingBuffer() const = 0;
 			virtual RenderQueue& GetRenderQueue(std::size_t renderQueueIndex) = 0;
 			virtual ShaderBindingCache* GetShaderBindingCache() const = 0;
 			virtual const std::shared_ptr<Texture>& GetShadowAtlasTexture() const = 0;
-			virtual const std::shared_ptr<RenderBuffer>& GetSpotLightBuffer() const = 0;
-			virtual const std::shared_ptr<RenderBuffer>& GetSpotShadowMappingBuffer() const = 0;
+			virtual const std::shared_ptr<GpuBuffer>& GetSpotLightBuffer() const = 0;
+			virtual const std::shared_ptr<GpuBuffer>& GetSpotShadowMappingBuffer() const = 0;
 
 			virtual void QueueTransfer(TransferInterface* transfer) = 0;
 
@@ -67,7 +67,7 @@ namespace Nz
 			virtual const Light* RetrieveLight(std::size_t lightIndex) const = 0;
 			virtual const LightShadowData* RetrieveLightShadowData(std::size_t lightIndex) const = 0;
 
-			virtual void Render(RenderResources& renderResources) = 0;
+			virtual void Render(GpuResources& renderResources) = 0;
 
 			virtual void UnregisterInstance(UInt32 worldInstance) = 0;
 			virtual void UnregisterLight(std::size_t lightIndex) = 0;
@@ -86,7 +86,7 @@ namespace Nz
 			FramePipeline& operator=(const FramePipeline&) = delete;
 			FramePipeline& operator=(FramePipeline&&) = delete;
 
-			NazaraSignal(OnTransfer, FramePipeline* /*pipeline*/, RenderResources& /*renderResources*/, CommandBufferBuilder& /*builder*/);
+			NazaraSignal(OnTransfer, FramePipeline* /*pipeline*/, GpuResources& /*renderResources*/, GpuCommandBufferBuilder& /*builder*/);
 
 			static constexpr std::size_t NoSkeletonInstance = MaxValue();
 

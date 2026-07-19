@@ -111,7 +111,7 @@ namespace Nz
 		return context.CopyTexture(glTexture, *this, srcBox, dstPos);
 	}
 
-	bool OpenGLTexture::Copy(AsyncRenderCommands& /*asyncTransfer*/, const Texture& source, const Boxui32& srcBox, const Vector3ui32& dstPos)
+	bool OpenGLTexture::Copy(GpuAsyncCommands& /*asyncTransfer*/, const Texture& source, const Boxui32& srcBox, const Vector3ui32& dstPos)
 	{
 		return Copy(source, srcBox, dstPos);
 	}
@@ -248,17 +248,17 @@ namespace Nz
 		return Update(pixels.data(), box, 0, 0, level);
 	}
 
-	bool OpenGLTexture::Update(AsyncRenderCommands& /*asyncTransfer*/, const void* ptr, bool buildMipmaps, UInt32 srcWidth, UInt32 srcHeight)
+	bool OpenGLTexture::Update(GpuAsyncCommands& /*asyncTransfer*/, const void* ptr, bool buildMipmaps, UInt32 srcWidth, UInt32 srcHeight)
 	{
 		return Update(ptr, buildMipmaps, srcWidth, srcHeight);
 	}
 
-	bool OpenGLTexture::Update(AsyncRenderCommands& /*asyncTransfer*/, const void* ptr, const Boxui& box, UInt32 srcWidth, UInt32 srcHeight, UInt8 level)
+	bool OpenGLTexture::Update(GpuAsyncCommands& /*asyncTransfer*/, const void* ptr, const Boxui& box, UInt32 srcWidth, UInt32 srcHeight, UInt8 level)
 	{
 		return Update(ptr, box, srcWidth, srcHeight, level);
 	}
 
-	bool OpenGLTexture::Update(AsyncRenderCommands& /*asyncTransfer*/, Nz::FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level)
+	bool OpenGLTexture::Update(GpuAsyncCommands& /*asyncTransfer*/, Nz::FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level)
 	{
 		return Update(callback, box, level);
 	}

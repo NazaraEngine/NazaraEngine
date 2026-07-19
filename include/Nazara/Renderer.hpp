@@ -29,32 +29,33 @@
 #ifndef NAZARA_GLOBAL_RENDERER_HPP
 #define NAZARA_GLOBAL_RENDERER_HPP
 
-#include <Nazara/Renderer/AsyncRenderCommands.hpp>
-#include <Nazara/Renderer/CommandBuffer.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/CommandPool.hpp>
-#include <Nazara/Renderer/ComputePipeline.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/DrawIndirect.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Export.hpp>
-#include <Nazara/Renderer/Framebuffer.hpp>
+#include <Nazara/Renderer/GpuAsyncCommands.hpp>
+#include <Nazara/Renderer/GpuBuffer.hpp>
+#include <Nazara/Renderer/GpuBufferView.hpp>
+#include <Nazara/Renderer/GpuCommandBuffer.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuCommandPool.hpp>
+#include <Nazara/Renderer/GpuComputePipeline.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
+#include <Nazara/Renderer/GpuDeviceInfo.hpp>
+#include <Nazara/Renderer/GpuFramebuffer.hpp>
+#include <Nazara/Renderer/GpuPipelineLayout.hpp>
+#include <Nazara/Renderer/GpuRenderPass.hpp>
+#include <Nazara/Renderer/GpuRenderPassCache.hpp>
+#include <Nazara/Renderer/GpuRenderPipeline.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
 #include <Nazara/Renderer/GpuSwitch.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <Nazara/Renderer/PredefinedShaderStructBuilder.hpp>
 #include <Nazara/Renderer/PredefinedShaderStructs.hpp>
-#include <Nazara/Renderer/RenderBuffer.hpp>
-#include <Nazara/Renderer/RenderBufferView.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
-#include <Nazara/Renderer/RenderDeviceInfo.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/RenderImage.hpp>
-#include <Nazara/Renderer/RenderPass.hpp>
-#include <Nazara/Renderer/RenderPassCache.hpp>
-#include <Nazara/Renderer/RenderPipeline.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
@@ -62,7 +63,6 @@
 #include <Nazara/Renderer/SwapchainParameters.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/Renderer/WindowSwapchain.hpp>
 
 #endif // NAZARA_GLOBAL_RENDERER_HPP
