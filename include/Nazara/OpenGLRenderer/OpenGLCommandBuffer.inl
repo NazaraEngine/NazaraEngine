@@ -136,7 +136,7 @@ namespace Nz
 		m_commands.emplace_back(std::move(copyBuffer));
 	}
 
-	inline void OpenGLCommandBuffer::CopyBuffer(const UploadPool::Allocation& allocation, GLuint target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
+	inline void OpenGLCommandBuffer::CopyBuffer(const GpuUploadPool::Allocation& allocation, GLuint target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
 		CopyBufferFromMemoryCommand copyBuffer = {
 			static_cast<const UInt8*>(allocation.mappedPtr) + sourceOffset,
@@ -324,7 +324,7 @@ namespace Nz
 		}
 	}
 
-	inline void OpenGLCommandBuffer::SetFramebuffer(const OpenGLFramebuffer& framebuffer, const OpenGLRenderPass& renderPass, const CommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount)
+	inline void OpenGLCommandBuffer::SetFramebuffer(const OpenGLFramebuffer& framebuffer, const OpenGLRenderPass& renderPass, const GpuCommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount)
 	{
 		m_maxColorBufferCount = std::max(m_maxColorBufferCount, framebuffer.GetColorBufferCount());
 

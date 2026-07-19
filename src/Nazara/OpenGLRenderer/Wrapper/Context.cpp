@@ -635,7 +635,7 @@ namespace Nz::GL
 		}
 
 		// Set debug callback (if supported and enabled)
-		if (glDebugMessageCallback && params.validationLevel != RenderAPIValidationLevel::None)
+		if (glDebugMessageCallback && params.validationLevel != GpuValidationLevel::None)
 		{
 			m_params.validationLevel = params.validationLevel;
 
@@ -643,7 +643,7 @@ namespace Nz::GL
 
 			// Always enable synchronous debug output for debug libraries
 #ifndef NAZARA_DEBUG
-			if (m_params.validationLevel == RenderAPIValidationLevel::Debug)
+			if (m_params.validationLevel == GpuValidationLevel::Debug)
 #endif
 				glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
@@ -666,12 +666,12 @@ namespace Nz::GL
 					glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_MARKER, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 
 				// Handle verbosity level
-				if (m_params.validationLevel < RenderAPIValidationLevel::Debug)
+				if (m_params.validationLevel < GpuValidationLevel::Debug)
 					// Disable driver notifications except in debug (NVidia driver is very verbose)
 					glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
-				else if (m_params.validationLevel < RenderAPIValidationLevel::Verbose)
+				else if (m_params.validationLevel < GpuValidationLevel::Verbose)
 					glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
-				else if (m_params.validationLevel < RenderAPIValidationLevel::Warnings)
+				else if (m_params.validationLevel < GpuValidationLevel::Warnings)
 					glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW, 0, nullptr, GL_FALSE);
 			}
 		}

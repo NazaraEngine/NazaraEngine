@@ -9,15 +9,15 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Export.hpp>
-#include <Nazara/Renderer/RenderPass.hpp>
+#include <Nazara/Renderer/GpuRenderPass.hpp>
 #include <vector>
 
 namespace Nz
 {
-	class NAZARA_OPENGLRENDERER_API OpenGLRenderPass final : public RenderPass
+	class NAZARA_OPENGLRENDERER_API OpenGLRenderPass final : public GpuRenderPass
 	{
 		public:
-			using RenderPass::RenderPass;
+			using GpuRenderPass::GpuRenderPass;
 			OpenGLRenderPass(const OpenGLRenderPass&) = delete;
 			OpenGLRenderPass(OpenGLRenderPass&&) noexcept = default;
 			~OpenGLRenderPass() = default;

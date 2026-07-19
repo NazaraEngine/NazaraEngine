@@ -16,8 +16,8 @@
 #include <Nazara/Graphics/NameRegistry.hpp>
 #include <Nazara/Graphics/PipelinePassList.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
-#include <Nazara/Renderer/RenderPassCache.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
+#include <Nazara/Renderer/GpuRenderPassCache.hpp>
 #include <Nazara/Renderer/GpuPipelineLayout.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/TextRenderer/TextRenderer.hpp>
@@ -65,8 +65,8 @@ namespace Nz
 			inline const PipelinePassListLoader& GetPipelinePassListLoader() const;
 			inline PixelFormat GetPreferredDepthFormat() const;
 			inline PixelFormat GetPreferredDepthStencilFormat() const;
-			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
-			inline const RenderPassCache& GetRenderPassCache() const;
+			inline const std::shared_ptr<GpuDevice>& GetRenderDevice() const;
+			inline const GpuRenderPassCache& GetRenderPassCache() const;
 			inline NameRegistry& GetRenderQueueRegistry();
 			inline const NameRegistry& GetRenderQueueRegistry() const;
 			inline TextureSamplerCache& GetSamplerCache();
@@ -77,7 +77,7 @@ namespace Nz
 			{
 				void Override(const CommandLineParameters& parameters);
 
-				RenderDeviceFeatures forceDisableFeatures;
+				GpuDeviceFeatures forceDisableFeatures;
 				bool useDedicatedRenderDevice = true;
 			};
 
@@ -114,11 +114,11 @@ namespace Nz
 			void RegisterShaderModules();
 			void SelectDepthStencilFormats();
 
-			std::optional<RenderPassCache> m_renderPassCache;
+			std::optional<GpuRenderPassCache> m_renderPassCache;
 			std::optional<TextureSamplerCache> m_samplerCache;
 			std::shared_ptr<nzsl::FilesystemModuleResolver> m_shaderModuleResolver;
 			std::shared_ptr<PipelinePassList> m_defaultPipelinePasses;
-			std::shared_ptr<RenderDevice> m_renderDevice;
+			std::shared_ptr<GpuDevice> m_renderDevice;
 			std::shared_ptr<GpuRenderPipeline> m_blitPipeline;
 			std::shared_ptr<GpuRenderPipeline> m_blitPipelineTransparent;
 			std::shared_ptr<GpuPipelineLayout> m_blitPipelineLayout;

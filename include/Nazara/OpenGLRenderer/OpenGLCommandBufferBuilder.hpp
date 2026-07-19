@@ -9,14 +9,14 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Export.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
 
 namespace Nz
 {
 	class OpenGLCommandBuffer;
 	class OpenGLTexture;
 
-	class NAZARA_OPENGLRENDERER_API OpenGLCommandBufferBuilder final : public CommandBufferBuilder
+	class NAZARA_OPENGLRENDERER_API OpenGLCommandBufferBuilder final : public GpuCommandBufferBuilder
 	{
 		public:
 			inline OpenGLCommandBufferBuilder(OpenGLCommandBuffer& commandBuffer);
@@ -25,7 +25,7 @@ namespace Nz
 			~OpenGLCommandBufferBuilder() = default;
 
 			void BeginDebugRegion(std::string_view regionName, const Color& color) override;
-			void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) override;
+			void BeginRenderPass(const Framebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) override;
 
 			void BindComputePipeline(const GpuComputePipeline& pipeline) override;
 			void BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) override;
@@ -42,7 +42,7 @@ namespace Nz
 			void BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 levelCount, PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout) override;
 
 			void CopyBuffer(const GpuBufferView& source, const GpuBufferView& target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0) override;
-			void CopyBuffer(const UploadPool::Allocation& allocation, const GpuBufferView& target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0) override;
+			void CopyBuffer(const GpuUploadPool::Allocation& allocation, const GpuBufferView& target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0) override;
 			void CopyTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Vector3ui& toPos, TextureLayout toLayout) override;
 
 			void Dispatch(UInt32 workgroupX, UInt32 workgroupY, UInt32 workgroupZ) override;
@@ -57,7 +57,7 @@ namespace Nz
 			void EndDebugRegion() override;
 			void EndRenderPass() override;
 
-			void ExecuteCommands(std::span<const CommandBuffer*> commandBuffers) override;
+			void ExecuteCommands(std::span<const GpuCommandBuffer*> commandBuffers) override;
 
 			void InsertDebugLabel(std::string_view label, const Color& color) override;
 

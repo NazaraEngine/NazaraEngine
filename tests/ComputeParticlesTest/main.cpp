@@ -27,10 +27,10 @@ struct SpriteRenderPipeline
 
 };
 
-std::shared_ptr<Nz::GpuComputePipeline> BuildComputePipeline(Nz::RenderDevice& device, std::shared_ptr<Nz::GpuPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver);
-SpriteRenderPipeline BuildSpritePipeline(Nz::RenderDevice& device);
-SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPipeline& pipelineData, const Nz::Rectf& textureRect, const Nz::Vector2f& screenSize, const Nz::GpuBufferView& buffer, const Nz::GpuBufferView& particleBuffer, std::shared_ptr<Nz::Texture> texture, std::shared_ptr<Nz::TextureSampler> sampler);
-std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std::shared_ptr<nzsl::ModuleResolver> moduleResolver, Nz::WindowSwapchain& swapchain);
+std::shared_ptr<Nz::GpuComputePipeline> BuildComputePipeline(Nz::GpuDevice& device, std::shared_ptr<Nz::GpuPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver);
+SpriteRenderPipeline BuildSpritePipeline(Nz::GpuDevice& device);
+SpriteRenderData BuildSpriteData(Nz::GpuDevice& device, const SpriteRenderPipeline& pipelineData, const Nz::Rectf& textureRect, const Nz::Vector2f& screenSize, const Nz::GpuBufferView& buffer, const Nz::GpuBufferView& particleBuffer, std::shared_ptr<Nz::Texture> texture, std::shared_ptr<Nz::TextureSampler> sampler);
+std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::GpuDevice& device, std::shared_ptr<nzsl::ModuleResolver> moduleResolver, Nz::WindowSwapchain& swapchain);
 
 int main()
 {
@@ -43,18 +43,18 @@ int main()
 	Nz::Renderer::Config rendererConfig;
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;
 	if (std::getchar() == 'y')
-		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
+		rendererConfig.preferredAPI = Nz::GpuBackend::Vulkan;
 	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+		rendererConfig.preferredAPI = Nz::GpuBackend::OpenGL;
 
 	Nz::Modules<Nz::Renderer> nazara(rendererConfig);
 
-	Nz::RenderDeviceFeatures enabledFeatures;
+	Nz::GpuDeviceFeatures enabledFeatures;
 	enabledFeatures.computeShaders = true;
 	enabledFeatures.storageBuffers = true;
 	enabledFeatures.textureReadWrite = true;
 
-	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0, enabledFeatures);
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0, enabledFeatures);
 
 	nzsl::FieldOffsets particleLayout(nzsl::StructLayout::Std430);
 	std::size_t particleColorOffset = particleLayout.AddField(nzsl::StructFieldType::Float3);
@@ -310,7 +310,7 @@ int main()
 
 		Nz::Time deltaTime = updateClock.Restart();
 
-		Nz::UploadPool& uploadPool = frame.GetUploadPool();
+		Nz::GpuUploadPool& uploadPool = frame.GetUploadPool();
 
 		mouseSampleTimer += deltaTime;
 		if (mouseSampleTimer >= mouseSampleRate)
@@ -322,7 +322,7 @@ int main()
 			newMousePos = Nz::Vector2f(mousePos.x, windowSize.y - mousePos.y);
 		}
 
-		frame.Execute([&](Nz::CommandBufferBuilder& builder)
+		frame.Execute([&](Nz::GpuCommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("Upload scene data", Nz::Color::Yellow());
 			{
@@ -353,7 +353,7 @@ int main()
 			{
 				Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
 
-				Nz::CommandBufferBuilder::ClearValues clearValues[2];
+				Nz::GpuCommandBufferBuilder::ClearValues clearValues[2];
 				clearValues[0].color = Nz::Color::Black();
 				clearValues[1].depth = 1.f;
 				clearValues[1].stencil = 0;
@@ -389,7 +389,7 @@ int main()
 	return EXIT_SUCCESS;
 }
 
-std::shared_ptr<Nz::GpuComputePipeline> BuildComputePipeline(Nz::RenderDevice& device, std::shared_ptr<Nz::GpuPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver)
+std::shared_ptr<Nz::GpuComputePipeline> BuildComputePipeline(Nz::GpuDevice& device, std::shared_ptr<Nz::GpuPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver)
 {
 	nzsl::Ast::ModulePtr shaderModule = moduleResolver->Resolve("Compute.Particles");
 	if (!shaderModule)
@@ -494,7 +494,7 @@ fn main(input: VertIn) -> VertOut
 }
 )";
 
-SpriteRenderPipeline BuildSpritePipeline(Nz::RenderDevice& device)
+SpriteRenderPipeline BuildSpritePipeline(Nz::GpuDevice& device)
 {
 	try
 	{
@@ -563,7 +563,7 @@ SpriteRenderPipeline BuildSpritePipeline(Nz::RenderDevice& device)
 	}
 }
 
-SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPipeline& pipelineData, const Nz::Rectf& textureRect, const Nz::Vector2f& screenSize, const Nz::GpuBufferView& buffer, const Nz::GpuBufferView& particleBuffer, std::shared_ptr<Nz::Texture> texture, std::shared_ptr<Nz::TextureSampler> sampler)
+SpriteRenderData BuildSpriteData(Nz::GpuDevice& device, const SpriteRenderPipeline& pipelineData, const Nz::Rectf& textureRect, const Nz::Vector2f& screenSize, const Nz::GpuBufferView& buffer, const Nz::GpuBufferView& particleBuffer, std::shared_ptr<Nz::Texture> texture, std::shared_ptr<Nz::TextureSampler> sampler)
 {
 	try
 	{
@@ -611,7 +611,7 @@ SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPip
 	}
 }
 
-std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std::shared_ptr<nzsl::ModuleResolver> moduleResolver, Nz::WindowSwapchain& swapchain)
+std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::GpuDevice& device, std::shared_ptr<nzsl::ModuleResolver> moduleResolver, Nz::WindowSwapchain& swapchain)
 {
 	nzsl::Ast::ModulePtr shaderModule = moduleResolver->Resolve("Compute.ParticleTexture");
 	if (!shaderModule)
@@ -673,7 +673,7 @@ std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std
 		}
 	});
 
-	swapchain.GetTransientResources().Execute([&](Nz::CommandBufferBuilder& builder)
+	swapchain.GetTransientResources().Execute([&](Nz::GpuCommandBufferBuilder& builder)
 	{
 		builder.TextureBarrier({ .srcStageMask = Nz::PipelineStage::BottomOfPipe, .dstStageMask = Nz::PipelineStage::ComputeShader, .srcAccessMask = {}, .dstAccessMask = Nz::MemoryAccess::ShaderWrite, .oldLayout = Nz::TextureLayout::Undefined, .newLayout = Nz::TextureLayout::General, .texture = targetTexture.get() });
 

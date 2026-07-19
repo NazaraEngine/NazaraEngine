@@ -53,12 +53,12 @@ namespace Nz
 		m_rendererImpl.reset();
 	}
 
-	std::shared_ptr<RenderDevice> Renderer::InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures)
+	std::shared_ptr<GpuDevice> Renderer::InstanciateRenderDevice(std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures)
 	{
 		return m_rendererImpl->InstanciateRenderDevice(deviceIndex, enabledFeatures);
 	}
 
-	RenderAPI Renderer::QueryAPI() const
+	GpuBackend Renderer::QueryAPI() const
 	{
 		return m_rendererImpl->QueryAPI();
 	}
@@ -73,7 +73,7 @@ namespace Nz
 		return m_rendererImpl->QueryAPIVersion();
 	}
 
-	const std::vector<RenderDeviceInfo>& Renderer::QueryRenderDevices() const
+	const std::vector<GpuDeviceInfo>& Renderer::QueryRenderDevices() const
 	{
 		return m_rendererImpl->QueryRenderDevices();
 	}
@@ -95,13 +95,13 @@ namespace Nz
 		};
 		std::vector<RendererImplementations> implementations;
 
-		RenderAPI preferredAPI = config.preferredAPI;
+		GpuBackend preferredAPI = config.preferredAPI;
 		// OpenGL and OpenGL ES are handled by the same renderer (OpenGL ES is handled in OpenGLRenderer code)
-		if (preferredAPI == RenderAPI::OpenGL_ES)
-			preferredAPI = RenderAPI::OpenGL;
+		if (preferredAPI == GpuBackend::OpenGL_ES)
+			preferredAPI = GpuBackend::OpenGL;
 
 #ifdef NAZARA_RENDERER_EMBEDDEDBACKENDS
-		auto RegisterImpl = [&]<typename T>(RenderAPI api, auto ComputeScore, TypeTag<T>)
+		auto RegisterImpl = [&]<typename T>(GpuBackend api, auto ComputeScore, TypeTag<T>)
 		{
 			int score = ComputeScore();
 			if (score >= 0)
@@ -112,13 +112,13 @@ namespace Nz
 			}
 		};
 
-		RegisterImpl(RenderAPI::OpenGL, [] { return 50; }, TypeTag<OpenGLRenderer>{});
+		RegisterImpl(GpuBackend::OpenGL, [] { return 50; }, TypeTag<OpenGLRenderer>{});
 #ifndef NAZARA_PLATFORM_WEB
-		RegisterImpl(RenderAPI::Vulkan, [] { return 100; }, TypeTag<VulkanRenderer>{});
+		RegisterImpl(GpuBackend::Vulkan, [] { return 100; }, TypeTag<VulkanRenderer>{});
 #endif
 
 #else
-		constexpr EnumArray<RenderAPI, const char*> rendererPaths = {
+		constexpr EnumArray<GpuBackend, const char*> rendererPaths = {
 			NazaraRendererPrefix "NazaraDirect3DRenderer" NazaraRendererDebugSuffix, // Direct3D
 			NazaraRendererPrefix "NazaraMantleRenderer"   NazaraRendererDebugSuffix, // Mantle
 			NazaraRendererPrefix "NazaraMetalRenderer"    NazaraRendererDebugSuffix, // Metal
@@ -129,7 +129,7 @@ namespace Nz
 			nullptr // Unknown
 		};
 
-		auto RegisterImpl = [&](RenderAPI api, auto ComputeScore)
+		auto RegisterImpl = [&](GpuBackend api, auto ComputeScore)
 		{
 			const char* rendererName = rendererPaths[api];
 			assert(rendererName);
@@ -146,9 +146,9 @@ namespace Nz
 			}
 		};
 
-		RegisterImpl(RenderAPI::OpenGL, [] { return 50; });
+		RegisterImpl(GpuBackend::OpenGL, [] { return 50; });
 #ifndef NAZARA_PLATFORM_WEB
-		RegisterImpl(RenderAPI::Vulkan, [] { return 100; });
+		RegisterImpl(GpuBackend::Vulkan, [] { return 100; });
 #endif
 
 #endif
@@ -231,14 +231,14 @@ namespace Nz
 
 		if (GetParameter("render-api", "NAZARA_RENDER_API", &value))
 		{
-			constexpr auto renderAPIStr = frozen::make_unordered_map<frozen::string, RenderAPI>({
-				{ "auto",     RenderAPI::Unknown },
-				{ "direct3d", RenderAPI::Direct3D },
-				{ "mantle",   RenderAPI::Mantle },
-				{ "metal",    RenderAPI::Metal },
-				{ "opengl",   RenderAPI::OpenGL },
-				{ "opengles", RenderAPI::OpenGL_ES },
-				{ "vulkan",   RenderAPI::Vulkan }
+			constexpr auto renderAPIStr = frozen::make_unordered_map<frozen::string, GpuBackend>({
+				{ "auto",     GpuBackend::Unknown },
+				{ "direct3d", GpuBackend::Direct3D },
+				{ "mantle",   GpuBackend::Mantle },
+				{ "metal",    GpuBackend::Metal },
+				{ "opengl",   GpuBackend::OpenGL },
+				{ "opengles", GpuBackend::OpenGL_ES },
+				{ "vulkan",   GpuBackend::Vulkan }
 			});
 
 			if (auto it = renderAPIStr.find(value); it != renderAPIStr.end())
@@ -249,14 +249,14 @@ namespace Nz
 
 		if (GetParameter("render-api-validation", "NAZARA_RENDER_API_VALDATION", &value))
 		{
-			constexpr auto validationStr = frozen::make_unordered_map<frozen::string, RenderAPIValidationLevel>({
-				{ "debug",    RenderAPIValidationLevel::Debug },
-				{ "error",    RenderAPIValidationLevel::Errors },
-				{ "errors",   RenderAPIValidationLevel::Errors },
-				{ "none",     RenderAPIValidationLevel::None },
-				{ "verbose",  RenderAPIValidationLevel::Verbose },
-				{ "warning",  RenderAPIValidationLevel::Warnings },
-				{ "warnings", RenderAPIValidationLevel::Warnings }
+			constexpr auto validationStr = frozen::make_unordered_map<frozen::string, GpuValidationLevel>({
+				{ "debug",    GpuValidationLevel::Debug },
+				{ "error",    GpuValidationLevel::Errors },
+				{ "errors",   GpuValidationLevel::Errors },
+				{ "none",     GpuValidationLevel::None },
+				{ "verbose",  GpuValidationLevel::Verbose },
+				{ "warning",  GpuValidationLevel::Warnings },
+				{ "warnings", GpuValidationLevel::Warnings }
 			});
 
 			if (auto it = validationStr.find(value); it != validationStr.end())

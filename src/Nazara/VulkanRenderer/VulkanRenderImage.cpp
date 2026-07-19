@@ -28,7 +28,7 @@ namespace Nz
 			throw std::runtime_error("failed to create in-flight fence: " + TranslateVulkanError(m_inFlightFence.GetLastErrorCode()));
 	}
 
-	void VulkanRenderImage::Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags)
+	void VulkanRenderImage::Execute(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags)
 	{
 		if (m_freeCommandBufferIndex >= m_allocatedCommandBuffers.size())
 		{
@@ -70,7 +70,7 @@ namespace Nz
 		m_owner.Present(m_imageIndex, renderFinishedSemaphore);
 	}
 
-	void VulkanRenderImage::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags)
+	void VulkanRenderImage::SubmitCommandBuffer(GpuCommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags)
 	{
 		VulkanCommandBuffer& vkCommandBuffer = *SafeCast<VulkanCommandBuffer*>(commandBuffer);
 

@@ -51,18 +51,18 @@ namespace Nz::GL
 		ContextParams params;
 		std::array<GL::ContextType, 2> contextTypes;
 
-		RenderAPI preferredAPI = config.preferredAPI;
-		if (preferredAPI == RenderAPI::Unknown)
+		GpuBackend preferredAPI = config.preferredAPI;
+		if (preferredAPI == GpuBackend::Unknown)
 		{
 			// Favor OpenGL on desktop and OpenGL ES on mobile
 #if defined(NAZARA_PLATFORM_DESKTOP)
-			preferredAPI = RenderAPI::OpenGL;
+			preferredAPI = GpuBackend::OpenGL;
 #else
-			preferredAPI = RenderAPI::OpenGL_ES;
+			preferredAPI = GpuBackend::OpenGL_ES;
 #endif
 		}
 
-		if (config.preferredAPI == RenderAPI::OpenGL_ES)
+		if (config.preferredAPI == GpuBackend::OpenGL_ES)
 		{
 			contextTypes[0] = GL::ContextType::OpenGL_ES;
 			contextTypes[1] = GL::ContextType::OpenGL;

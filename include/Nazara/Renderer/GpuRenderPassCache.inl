@@ -6,24 +6,24 @@
 
 namespace Nz
 {
-	inline RenderPassCache::RenderPassCache(RenderDevice& device) :
+	inline GpuRenderPassCache::GpuRenderPassCache(GpuDevice& device) :
 	m_device(device)
 	{
 	}
 
 	template<typename T>
-	std::size_t RenderPassCache::Hasher::operator()(const T& key) const
+	std::size_t GpuRenderPassCache::Hasher::operator()(const T& key) const
 	{
 		return operator()(ToRenderPassData(key));
 	}
 
 	template<typename T1, typename T2>
-	inline bool RenderPassCache::EqualityChecker::operator()(const T1& lhs, const T2& rhs) const
+	inline bool GpuRenderPassCache::EqualityChecker::operator()(const T1& lhs, const T2& rhs) const
 	{
 		return operator()(ToRenderPassData(lhs), ToRenderPassData(rhs));
 	}
 
-	inline auto RenderPassCache::ToRenderPassData(const Key& key)
+	inline auto GpuRenderPassCache::ToRenderPassData(const Key& key)
 	{
 		return std::visit([&](auto&& arg)
 		{
@@ -31,7 +31,7 @@ namespace Nz
 		}, key);
 	}
 
-	inline auto RenderPassCache::ToRenderPassData(const std::shared_ptr<RenderPass>& renderPass) -> RenderPassData
+	inline auto GpuRenderPassCache::ToRenderPassData(const std::shared_ptr<GpuRenderPass>& renderPass) -> RenderPassData
 	{
 		const auto& attachments = renderPass->GetAttachments();
 		const auto& subpassDeps = renderPass->GetSubpassDependencies();
@@ -50,7 +50,7 @@ namespace Nz
 		return data;
 	}
 
-	inline auto RenderPassCache::ToRenderPassData(const RenderPassData& renderPassData) -> const RenderPassData&
+	inline auto GpuRenderPassCache::ToRenderPassData(const RenderPassData& renderPassData) -> const RenderPassData&
 	{
 		return renderPassData;
 	}

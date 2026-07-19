@@ -31,7 +31,7 @@ namespace Nz
 		inline bool operator!=(const TextureSamplerInfo& samplerInfo) const;
 	};
 
-	class RenderDevice;
+	class GpuDevice;
 
 	class NAZARA_RENDERER_API TextureSampler
 	{
@@ -47,7 +47,7 @@ namespace Nz
 			TextureSampler& operator=(TextureSampler&&) = delete;
 
 		protected:
-			static void ValidateSamplerInfo(const RenderDevice& device, TextureSamplerInfo& samplerInfo);
+			static void ValidateSamplerInfo(const GpuDevice& device, TextureSamplerInfo& samplerInfo);
 	};
 }
 

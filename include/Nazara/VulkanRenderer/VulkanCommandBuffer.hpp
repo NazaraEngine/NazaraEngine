@@ -8,7 +8,7 @@
 #define NAZARA_VULKANRENDERER_VULKANCOMMANDBUFFER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Renderer/CommandBuffer.hpp>
+#include <Nazara/Renderer/GpuCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Export.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <vector>
@@ -17,7 +17,7 @@ namespace Nz
 {
 	class VulkanCommandPool;
 
-	class NAZARA_VULKANRENDERER_API VulkanCommandBuffer final : public CommandBuffer
+	class NAZARA_VULKANRENDERER_API VulkanCommandBuffer final : public GpuCommandBuffer
 	{
 		public:
 			inline VulkanCommandBuffer(VulkanCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex, Vk::AutoCommandBuffer commandBuffer);

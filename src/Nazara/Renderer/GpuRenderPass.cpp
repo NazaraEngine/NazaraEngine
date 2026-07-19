@@ -2,14 +2,9 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Renderer/RenderResources.hpp>
+#include <Nazara/Renderer/GpuRenderPass.hpp>
 
 namespace Nz
 {
-	RenderResources::~RenderResources()
-	{
-		FlushReleaseQueue();
-	}
-
-	RenderResources::Releasable::~Releasable() = default;
+	GpuRenderPass::~GpuRenderPass() = default;
 }

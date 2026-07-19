@@ -5,18 +5,18 @@
 
 namespace Nz
 {
-	inline GpuBuffer::GpuBuffer(RenderDevice& renderDevice, UInt64 size, BufferUsageFlags usage) :
+	inline GpuBuffer::GpuBuffer(GpuDevice& renderDevice, UInt64 size, BufferUsageFlags usage) :
 	Buffer(DataStorage::Hardware, size, usage),
 	m_renderDevice(renderDevice)
 	{
 	}
 
-	inline RenderDevice& GpuBuffer::GetRenderDevice()
+	inline GpuDevice& GpuBuffer::GetRenderDevice()
 	{
 		return m_renderDevice;
 	}
 
-	inline const RenderDevice& GpuBuffer::GetRenderDevice() const
+	inline const GpuDevice& GpuBuffer::GetRenderDevice() const
 	{
 		return m_renderDevice;
 	}

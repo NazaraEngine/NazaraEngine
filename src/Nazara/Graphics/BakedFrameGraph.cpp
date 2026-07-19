@@ -5,7 +5,7 @@
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
 
 namespace Nz
 {
@@ -15,11 +15,11 @@ namespace Nz
 	m_attachmentToTextureMapping(std::move(attachmentIdToTextureMapping)),
 	m_passIdToPhysicalPassMapping(std::move(passIdToPhysicalPassMapping))
 	{
-		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
+		const std::shared_ptr<GpuDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 		m_commandPool = renderDevice->InstantiateCommandPool(QueueType::Graphics);
 	}
 
-	void BakedFrameGraph::Execute(RenderResources& renderResources)
+	void BakedFrameGraph::Execute(GpuResources& renderResources)
 	{
 		for (auto& passData : m_passes)
 		{
@@ -51,7 +51,7 @@ namespace Nz
 			if (passData.commandBuffer)
 				renderResources.PushForRelease(std::move(passData.commandBuffer));
 
-			passData.commandBuffer = m_commandPool->BuildPrimaryCommandBuffer([&](CommandBufferBuilder& builder)
+			passData.commandBuffer = m_commandPool->BuildPrimaryCommandBuffer([&](GpuCommandBufferBuilder& builder)
 			{
 				for (auto& textureTransition : passData.invalidationBarriers)
 				{
@@ -111,12 +111,12 @@ namespace Nz
 		return m_textures[textureIndex].texture;
 	}
 
-	const std::shared_ptr<RenderPass>& BakedFrameGraph::GetRenderPass(std::size_t passIndex) const
+	const std::shared_ptr<GpuRenderPass>& BakedFrameGraph::GetRenderPass(std::size_t passIndex) const
 	{
 		auto it = m_attachmentToTextureMapping.find(passIndex);
 		if (it == m_attachmentToTextureMapping.end() || it->second == FrameGraph::InvalidTextureIndex)
 		{
-			static std::shared_ptr<RenderPass> dummy;
+			static std::shared_ptr<GpuRenderPass> dummy;
 			return dummy;
 		}
 
@@ -125,12 +125,12 @@ namespace Nz
 		return m_passes[physicalPassIndex].renderPass;
 	}
 
-	bool BakedFrameGraph::Resize(RenderResources& renderResources, std::span<Vector2ui> viewerTargetSizes)
+	bool BakedFrameGraph::Resize(GpuResources& renderResources, std::span<Vector2ui> viewerTargetSizes)
 	{
 		if (std::equal(m_viewerSizes.begin(), m_viewerSizes.end(), viewerTargetSizes.begin(), viewerTargetSizes.end()))
 			return false;
 
-		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
+		const std::shared_ptr<GpuDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 
 		auto ComputeTextureSize = [&](TextureData& textureData) -> Vector2ui32
 		{

@@ -15,23 +15,23 @@
 
 namespace Nz
 {
-	class CommandBufferBuilder;
+	class GpuCommandBufferBuilder;
 
-	class NAZARA_RENDERER_API AsyncRenderCommands
+	class NAZARA_RENDERER_API GpuAsyncCommands
 	{
 		public:
 			using CompletionCallback = std::function<void()>;
 
-			AsyncRenderCommands() = default;
-			AsyncRenderCommands(const AsyncRenderCommands&) = delete;
-			AsyncRenderCommands(AsyncRenderCommands&&) = delete;
-			virtual ~AsyncRenderCommands();
+			GpuAsyncCommands() = default;
+			GpuAsyncCommands(const GpuAsyncCommands&) = delete;
+			GpuAsyncCommands(GpuAsyncCommands&&) = delete;
+			virtual ~GpuAsyncCommands();
 
-			virtual void AddCommands(Nz::FunctionRef<void(CommandBufferBuilder& builder)> callback) = 0;
+			virtual void AddCommands(Nz::FunctionRef<void(GpuCommandBufferBuilder& builder)> callback) = 0;
 			inline void AddCompletionCallback(CompletionCallback&& callback);
 
-			AsyncRenderCommands& operator=(const AsyncRenderCommands&) = delete;
-			AsyncRenderCommands& operator=(AsyncRenderCommands&&) = delete;
+			GpuAsyncCommands& operator=(const GpuAsyncCommands&) = delete;
+			GpuAsyncCommands& operator=(GpuAsyncCommands&&) = delete;
 
 		protected:
 			void TriggerCallbacks();
@@ -41,6 +41,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Renderer/AsyncRenderCommands.inl>
+#include <Nazara/Renderer/GpuAsyncCommands.inl>
 
 #endif // NAZARA_RENDERER_ASYNCRENDERCOMMANDS_HPP

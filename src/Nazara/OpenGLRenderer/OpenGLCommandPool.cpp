@@ -9,12 +9,12 @@
 
 namespace Nz
 {
-	CommandBufferPtr OpenGLCommandPool::BuildPrimaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
+	GpuCommandBufferPtr OpenGLCommandPool::BuildPrimaryCommandBuffer(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback)
 	{
 		return BuildCommandBuffer(callback);
 	}
 
-	CommandBufferPtr OpenGLCommandPool::BuildSecondaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
+	GpuCommandBufferPtr OpenGLCommandPool::BuildSecondaryCommandBuffer(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback)
 	{
 		return BuildCommandBuffer(callback);
 	}
@@ -35,7 +35,7 @@ namespace Nz
 		return m_commandPools.emplace_back(std::move(pool));
 	}
 
-	CommandBufferPtr OpenGLCommandPool::AllocateFromPool(std::size_t poolIndex)
+	GpuCommandBufferPtr OpenGLCommandPool::AllocateFromPool(std::size_t poolIndex)
 	{
 		auto& pool = m_commandPools[poolIndex];
 
@@ -46,12 +46,12 @@ namespace Nz
 		pool.freeCommands.Reset(freeBindingId);
 
 		OpenGLCommandBuffer* freeBindingMemory = reinterpret_cast<OpenGLCommandBuffer*>(&pool.storage[freeBindingId]);
-		return CommandBufferPtr(PlacementNew(freeBindingMemory, *this, poolIndex, freeBindingId));
+		return GpuCommandBufferPtr(PlacementNew(freeBindingMemory, *this, poolIndex, freeBindingId));
 	}
 
-	CommandBufferPtr OpenGLCommandPool::BuildCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
+	GpuCommandBufferPtr OpenGLCommandPool::BuildCommandBuffer(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback)
 	{
-		CommandBufferPtr commandBuffer;
+		GpuCommandBufferPtr commandBuffer;
 		for (std::size_t i = 0; i < m_commandPools.size(); ++i)
 		{
 			commandBuffer = AllocateFromPool(i);
@@ -75,7 +75,7 @@ namespace Nz
 		return commandBuffer;
 	}
 
-	void OpenGLCommandPool::Release(CommandBuffer& binding)
+	void OpenGLCommandPool::Release(GpuCommandBuffer& binding)
 	{
 		OpenGLCommandBuffer& openglBinding = SafeCast<OpenGLCommandBuffer&>(binding);
 

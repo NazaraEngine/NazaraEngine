@@ -44,7 +44,7 @@ namespace Nz
 
 			RenderFrame AcquireFrame() override;
 
-			std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
+			std::shared_ptr<GpuCommandPool> CreateCommandPool(QueueType queueType) override;
 
 			const VulkanWindowFramebuffer& GetFramebuffer(std::size_t imageIndex) const override;
 			std::size_t GetFramebufferCount() const override;
@@ -58,7 +58,7 @@ namespace Nz
 			PresentMode GetPresentMode() const override;
 			PresentModeFlags GetSupportedPresentModes() const override;
 			inline const Vk::Swapchain& GetSwapchain() const;
-			RenderResources& GetTransientResources() override;
+			GpuResources& GetTransientResources() override;
 
 			void NotifyResize(const Vector2ui& newSize) override;
 

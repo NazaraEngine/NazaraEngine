@@ -17,7 +17,7 @@
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Graphics/Export.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <NazaraUtils/FixedVector.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
@@ -44,8 +44,8 @@ namespace Nz
 	class NAZARA_GRAPHICS_API TextureAsset : public Resource
 	{
 		public:
-			using ImageBuilder = std::function<Image(RenderDevice& renderDevice, const TextureAssetParams& params)>;
-			using TextureBuilder = std::function<std::shared_ptr<Texture>(RenderDevice& renderDevice, const TextureAssetParams& params)>;
+			using ImageBuilder = std::function<Image(GpuDevice& renderDevice, const TextureAssetParams& params)>;
+			using TextureBuilder = std::function<std::shared_ptr<Texture>(GpuDevice& renderDevice, const TextureAssetParams& params)>;
 
 			using Params = TextureAssetParams;
 
@@ -69,7 +69,7 @@ namespace Nz
 
 			inline PixelFormat GetFormat() const;
 			inline UInt8 GetLevelCount() const;
-			const std::shared_ptr<Texture>& GetOrCreateTexture(RenderDevice& renderDevice) const;
+			const std::shared_ptr<Texture>& GetOrCreateTexture(GpuDevice& renderDevice) const;
 			inline Vector3ui GetSize(UInt8 level = 0) const;
 			inline const TextureInfo& GetTextureInfo() const;
 			inline ImageType GetType() const;
@@ -103,10 +103,10 @@ namespace Nz
 		private:
 			struct TextureEntry;
 
-			bool BuildEntryFromImage(RenderDevice& renderDevice, const Image& image, TextureEntry* entry) const;
+			bool BuildEntryFromImage(GpuDevice& renderDevice, const Image& image, TextureEntry* entry) const;
 
-			inline TextureEntry* GetEntry(RenderDevice& device) const;
-			TextureEntry* GetOrCreateEntry(RenderDevice& device) const;
+			inline TextureEntry* GetEntry(GpuDevice& device) const;
+			TextureEntry* GetOrCreateEntry(GpuDevice& device) const;
 
 			void StoreTextureInfoAndParams(const TextureInfo& textureInfo, const TextureAssetParams& params);
 
@@ -135,9 +135,9 @@ namespace Nz
 			struct TextureEntry
 			{
 				std::shared_ptr<Texture> texture;
-				MovablePtr<RenderDevice> device;
+				MovablePtr<GpuDevice> device;
 
-				NazaraSlot(RenderDevice, OnRenderDeviceRelease, onDeviceRelease);
+				NazaraSlot(GpuDevice, OnRenderDeviceRelease, onDeviceRelease);
 			};
 
 			std::variant<NoSource, ImageBuilder, ImageSource, StreamSource, TextureBuilder, TextureViewSource> m_source;

@@ -46,7 +46,7 @@ namespace Nz
 
 		preparePass.AddOutput(prepareAttachment);
 
-		preparePass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		preparePass.SetCommandCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
@@ -102,7 +102,7 @@ namespace Nz
 		cullPass.AddInput(prepareAttachment);
 		cullPass.AddOutput(cullAttachment);
 
-		cullPass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		cullPass.SetCommandCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			builder.BindComputePipeline(*m_computePipeline);
 
@@ -202,7 +202,7 @@ namespace Nz
 			return FramePassExecution::UpdateAndExecute;
 		});
 
-		renderPass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		renderPass.SetRenderCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			Recti viewport = m_viewer->GetViewport();
 

@@ -50,9 +50,9 @@ namespace Nz
 		}
 	}
 
-	RenderDeviceInfo Vulkan::BuildRenderDeviceInfo(const Vk::PhysicalDevice& physDevice)
+	GpuDeviceInfo Vulkan::BuildRenderDeviceInfo(const Vk::PhysicalDevice& physDevice)
 	{
-		RenderDeviceInfo deviceInfo;
+		GpuDeviceInfo deviceInfo;
 		deviceInfo.name = physDevice.properties.deviceName;
 
 		deviceInfo.features.anisotropicFiltering = physDevice.features10.samplerAnisotropy;
@@ -83,26 +83,26 @@ namespace Nz
 		switch (physDevice.properties.deviceType)
 		{
 			case VK_PHYSICAL_DEVICE_TYPE_CPU:
-				deviceInfo.type = RenderDeviceType::Software;
+				deviceInfo.type = GpuDeviceType::Software;
 				break;
 
 			case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-				deviceInfo.type = RenderDeviceType::Dedicated;
+				deviceInfo.type = GpuDeviceType::Dedicated;
 				break;
 
 			case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-				deviceInfo.type = RenderDeviceType::Integrated;
+				deviceInfo.type = GpuDeviceType::Integrated;
 				break;
 
 			case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-				deviceInfo.type = RenderDeviceType::Virtual;
+				deviceInfo.type = GpuDeviceType::Virtual;
 				break;
 
 			default:
 				NazaraWarning("Device {0} has handled device type ({1:#x})", deviceInfo.name, UnderlyingCast(physDevice.properties.deviceType));
 				[[fallthrough]];
 			case VK_PHYSICAL_DEVICE_TYPE_OTHER:
-				deviceInfo.type = RenderDeviceType::Unknown;
+				deviceInfo.type = GpuDeviceType::Unknown;
 				break;
 		}
 
@@ -134,7 +134,7 @@ namespace Nz
 		return dummy;
 	}
 
-	bool Vulkan::Initialize(UInt32 targetApiVersion, RenderAPIValidationLevel validationLevel, const ParameterList& parameters)
+	bool Vulkan::Initialize(UInt32 targetApiVersion, GpuValidationLevel validationLevel, const ParameterList& parameters)
 	{
 		NazaraAssertMsg(!IsInitialized(), "Vulkan is already initialized");
 
@@ -189,7 +189,7 @@ namespace Nz
 		{
 			//< Nazara default layers goes here
 
-			if (validationLevel != RenderAPIValidationLevel::None)
+			if (validationLevel != GpuValidationLevel::None)
 			{
 				// Enable Vulkan validation if available in debug mode
 				if (availableLayerByName.count("VK_LAYER_KHRONOS_validation"))
@@ -289,7 +289,7 @@ namespace Nz
 		VkInstanceCreateInfo instanceInfo = {};
 		instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 
-		if (validationLevel >= RenderAPIValidationLevel::Debug)
+		if (validationLevel >= GpuValidationLevel::Debug)
 		{
 			// Handle VK_LAYER_KHRONOS_validation extended features
 
@@ -431,7 +431,7 @@ namespace Nz
 		return s_instance.IsValid();
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures)
+	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const GpuDeviceFeatures& enabledFeatures)
 	{
 		Nz::ErrorFlags errFlags(ErrorMode::ThrowException);
 
@@ -468,7 +468,7 @@ namespace Nz
 		return CreateDevice(deviceInfo, enabledFeatures, queuesFamilies.data(), queuesFamilies.size());
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex)
+	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const GpuDeviceFeatures& enabledFeatures, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex)
 	{
 		Nz::ErrorFlags errFlags(ErrorMode::ThrowException);
 
@@ -540,7 +540,7 @@ namespace Nz
 		return CreateDevice(deviceInfo, enabledFeatures, queuesFamilies.data(), queuesFamilies.size());
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures, const QueueFamily* queueFamilies, std::size_t queueFamilyCount)
+	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const GpuDeviceFeatures& enabledFeatures, const QueueFamily* queueFamilies, std::size_t queueFamilyCount)
 	{
 		HybridVector<VkDeviceQueueCreateInfo, 8> queueCreateInfos;
 		queueCreateInfos.reserve(queueFamilyCount);

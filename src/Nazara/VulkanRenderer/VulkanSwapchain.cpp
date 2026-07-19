@@ -258,7 +258,7 @@ namespace Nz
 		return RenderFrame(&currentFrame, invalidateFramebuffer, m_swapchainSize);
 	}
 
-	std::shared_ptr<CommandPool> VulkanSwapchain::CreateCommandPool(QueueType queueType)
+	std::shared_ptr<GpuCommandPool> VulkanSwapchain::CreateCommandPool(QueueType queueType)
 	{
 		UInt32 queueFamilyIndex = [&] {
 			switch (queueType)
@@ -333,7 +333,7 @@ namespace Nz
 		return m_supportedPresentModes;
 	}
 
-	RenderResources& VulkanSwapchain::GetTransientResources()
+	GpuResources& VulkanSwapchain::GetTransientResources()
 	{
 		return *m_inflightImageData[m_currentFrame];
 	}
@@ -523,9 +523,9 @@ namespace Nz
 			}
 		}
 
-		std::vector<RenderPass::Attachment> attachments;
-		std::vector<RenderPass::SubpassDescription> subpassDescriptions;
-		std::vector<RenderPass::SubpassDependency> subpassDependencies;
+		std::vector<GpuRenderPass::Attachment> attachments;
+		std::vector<GpuRenderPass::SubpassDescription> subpassDescriptions;
+		std::vector<GpuRenderPass::SubpassDependency> subpassDependencies;
 
 		BuildRenderPass(*colorFormat, depthStencilFormat.value_or(PixelFormat::Undefined), attachments, subpassDescriptions, subpassDependencies);
 		m_renderPass.emplace(m_device, std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies));

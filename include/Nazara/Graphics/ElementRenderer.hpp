@@ -19,11 +19,11 @@
 namespace Nz
 {
 	class AbstractViewer;
-	class CommandBufferBuilder;
+	class GpuCommandBufferBuilder;
 	class Material;
 	class GpuBuffer;
 	class RenderElement;
-	class RenderResources;
+	class GpuResources;
 	class ShaderBindingCache;
 	class Texture;
 	class TextureSampler;
@@ -44,10 +44,10 @@ namespace Nz
 
 			virtual std::unique_ptr<ElementRendererData> InstanciateData() = 0;
 
-			virtual void Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements);
-			virtual void PrepareEnd(ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer);
-			virtual void Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) = 0;
-			virtual void Reset(ElementRendererData& rendererData, RenderResources& renderResources);
+			virtual void Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, GpuResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements);
+			virtual void PrepareEnd(ElementRendererData& rendererData, GpuResources& renderResources, GpuCommandBufferBuilder& commandBuffer);
+			virtual void Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, GpuResources& renderResources, GpuCommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) = 0;
+			virtual void Reset(ElementRendererData& rendererData, GpuResources& renderResources);
 
 			struct RenderData
 			{

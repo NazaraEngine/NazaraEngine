@@ -11,8 +11,8 @@
 #include <Nazara/OpenGLRenderer/Export.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
-#include <Nazara/Renderer/RenderDeviceInfo.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
+#include <Nazara/Renderer/GpuDeviceInfo.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <unordered_set>
 #include <vector>
@@ -21,7 +21,7 @@ namespace Nz
 {
 	class OpenGLAsyncCommands;
 
-	class NAZARA_OPENGLRENDERER_API OpenGLDevice : public RenderDevice
+	class NAZARA_OPENGLRENDERER_API OpenGLDevice : public GpuDevice
 	{
 		friend GL::Context;
 
@@ -34,18 +34,18 @@ namespace Nz
 			std::shared_ptr<GL::Context> CreateContext(GL::ContextParams params) const;
 			std::shared_ptr<GL::Context> CreateContext(GL::ContextParams params, WindowHandle handle) const;
 
-			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType queueType) override;
+			void Execute(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback, QueueType queueType) override;
 
-			const RenderDeviceInfo& GetDeviceInfo() const override;
-			const RenderDeviceFeatures& GetEnabledFeatures() const override;
+			const GpuDeviceInfo& GetDeviceInfo() const override;
+			const GpuDeviceFeatures& GetEnabledFeatures() const override;
 			inline const GL::Context& GetReferenceContext() const;
 
-			std::unique_ptr<AsyncRenderCommands> InstantiateAsyncCommands(QueueType queueType) override;
+			std::unique_ptr<GpuAsyncCommands> InstantiateAsyncCommands(QueueType queueType) override;
 			std::shared_ptr<GpuBuffer> InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData = nullptr) override;
-			std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) override;
+			std::shared_ptr<GpuCommandPool> InstantiateCommandPool(QueueType queueType) override;
 			std::shared_ptr<GpuComputePipeline> InstantiateComputePipeline(GpuComputePipelineInfo pipelineInfo) override;
-			std::shared_ptr<Framebuffer> InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) override;
-			std::shared_ptr<RenderPass> InstantiateRenderPass(std::vector<RenderPass::Attachment> attachments, std::vector<RenderPass::SubpassDescription> subpassDescriptions, std::vector<RenderPass::SubpassDependency> subpassDependencies) override;
+			std::shared_ptr<Framebuffer> InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<GpuRenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) override;
+			std::shared_ptr<GpuRenderPass> InstantiateRenderPass(std::vector<GpuRenderPass::Attachment> attachments, std::vector<GpuRenderPass::SubpassDescription> subpassDescriptions, std::vector<GpuRenderPass::SubpassDependency> subpassDependencies) override;
 			std::shared_ptr<GpuRenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) override;
 			std::shared_ptr<GpuPipelineLayout> InstantiateRenderPipelineLayout(GpuPipelineLayoutInfo pipelineLayoutInfo) override;
 			std::shared_ptr<ShaderModule> InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::BackendParameters& states) override;
@@ -61,7 +61,7 @@ namespace Nz
 			inline void NotifySamplerDestruction(GLuint sampler) const;
 			inline void NotifyTextureDestruction(GLuint texture) const;
 
-			void SubmitAsyncCommands(std::unique_ptr<AsyncRenderCommands>&& transfer, bool waitForCompletion = false) override;
+			void SubmitAsyncCommands(std::unique_ptr<GpuAsyncCommands>&& transfer, bool waitForCompletion = false) override;
 
 			void UpdateAsyncTransfer();
 
@@ -82,7 +82,7 @@ namespace Nz
 			std::shared_ptr<GL::Context> m_referenceContext;
 			std::vector<ActiveAsyncTransfer> m_activeAsyncTransfer;
 			mutable std::unordered_set<const GL::Context*> m_contexts;
-			RenderDeviceInfo m_deviceInfo;
+			GpuDeviceInfo m_deviceInfo;
 			GL::Loader& m_loader;
 	};
 }

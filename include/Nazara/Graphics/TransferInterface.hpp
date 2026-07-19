@@ -13,8 +13,8 @@
 
 namespace Nz
 {
-	class CommandBufferBuilder;
-	class RenderResources;
+	class GpuCommandBufferBuilder;
+	class GpuResources;
 
 	class NAZARA_GRAPHICS_API TransferInterface
 	{
@@ -24,7 +24,7 @@ namespace Nz
 			TransferInterface(TransferInterface&&) = default;
 			virtual ~TransferInterface();
 
-			virtual void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) = 0;
+			virtual void OnTransfer(GpuResources& renderResources, GpuCommandBufferBuilder& builder) = 0;
 
 			TransferInterface& operator=(const TransferInterface&) = default;
 			TransferInterface& operator=(TransferInterface&&) = default;

@@ -14,7 +14,7 @@
 #include <Nazara/Graphics/FramePass.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/RenderPass.hpp>
+#include <Nazara/Renderer/GpuRenderPass.hpp>
 #include <limits>
 #include <optional>
 #include <string>
@@ -127,7 +127,7 @@ namespace Nz
 
 			struct WorkData
 			{
-				std::vector<std::shared_ptr<RenderPass>> renderPasses;
+				std::vector<std::shared_ptr<GpuRenderPass>> renderPasses;
 				std::vector<PhysicalPassData> physicalPasses;
 				std::vector<FrameGraphTextureData> textures;
 				std::vector<std::size_t> texture2DPool;
@@ -146,7 +146,7 @@ namespace Nz
 			void AssignPhysicalTextures();
 			void BuildBarriers();
 			void BuildPhysicalBarriers();
-			void BuildPhysicalPassDependencies(std::size_t colorAttachmentCount, bool hasDepthStencilAttachment, std::vector<RenderPass::Attachment>& renderPassAttachments, std::vector<RenderPass::SubpassDescription>& subpasses, std::vector<RenderPass::SubpassDependency>& dependencies);
+			void BuildPhysicalPassDependencies(std::size_t colorAttachmentCount, bool hasDepthStencilAttachment, std::vector<GpuRenderPass::Attachment>& renderPassAttachments, std::vector<GpuRenderPass::SubpassDescription>& subpasses, std::vector<GpuRenderPass::SubpassDependency>& dependencies);
 			void BuildPhysicalPasses();
 			void BuildReadWriteList();
 			bool HasAttachment(const std::vector<FramePass::Input>& inputs, std::size_t attachmentIndex) const;

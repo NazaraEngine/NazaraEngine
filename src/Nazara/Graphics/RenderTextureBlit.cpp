@@ -5,8 +5,8 @@
 #include <Nazara/Graphics/RenderTextureBlit.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 
 namespace Nz
@@ -22,7 +22,7 @@ namespace Nz
 
 		blitPass.AddOutput(linkAttachment);
 
-		blitPass.SetCommandCallback([this, attachmentIndex](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		blitPass.SetCommandCallback([this, attachmentIndex](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			const std::shared_ptr<Texture>& sourceTexture = env.frameGraph.GetAttachmentTexture(attachmentIndex);
 

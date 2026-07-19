@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 
 	Nz::Application<Nz::Graphics> app(argc, argv);
 
-	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
 	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 

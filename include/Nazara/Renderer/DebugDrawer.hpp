@@ -18,30 +18,30 @@
 #include <Nazara/Renderer/Export.hpp>
 #include <Nazara/Renderer/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <memory>
 #include <span>
 #include <vector>
 
 namespace Nz
 {
-	class CommandBufferBuilder;
+	class GpuCommandBufferBuilder;
 	class GpuBuffer;
-	class RenderDevice;
+	class GpuDevice;
 	class GpuRenderPipeline;
 	class GpuPipelineLayout;
-	class RenderResources;
+	class GpuResources;
 	class Skeleton;
 
 	class NAZARA_RENDERER_API DebugDrawer
 	{
 		public:
-			DebugDrawer(RenderDevice& renderDevice, bool usesReversedZ = false, std::size_t maxVertexPerDraw = DefaultVertexBlockSize);
+			DebugDrawer(GpuDevice& renderDevice, bool usesReversedZ = false, std::size_t maxVertexPerDraw = DefaultVertexBlockSize);
 			DebugDrawer(const DebugDrawer&) = delete;
 			DebugDrawer(DebugDrawer&&) noexcept = default;
 			~DebugDrawer();
 
-			void Draw(CommandBufferBuilder& builder);
+			void Draw(GpuCommandBufferBuilder& builder);
 
 			inline void DrawBox(const Boxf& box, const Color& color);
 			inline void DrawBoxCorners(const EnumArray<BoxCorner, Vector3f>& boxCorners, const Color& color);
@@ -55,13 +55,13 @@ namespace Nz
 			inline void DrawSphere(const Vector3f& point, float radius, const Color& color);
 			void DrawSkeleton(const Skeleton& skeleton, const Color& color);
 
-			void Prepare(RenderResources& renderResources);
+			void Prepare(GpuResources& renderResources);
 
 			void Reset();
 
 			void SetViewerData(const Matrix4f& viewProjMatrix);
 
-			void Upload(CommandBufferBuilder& builder, RenderResources& renderResources);
+			void Upload(GpuCommandBufferBuilder& builder, GpuResources& renderResources);
 
 			DebugDrawer& operator=(const DebugDrawer&) = delete;
 			DebugDrawer& operator=(DebugDrawer&&) = delete;
@@ -89,7 +89,7 @@ namespace Nz
 
 			struct PendingUpload
 			{
-				UploadPool::Allocation* allocation;
+				GpuUploadPool::Allocation* allocation;
 				GpuBuffer* vertexBuffer;
 			};
 
@@ -101,7 +101,7 @@ namespace Nz
 			std::vector<DrawCall> m_drawCalls;
 			std::vector<PendingUpload> m_pendingUploads;
 			std::vector<VertexStruct_XYZ_Color> m_lineVertices;
-			RenderDevice& m_renderDevice;
+			GpuDevice& m_renderDevice;
 			ViewerData m_currentViewerData;
 			bool m_viewerDataUpdated;
 	};

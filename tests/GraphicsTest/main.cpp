@@ -19,15 +19,15 @@ int main()
 #ifndef NAZARA_PLATFORM_WEB
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;
 	if (std::getchar() == 'y')
-		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
+		rendererConfig.preferredAPI = Nz::GpuBackend::Vulkan;
 	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+		rendererConfig.preferredAPI = Nz::GpuBackend::OpenGL;
 #endif
 
 	Nz::Application<Nz::Graphics> app(rendererConfig);
 	auto& windowingApp = app.AddComponent<Nz::WindowingAppComponent>();
 
-	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
 	std::string windowTitle = "Graphics Test";
 	Nz::Window& window = windowingApp.CreateWindow(Nz::VideoMode(1280, 720), windowTitle);

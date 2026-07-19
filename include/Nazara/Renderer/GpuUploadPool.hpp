@@ -12,23 +12,23 @@
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API UploadPool
+	class NAZARA_RENDERER_API GpuUploadPool
 	{
 		public:
 			struct Allocation;
 
-			UploadPool() = default;
-			UploadPool(const UploadPool&) = delete;
-			UploadPool(UploadPool&&) noexcept = default;
-			~UploadPool() = default;
+			GpuUploadPool() = default;
+			GpuUploadPool(const GpuUploadPool&) = delete;
+			GpuUploadPool(GpuUploadPool&&) noexcept = default;
+			~GpuUploadPool() = default;
 
 			virtual Allocation& Allocate(UInt64 size) = 0;
 			virtual Allocation& Allocate(UInt64 size, UInt64 alignment) = 0;
 
 			virtual void Reset() = 0;
 
-			UploadPool& operator=(const UploadPool&) = delete;
-			UploadPool& operator=(UploadPool&&) = delete;
+			GpuUploadPool& operator=(const GpuUploadPool&) = delete;
+			GpuUploadPool& operator=(GpuUploadPool&&) = delete;
 
 			struct NAZARA_RENDERER_API Allocation
 			{
@@ -46,6 +46,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Renderer/UploadPool.inl>
+#include <Nazara/Renderer/GpuUploadPool.inl>
 
 #endif // NAZARA_RENDERER_UPLOADPOOL_HPP

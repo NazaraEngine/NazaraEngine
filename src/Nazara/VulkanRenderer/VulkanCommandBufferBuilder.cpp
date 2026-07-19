@@ -31,7 +31,7 @@ namespace Nz
 		m_commandBuffer.BeginDebugRegion(regionNameEOS.data(), color);
 	}
 
-	void VulkanCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount)
+	void VulkanCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount)
 	{
 		const VulkanRenderPass& vkRenderPass = SafeCast<const VulkanRenderPass&>(renderPass);
 		const VulkanFramebuffer& vkFramebuffer = SafeCast<const VulkanFramebuffer&>(framebuffer);
@@ -45,7 +45,7 @@ namespace Nz
 			vkClearValues = NazaraStackArray(VkClearValue, attachmentCount);
 			for (std::size_t i = 0; i < attachmentCount; ++i)
 			{
-				const auto& values = (i < clearValueCount) ? clearValues[i] : CommandBufferBuilder::ClearValues{};
+				const auto& values = (i < clearValueCount) ? clearValues[i] : GpuCommandBufferBuilder::ClearValues{};
 				auto& vkValues = vkClearValues[i];
 
 				if (PixelFormatInfo::GetContent(vkRenderPass.GetAttachment(i).format) == PixelFormatContent::ColorRGBA)
@@ -302,7 +302,7 @@ namespace Nz
 		m_commandBuffer.CopyBuffer(sourceBuffer.GetBuffer(), targetBuffer.GetBuffer(), size, sourceOffset + source.GetOffset(), targetOffset + target.GetOffset());
 	}
 
-	void VulkanCommandBufferBuilder::CopyBuffer(const UploadPool::Allocation& allocation, const GpuBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
+	void VulkanCommandBufferBuilder::CopyBuffer(const GpuUploadPool::Allocation& allocation, const GpuBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
 		const auto& vkAllocation = SafeCast<const VulkanUploadPool::VulkanAllocation&>(allocation);
 		VulkanBuffer& targetBuffer = *SafeCast<VulkanBuffer*>(target.GetBuffer());
@@ -400,7 +400,7 @@ namespace Nz
 		m_currentRenderPass = nullptr;
 	}
 
-	void VulkanCommandBufferBuilder::ExecuteCommands(std::span<const CommandBuffer*> commandBuffers)
+	void VulkanCommandBufferBuilder::ExecuteCommands(std::span<const GpuCommandBuffer*> commandBuffers)
 	{
 		StackArray<VkCommandBuffer> vkCommandBuffers = NazaraStackArrayNoInit(VkCommandBuffer, commandBuffers.size());
 		for (std::size_t i = 0; i < commandBuffers.size(); ++i)

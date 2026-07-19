@@ -8,7 +8,7 @@
 #define NAZARA_VULKANRENDERER_VULKANRENDERPASS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Renderer/RenderPass.hpp>
+#include <Nazara/Renderer/GpuRenderPass.hpp>
 #include <Nazara/VulkanRenderer/Export.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/RenderPass.hpp>
 #include <NazaraUtils/Signal.hpp>
@@ -16,7 +16,7 @@
 
 namespace Nz
 {
-	class NAZARA_VULKANRENDERER_API VulkanRenderPass final : public RenderPass
+	class NAZARA_VULKANRENDERER_API VulkanRenderPass final : public GpuRenderPass
 	{
 		public:
 			VulkanRenderPass(Vk::Device& device, std::vector<Attachment> attachments, std::vector<SubpassDescription> subpassDescriptions, std::vector<SubpassDependency> subpassDependencies);

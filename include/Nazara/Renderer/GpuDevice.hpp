@@ -9,14 +9,14 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/PixelFormat.hpp>
-#include <Nazara/Renderer/AsyncRenderCommands.hpp>
+#include <Nazara/Renderer/GpuAsyncCommands.hpp>
 #include <Nazara/Renderer/GpuComputePipeline.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Export.hpp>
 #include <Nazara/Renderer/Framebuffer.hpp>
 #include <Nazara/Renderer/GpuBuffer.hpp>
-#include <Nazara/Renderer/RenderDeviceInfo.hpp>
-#include <Nazara/Renderer/RenderPass.hpp>
+#include <Nazara/Renderer/GpuDeviceInfo.hpp>
+#include <Nazara/Renderer/GpuRenderPass.hpp>
 #include <Nazara/Renderer/GpuRenderPipeline.hpp>
 #include <Nazara/Renderer/GpuPipelineLayout.hpp>
 #include <Nazara/Renderer/Swapchain.hpp>
@@ -32,28 +32,28 @@
 
 namespace Nz
 {
-	class CommandBufferBuilder;
-	class CommandPool;
+	class GpuCommandBufferBuilder;
+	class GpuCommandPool;
 	class ShaderModule;
 	struct WindowHandle;
 
-	class NAZARA_RENDERER_API RenderDevice
+	class NAZARA_RENDERER_API GpuDevice
 	{
 		public:
-			RenderDevice() = default;
-			virtual ~RenderDevice();
+			GpuDevice() = default;
+			virtual ~GpuDevice();
 
-			virtual void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType queueType) = 0;
+			virtual void Execute(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback, QueueType queueType) = 0;
 
-			virtual const RenderDeviceInfo& GetDeviceInfo() const = 0;
-			virtual const RenderDeviceFeatures& GetEnabledFeatures() const = 0;
+			virtual const GpuDeviceInfo& GetDeviceInfo() const = 0;
+			virtual const GpuDeviceFeatures& GetEnabledFeatures() const = 0;
 
-			virtual std::unique_ptr<AsyncRenderCommands> InstantiateAsyncCommands(QueueType queueType) = 0;
+			virtual std::unique_ptr<GpuAsyncCommands> InstantiateAsyncCommands(QueueType queueType) = 0;
 			virtual std::shared_ptr<GpuBuffer> InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData = nullptr) = 0;
-			virtual std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) = 0;
+			virtual std::shared_ptr<GpuCommandPool> InstantiateCommandPool(QueueType queueType) = 0;
 			virtual std::shared_ptr<GpuComputePipeline> InstantiateComputePipeline(GpuComputePipelineInfo pipelineInfo) = 0;
-			virtual std::shared_ptr<Framebuffer> InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) = 0;
-			virtual std::shared_ptr<RenderPass> InstantiateRenderPass(std::vector<RenderPass::Attachment> attachments, std::vector<RenderPass::SubpassDescription> subpassDescriptions, std::vector<RenderPass::SubpassDependency> subpassDependencies) = 0;
+			virtual std::shared_ptr<Framebuffer> InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<GpuRenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) = 0;
+			virtual std::shared_ptr<GpuRenderPass> InstantiateRenderPass(std::vector<GpuRenderPass::Attachment> attachments, std::vector<GpuRenderPass::SubpassDescription> subpassDescriptions, std::vector<GpuRenderPass::SubpassDependency> subpassDependencies) = 0;
 			virtual std::shared_ptr<GpuRenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) = 0;
 			virtual std::shared_ptr<GpuPipelineLayout> InstantiateRenderPipelineLayout(GpuPipelineLayoutInfo pipelineLayoutInfo) = 0;
 			virtual std::shared_ptr<ShaderModule> InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::BackendParameters& states) = 0;
@@ -65,16 +65,16 @@ namespace Nz
 
 			virtual bool IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const = 0;
 
-			virtual void SubmitAsyncCommands(std::unique_ptr<AsyncRenderCommands>&& transfer, bool waitForCompletion = false) = 0;
+			virtual void SubmitAsyncCommands(std::unique_ptr<GpuAsyncCommands>&& transfer, bool waitForCompletion = false) = 0;
 
 			virtual void WaitForIdle() = 0;
 
-			static void ValidateFeatures(const RenderDeviceFeatures& supportedFeatures, RenderDeviceFeatures& enabledFeatures);
+			static void ValidateFeatures(const GpuDeviceFeatures& supportedFeatures, GpuDeviceFeatures& enabledFeatures);
 
-			NazaraSignal(OnRenderDeviceRelease, RenderDevice* /*device*/);
+			NazaraSignal(OnRenderDeviceRelease, GpuDevice* /*device*/);
 	};
 }
 
-#include <Nazara/Renderer/RenderDevice.inl>
+#include <Nazara/Renderer/GpuDevice.inl>
 
 #endif // NAZARA_RENDERER_RENDERDEVICE_HPP

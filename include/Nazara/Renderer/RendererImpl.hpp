@@ -12,7 +12,7 @@
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Export.hpp>
-#include <Nazara/Renderer/RenderDeviceInfo.hpp>
+#include <Nazara/Renderer/GpuDeviceInfo.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <string>
 #include <vector>
@@ -21,7 +21,7 @@ namespace Nz
 {
 	class Buffer;
 	class RendererImpl;
-	class RenderDevice;
+	class GpuDevice;
 	class RenderSurface;
 	class WindowSwapchain;
 	class Swapchain;
@@ -34,13 +34,13 @@ namespace Nz
 			RendererImpl() = default;
 			virtual ~RendererImpl();
 
-			virtual std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures) = 0;
+			virtual std::shared_ptr<GpuDevice> InstanciateRenderDevice(std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures) = 0;
 
-			virtual RenderAPI QueryAPI() const = 0;
+			virtual GpuBackend QueryAPI() const = 0;
 			virtual std::string QueryAPIString() const = 0;
 			virtual UInt32 QueryAPIVersion() const = 0;
 
-			virtual const std::vector<RenderDeviceInfo>& QueryRenderDevices() const = 0;
+			virtual const std::vector<GpuDeviceInfo>& QueryRenderDevices() const = 0;
 
 			virtual bool Prepare(const Renderer::Config& config) = 0;
 	};

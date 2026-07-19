@@ -10,13 +10,13 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Export.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
-#include <Nazara/Renderer/AsyncRenderCommands.hpp>
+#include <Nazara/Renderer/GpuAsyncCommands.hpp>
 
 namespace Nz
 {
 	class OpenGLDevice;
 
-	class NAZARA_OPENGLRENDERER_API OpenGLAsyncCommands : public AsyncRenderCommands
+	class NAZARA_OPENGLRENDERER_API OpenGLAsyncCommands : public GpuAsyncCommands
 	{
 		friend OpenGLDevice;
 
@@ -26,7 +26,7 @@ namespace Nz
 			OpenGLAsyncCommands(OpenGLAsyncCommands&&) = delete;
 			~OpenGLAsyncCommands() = default;
 
-			void AddCommands(Nz::FunctionRef<void(CommandBufferBuilder& builder)> callback) override;
+			void AddCommands(Nz::FunctionRef<void(GpuCommandBufferBuilder& builder)> callback) override;
 
 			void Execute();
 
@@ -34,7 +34,7 @@ namespace Nz
 			OpenGLAsyncCommands& operator=(OpenGLAsyncCommands&&) = delete;
 
 		private:
-			using AsyncRenderCommands::TriggerCallbacks;
+			using GpuAsyncCommands::TriggerCallbacks;
 
 			OpenGLCommandBuffer m_commandBuffer;
 	};

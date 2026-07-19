@@ -22,7 +22,7 @@ namespace Nz
 		public:
 			OpenGLRenderImage(OpenGLSwapchain& owner);
 
-			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) override;
+			void Execute(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) override;
 
 			UInt32 GetImageIndex() const override;
 			OpenGLUploadPool& GetUploadPool() override;
@@ -31,7 +31,7 @@ namespace Nz
 
 			inline void Reset(UInt32 imageIndex);
 
-			void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) override;
+			void SubmitCommandBuffer(GpuCommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) override;
 
 		private:
 			OpenGLSwapchain& m_owner;

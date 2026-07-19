@@ -16,12 +16,12 @@
 namespace Nz
 {
 	class GpuBuffer;
-	class RenderDevice;
+	class GpuDevice;
 
 	class NAZARA_GRAPHICS_API GpuBufferPool
 	{
 		public:
-			GpuBufferPool(std::shared_ptr<RenderDevice> renderDevice, BufferUsageFlags bufferUsages, std::size_t bufferSize, std::size_t bufferPerBlock = 2048);
+			GpuBufferPool(std::shared_ptr<GpuDevice> renderDevice, BufferUsageFlags bufferUsages, std::size_t bufferSize, std::size_t bufferPerBlock = 2048);
 			GpuBufferPool(const GpuBufferPool&) = delete;
 			GpuBufferPool(GpuBufferPool&&) = delete;
 			~GpuBufferPool() = default;
@@ -42,7 +42,7 @@ namespace Nz
 			UInt64 m_bufferAlignedSize;
 			UInt64 m_bufferPerBlock;
 			UInt64 m_bufferSize;
-			std::shared_ptr<RenderDevice> m_renderDevice;
+			std::shared_ptr<GpuDevice> m_renderDevice;
 			std::vector<std::shared_ptr<GpuBuffer>> m_bufferBlocks;
 			Bitset<UInt64> m_availableEntries;
 			BufferUsageFlags m_bufferUsages;

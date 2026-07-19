@@ -23,9 +23,9 @@ struct SpriteRenderPipeline
 
 };
 
-std::shared_ptr<Nz::GpuComputePipeline> BuildComputePipeline(Nz::RenderDevice& device, std::shared_ptr<Nz::GpuPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver);
-SpriteRenderPipeline BuildSpritePipeline(Nz::RenderDevice& device);
-SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPipeline& pipelineData, const Nz::Rectf& textureRect, const Nz::Vector2f& screenSize, const Nz::Texture& texture, const Nz::TextureSampler& sampler);
+std::shared_ptr<Nz::GpuComputePipeline> BuildComputePipeline(Nz::GpuDevice& device, std::shared_ptr<Nz::GpuPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver);
+SpriteRenderPipeline BuildSpritePipeline(Nz::GpuDevice& device);
+SpriteRenderData BuildSpriteData(Nz::GpuDevice& device, const SpriteRenderPipeline& pipelineData, const Nz::Rectf& textureRect, const Nz::Vector2f& screenSize, const Nz::Texture& texture, const Nz::TextureSampler& sampler);
 
 int main()
 {
@@ -36,17 +36,17 @@ int main()
 	Nz::Renderer::Config rendererConfig;
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;
 	if (std::getchar() == 'y')
-		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
+		rendererConfig.preferredAPI = Nz::GpuBackend::Vulkan;
 	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+		rendererConfig.preferredAPI = Nz::GpuBackend::OpenGL;
 
 	Nz::Modules<Nz::Renderer> nazara(rendererConfig);
 
-	Nz::RenderDeviceFeatures enabledFeatures;
+	Nz::GpuDeviceFeatures enabledFeatures;
 	enabledFeatures.computeShaders = true;
 	enabledFeatures.textureReadWrite = true;
 
-	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0, enabledFeatures);
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0, enabledFeatures);
 
 	// Source texture
 	Nz::TextureParams texParams;
@@ -167,7 +167,7 @@ int main()
 		}
 
 		const Nz::WindowSwapchain* windowRT = &windowSwapchain;
-		frame.Execute([&](Nz::CommandBufferBuilder& builder)
+		frame.Execute([&](Nz::GpuCommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("Compute part", Nz::Color::Blue());
 			{
@@ -187,7 +187,7 @@ int main()
 			{
 				Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
 
-				Nz::CommandBufferBuilder::ClearValues clearValues[2];
+				Nz::GpuCommandBufferBuilder::ClearValues clearValues[2];
 				clearValues[0].color = Nz::Color::Gray();
 				clearValues[1].depth = 1.f;
 				clearValues[1].stencil = 0;
@@ -227,7 +227,7 @@ int main()
 	return EXIT_SUCCESS;
 }
 
-std::shared_ptr<Nz::GpuComputePipeline> BuildComputePipeline(Nz::RenderDevice& device, std::shared_ptr<Nz::GpuPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver)
+std::shared_ptr<Nz::GpuComputePipeline> BuildComputePipeline(Nz::GpuDevice& device, std::shared_ptr<Nz::GpuPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver)
 {
 	nzsl::Ast::ModulePtr shaderModule = moduleResolver->Resolve("Compute.Sepia");
 	if (!shaderModule)
@@ -305,7 +305,7 @@ fn main(input: VertIn) -> VertOut
 }
 )";
 
-SpriteRenderPipeline BuildSpritePipeline(Nz::RenderDevice& device)
+SpriteRenderPipeline BuildSpritePipeline(Nz::GpuDevice& device)
 {
 	try
 	{
@@ -358,7 +358,7 @@ SpriteRenderPipeline BuildSpritePipeline(Nz::RenderDevice& device)
 	}
 }
 
-SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPipeline& pipelineData, const Nz::Rectf& textureRect, const Nz::Vector2f& screenSize, const Nz::Texture& texture, const Nz::TextureSampler& sampler)
+SpriteRenderData BuildSpriteData(Nz::GpuDevice& device, const SpriteRenderPipeline& pipelineData, const Nz::Rectf& textureRect, const Nz::Vector2f& screenSize, const Nz::Texture& texture, const Nz::TextureSampler& sampler)
 {
 	try
 	{

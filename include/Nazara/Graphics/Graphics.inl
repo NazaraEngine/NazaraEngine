@@ -94,12 +94,12 @@ namespace Nz
 		return m_preferredDepthStencilFormat;
 	}
 
-	inline const std::shared_ptr<RenderDevice>& Graphics::GetRenderDevice() const
+	inline const std::shared_ptr<GpuDevice>& Graphics::GetRenderDevice() const
 	{
 		return m_renderDevice;
 	}
 
-	inline const RenderPassCache& Graphics::GetRenderPassCache() const
+	inline const GpuRenderPassCache& Graphics::GetRenderPassCache() const
 	{
 		assert(m_renderPassCache);
 		return *m_renderPassCache;

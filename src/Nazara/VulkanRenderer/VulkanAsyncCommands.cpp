@@ -15,7 +15,7 @@ namespace Nz
 		m_commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 	}
 
-	void VulkanAsyncCommands::AddCommands(Nz::FunctionRef<void(CommandBufferBuilder& builder)> callback)
+	void VulkanAsyncCommands::AddCommands(Nz::FunctionRef<void(GpuCommandBufferBuilder& builder)> callback)
 	{
 		VulkanCommandBufferBuilder commandBuilder(m_commandBuffer);
 		callback(commandBuilder);

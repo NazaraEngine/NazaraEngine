@@ -49,7 +49,7 @@ namespace Nz
 	{
 		Renderer* renderer = Renderer::Instance();
 
-		const std::vector<RenderDeviceInfo>& renderDeviceInfo = renderer->QueryRenderDevices();
+		const std::vector<GpuDeviceInfo>& renderDeviceInfo = renderer->QueryRenderDevices();
 		if (renderDeviceInfo.empty())
 			throw std::runtime_error("no render device available");
 
@@ -81,12 +81,12 @@ namespace Nz
 				continue;
 			}
 
-			if (config.useDedicatedRenderDevice && deviceInfo.type == RenderDeviceType::Dedicated)
+			if (config.useDedicatedRenderDevice && deviceInfo.type == GpuDeviceType::Dedicated)
 			{
 				bestRenderDeviceIndex = i;
 				break;
 			}
-			else if (!config.useDedicatedRenderDevice && deviceInfo.type == RenderDeviceType::Integrated)
+			else if (!config.useDedicatedRenderDevice && deviceInfo.type == GpuDeviceType::Integrated)
 			{
 				bestRenderDeviceIndex = i;
 				break;
@@ -98,7 +98,7 @@ namespace Nz
 		if (bestRenderDeviceIndex >= renderDeviceInfo.size())
 			throw std::runtime_error("no render device available");
 
-		RenderDeviceFeatures enabledFeatures;
+		GpuDeviceFeatures enabledFeatures;
 		enabledFeatures.anisotropicFiltering = !config.forceDisableFeatures.anisotropicFiltering && renderDeviceInfo[bestRenderDeviceIndex].features.anisotropicFiltering;
 		enabledFeatures.computeShaders = true; //< required
 		enabledFeatures.depthClamping = !config.forceDisableFeatures.depthClamping && renderDeviceInfo[bestRenderDeviceIndex].features.depthClamping;

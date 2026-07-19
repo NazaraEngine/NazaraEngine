@@ -17,17 +17,17 @@
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API RenderPass
+	class NAZARA_RENDERER_API GpuRenderPass
 	{
 		public:
 			struct Attachment;
 			struct SubpassDependency;
 			struct SubpassDescription;
 
-			inline RenderPass(std::vector<Attachment> attachments, std::vector<SubpassDescription> subpassDescriptions, std::vector<SubpassDependency> subpassDependencies);
-			RenderPass(const RenderPass&) = delete;
-			RenderPass(RenderPass&&) noexcept = default;
-			virtual ~RenderPass();
+			inline GpuRenderPass(std::vector<Attachment> attachments, std::vector<SubpassDescription> subpassDescriptions, std::vector<SubpassDependency> subpassDependencies);
+			GpuRenderPass(const GpuRenderPass&) = delete;
+			GpuRenderPass(GpuRenderPass&&) noexcept = default;
+			virtual ~GpuRenderPass();
 
 			inline const Attachment& GetAttachment(std::size_t attachmentIndex) const;
 			inline std::size_t GetAttachmentCount() const;
@@ -37,8 +37,8 @@ namespace Nz
 
 			virtual void UpdateDebugName(std::string_view name) = 0;
 
-			RenderPass& operator=(const RenderPass&) = delete;
-			RenderPass& operator=(RenderPass&&) noexcept = default;
+			GpuRenderPass& operator=(const GpuRenderPass&) = delete;
+			GpuRenderPass& operator=(GpuRenderPass&&) noexcept = default;
 
 			struct Attachment
 			{
@@ -86,6 +86,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Renderer/RenderPass.inl>
+#include <Nazara/Renderer/GpuRenderPass.inl>
 
 #endif // NAZARA_RENDERER_RENDERPASS_HPP

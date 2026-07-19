@@ -16,11 +16,11 @@
 
 namespace Nz
 {
-	class CommandBufferBuilder;
+	class GpuCommandBufferBuilder;
 	class Material;
 	class MaterialSettings;
 	class GpuBuffer;
-	class UploadPool;
+	class GpuUploadPool;
 
 	class NAZARA_GRAPHICS_API ViewerInstance : public TransferInterface
 	{
@@ -44,7 +44,7 @@ namespace Nz
 			inline std::shared_ptr<GpuBuffer>& GetViewerBuffer();
 			inline const std::shared_ptr<GpuBuffer>& GetViewerBuffer() const;
 
-			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
+			void OnTransfer(GpuResources& renderResources, GpuCommandBufferBuilder& builder) override;
 
 			inline void UpdateEyePosition(const Vector3f& eyePosition);
 			inline void UpdateNearFarPlanes(float nearPlane, float farPlane, bool isZReversed = false);

@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/GpuBufferPool.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 
 namespace Nz
 {
-	GpuBufferPool::GpuBufferPool(std::shared_ptr<RenderDevice> renderDevice, BufferUsageFlags bufferUsages, std::size_t bufferSize, std::size_t bufferPerBlock) :
+	GpuBufferPool::GpuBufferPool(std::shared_ptr<GpuDevice> renderDevice, BufferUsageFlags bufferUsages, std::size_t bufferSize, std::size_t bufferPerBlock) :
 	m_bufferPerBlock(bufferPerBlock),
 	m_bufferSize(bufferSize),
 	m_renderDevice(std::move(renderDevice)),

@@ -27,7 +27,7 @@ namespace Nz
 			VulkanRenderImage(VulkanRenderImage&&) = delete;
 			~VulkanRenderImage() = default;
 
-			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) override;
+			void Execute(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) override;
 
 			inline Vk::Fence& GetInFlightFence();
 			inline Vk::Semaphore& GetImageAvailableSemaphore();
@@ -38,7 +38,7 @@ namespace Nz
 
 			inline void Reset(UInt32 imageIndex);
 
-			void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) override;
+			void SubmitCommandBuffer(GpuCommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) override;
 			void SubmitCommandBuffer(VkCommandBuffer commandBuffer, QueueTypeFlags queueTypeFlags);
 
 			VulkanRenderImage& operator=(const VulkanRenderImage&) = delete;

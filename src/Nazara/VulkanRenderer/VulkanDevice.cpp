@@ -26,7 +26,7 @@ namespace Nz
 		OnRenderDeviceRelease(this);
 	}
 
-	void VulkanDevice::Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType queueType)
+	void VulkanDevice::Execute(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback, QueueType queueType)
 	{
 		VulkanAsyncCommands asyncCommands(*this, queueType);
 		asyncCommands.AddCommands(callback);
@@ -34,17 +34,17 @@ namespace Nz
 		SubmitAsyncCommandsAndWait(asyncCommands);
 	}
 
-	const RenderDeviceInfo& VulkanDevice::GetDeviceInfo() const
+	const GpuDeviceInfo& VulkanDevice::GetDeviceInfo() const
 	{
 		return m_renderDeviceInfo;
 	}
 
-	const RenderDeviceFeatures& VulkanDevice::GetEnabledFeatures() const
+	const GpuDeviceFeatures& VulkanDevice::GetEnabledFeatures() const
 	{
 		return m_enabledFeatures;
 	}
 
-	std::unique_ptr<AsyncRenderCommands> VulkanDevice::InstantiateAsyncCommands(QueueType queueType)
+	std::unique_ptr<GpuAsyncCommands> VulkanDevice::InstantiateAsyncCommands(QueueType queueType)
 	{
 		return std::make_unique<VulkanAsyncCommands>(*this, queueType);
 	}
@@ -54,7 +54,7 @@ namespace Nz
 		return std::make_shared<VulkanBuffer>(*this, size, usageFlags, initialData);
 	}
 
-	std::shared_ptr<CommandPool> VulkanDevice::InstantiateCommandPool(QueueType queueType)
+	std::shared_ptr<GpuCommandPool> VulkanDevice::InstantiateCommandPool(QueueType queueType)
 	{
 		return std::make_shared<VulkanCommandPool>(*this, queueType);
 	}
@@ -64,12 +64,12 @@ namespace Nz
 		return std::make_shared<VulkanComputePipeline>(*this, std::move(pipelineInfo));
 	}
 
-	std::shared_ptr<Framebuffer> VulkanDevice::InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments)
+	std::shared_ptr<Framebuffer> VulkanDevice::InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<GpuRenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments)
 	{
 		return std::make_shared<VulkanTextureFramebuffer>(*this, width, height, renderPass, attachments);
 	}
 
-	std::shared_ptr<RenderPass> VulkanDevice::InstantiateRenderPass(std::vector<RenderPass::Attachment> attachments, std::vector<RenderPass::SubpassDescription> subpassDescriptions, std::vector<RenderPass::SubpassDependency> subpassDependencies)
+	std::shared_ptr<GpuRenderPass> VulkanDevice::InstantiateRenderPass(std::vector<GpuRenderPass::Attachment> attachments, std::vector<GpuRenderPass::SubpassDescription> subpassDescriptions, std::vector<GpuRenderPass::SubpassDependency> subpassDependencies)
 	{
 		return std::make_shared<VulkanRenderPass>(*this, std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies));
 	}
@@ -160,7 +160,7 @@ namespace Nz
 		return formatProperties.optimalTilingFeatures & flags; //< Assume optimal tiling
 	}
 
-	void VulkanDevice::SubmitAsyncCommands(std::unique_ptr<AsyncRenderCommands>&& transfer, bool waitForCompletion)
+	void VulkanDevice::SubmitAsyncCommands(std::unique_ptr<GpuAsyncCommands>&& transfer, bool waitForCompletion)
 	{
 		std::unique_ptr<VulkanAsyncCommands> asyncTransfer = StaticUniquePointerCast<VulkanAsyncCommands>(std::move(transfer));
 

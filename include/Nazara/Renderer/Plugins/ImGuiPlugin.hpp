@@ -16,9 +16,9 @@ struct ImGuiContext;
 
 namespace Nz
 {
-	class CommandBufferBuilder;
-	class RenderDevice;
-	class RenderResources;
+	class GpuCommandBufferBuilder;
+	class GpuDevice;
+	class GpuResources;
 	class Window;
 	class WindowSwapchain;
 	struct ImGuiFunctions;
@@ -38,11 +38,11 @@ namespace Nz
 			ImGuiPlugin(ImGuiPlugin&&) = delete;
 			~ImGuiPlugin() = default;
 
-			virtual void Draw(ImGuiContext* context, CommandBufferBuilder& commandBufferBuilder) = 0;
+			virtual void Draw(ImGuiContext* context, GpuCommandBufferBuilder& commandBufferBuilder) = 0;
 
 			virtual const ImGuiFunctions& GetFunctions() const = 0;
 
-			virtual void Prepare(ImGuiContext* context, RenderResources& renderResources) = 0;
+			virtual void Prepare(ImGuiContext* context, GpuResources& renderResources) = 0;
 
 			virtual void NewFrame(ImGuiContext* context, Nz::Time updateTime) = 0;
 

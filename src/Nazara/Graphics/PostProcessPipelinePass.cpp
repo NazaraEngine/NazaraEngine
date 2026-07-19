@@ -25,7 +25,7 @@ namespace Nz
 			});
 		}
 
-		std::shared_ptr<RenderDevice> renderDevice = Graphics::Instance()->GetRenderDevice();
+		std::shared_ptr<GpuDevice> renderDevice = Graphics::Instance()->GetRenderDevice();
 		m_renderPipelineLayout = renderDevice->InstantiateRenderPipelineLayout(std::move(layoutInfo));
 		if (!m_renderPipelineLayout)
 			throw std::runtime_error("failed to instantiate post-process RenderPipelineLayout");
@@ -79,7 +79,7 @@ namespace Nz
 			return (m_rebuildFramePass) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
 		});
 
-		postProcess.SetRenderCallback([this, inputIndices](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		postProcess.SetRenderCallback([this, inputIndices](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			if (m_shaderBinding)
 				env.renderResources.PushForRelease(std::move(m_shaderBinding));
@@ -149,7 +149,7 @@ namespace Nz
 
 	void PostProcessPipelinePass::BuildPipeline()
 	{
-		std::shared_ptr<RenderDevice> renderDevice = Graphics::Instance()->GetRenderDevice();
+		std::shared_ptr<GpuDevice> renderDevice = Graphics::Instance()->GetRenderDevice();
 
 		RenderPipelineInfo pipelineInfo;
 		pipelineInfo.pipelineLayout = m_renderPipelineLayout;

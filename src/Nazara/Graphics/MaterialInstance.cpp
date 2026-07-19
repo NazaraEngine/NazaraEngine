@@ -10,9 +10,9 @@
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/RenderResourceReferences.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <NazaraUtils/StackVector.hpp>
 
 namespace Nz
@@ -314,7 +314,7 @@ namespace Nz
 		return m_passes[passIndex].pipeline;
 	}
 
-	const ShaderBinding& MaterialInstance::GetShaderBinding(RenderResources& renderResources) const
+	const ShaderBinding& MaterialInstance::GetShaderBinding(GpuResources& renderResources) const
 	{
 		if (m_shaderBinding && !m_isShaderBindingInvalidated)
 			return *m_shaderBinding;
@@ -340,9 +340,9 @@ namespace Nz
 		return HasPass(passIndex);
 	}
 
-	void MaterialInstance::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)
+	void MaterialInstance::OnTransfer(GpuResources& renderResources, GpuCommandBufferBuilder& builder)
 	{
-		UploadPool& uploadPool = renderResources.GetUploadPool();
+		GpuUploadPool& uploadPool = renderResources.GetUploadPool();
 		for (UniformBuffer& uniformBuffer : m_uniformBuffers)
 		{
 			if (!uniformBuffer.dataInvalidated)

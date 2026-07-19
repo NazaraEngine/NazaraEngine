@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Renderer/GpuRenderPipeline.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 
 namespace Nz
 {
@@ -12,9 +12,9 @@ namespace Nz
 		OnRenderPipelineRelease(this);
 	}
 
-	void GpuRenderPipeline::ValidatePipelineInfo(const RenderDevice& device, RenderPipelineInfo& pipelineInfo)
+	void GpuRenderPipeline::ValidatePipelineInfo(const GpuDevice& device, RenderPipelineInfo& pipelineInfo)
 	{
-		const RenderDeviceFeatures& deviceFeatures = device.GetEnabledFeatures();
+		const GpuDeviceFeatures& deviceFeatures = device.GetEnabledFeatures();
 		if (pipelineInfo.faceFilling != FaceFilling::Fill && !deviceFeatures.nonSolidFaceFilling)
 		{
 			NazaraWarning("pipeline has face filling set to non-solid but non-solid face filling is not enabled on the device, disabling...");

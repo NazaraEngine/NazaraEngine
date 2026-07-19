@@ -8,7 +8,7 @@
 #define NAZARA_VULKANRENDERER_VULKANDEVICE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 #include <Nazara/VulkanRenderer/VulkanAsyncCommands.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
@@ -17,25 +17,25 @@
 
 namespace Nz
 {
-	class NAZARA_VULKANRENDERER_API VulkanDevice : public RenderDevice, public Vk::Device
+	class NAZARA_VULKANRENDERER_API VulkanDevice : public GpuDevice, public Vk::Device
 	{
 		public:
-			inline VulkanDevice(Vk::Instance& instance, const RenderDeviceFeatures& enabledFeatures, RenderDeviceInfo renderDeviceInfo);
+			inline VulkanDevice(Vk::Instance& instance, const GpuDeviceFeatures& enabledFeatures, GpuDeviceInfo renderDeviceInfo);
 			VulkanDevice(const VulkanDevice&) = delete;
 			VulkanDevice(VulkanDevice&&) = delete; ///TODO?
 			~VulkanDevice();
 
-			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType queueType) override;
+			void Execute(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback, QueueType queueType) override;
 
-			const RenderDeviceInfo& GetDeviceInfo() const override;
-			const RenderDeviceFeatures& GetEnabledFeatures() const override;
+			const GpuDeviceInfo& GetDeviceInfo() const override;
+			const GpuDeviceFeatures& GetEnabledFeatures() const override;
 
-			std::unique_ptr<AsyncRenderCommands> InstantiateAsyncCommands(QueueType queueType) override;
+			std::unique_ptr<GpuAsyncCommands> InstantiateAsyncCommands(QueueType queueType) override;
 			std::shared_ptr<GpuBuffer> InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData = nullptr) override;
-			std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) override;
+			std::shared_ptr<GpuCommandPool> InstantiateCommandPool(QueueType queueType) override;
 			std::shared_ptr<GpuComputePipeline> InstantiateComputePipeline(GpuComputePipelineInfo pipelineInfo) override;
-			std::shared_ptr<Framebuffer> InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) override;
-			std::shared_ptr<RenderPass> InstantiateRenderPass(std::vector<RenderPass::Attachment> attachments, std::vector<RenderPass::SubpassDescription> subpassDescriptions, std::vector<RenderPass::SubpassDependency> subpassDependencies) override;
+			std::shared_ptr<Framebuffer> InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<GpuRenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) override;
+			std::shared_ptr<GpuRenderPass> InstantiateRenderPass(std::vector<GpuRenderPass::Attachment> attachments, std::vector<GpuRenderPass::SubpassDescription> subpassDescriptions, std::vector<GpuRenderPass::SubpassDependency> subpassDependencies) override;
 			std::shared_ptr<GpuRenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) override;
 			std::shared_ptr<GpuPipelineLayout> InstantiateRenderPipelineLayout(GpuPipelineLayoutInfo pipelineLayoutInfo) override;
 			std::shared_ptr<ShaderModule> InstantiateShaderModule(nzsl::ShaderStageTypeFlags stages, const nzsl::Ast::Module& shaderModule, const nzsl::BackendParameters& states) override;
@@ -46,7 +46,7 @@ namespace Nz
 
 			bool IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const override;
 
-			void SubmitAsyncCommands(std::unique_ptr<AsyncRenderCommands>&& transfer, bool waitForCompletion) override;
+			void SubmitAsyncCommands(std::unique_ptr<GpuAsyncCommands>&& transfer, bool waitForCompletion) override;
 			void SubmitAsyncCommandsAndWait(VulkanAsyncCommands& transfer);
 
 			void UpdateAsyncTransfer();
@@ -64,8 +64,8 @@ namespace Nz
 			};
 
 			std::vector<ActiveAsyncTransfer> m_activeAsyncTransfer;
-			RenderDeviceFeatures m_enabledFeatures;
-			RenderDeviceInfo m_renderDeviceInfo;
+			GpuDeviceFeatures m_enabledFeatures;
+			GpuDeviceInfo m_renderDeviceInfo;
 	};
 }
 

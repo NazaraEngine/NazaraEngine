@@ -19,7 +19,7 @@ namespace Nz
 	class FrameGraph;
 	class FramePass;
 	class MaterialInstance;
-	class RenderResources;
+	class GpuResources;
 	class ShadowAtlas;
 	class ShadowViewer;
 	class Texture;
@@ -36,7 +36,7 @@ namespace Nz
 
 			inline bool IsPerViewer() const;
 
-			virtual void PrepareRendering(RenderResources& renderResources);
+			virtual void PrepareRendering(GpuResources& renderResources);
 
 			virtual void RegisterToAtlas(ShadowAtlas& atlas) = 0;
 			virtual void RegisterViewer(const AbstractViewer* viewer);

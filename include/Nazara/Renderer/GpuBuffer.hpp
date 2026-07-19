@@ -16,22 +16,22 @@
 
 namespace Nz
 {
-	class AsyncRenderCommands;
-	class RenderDevice;
+	class GpuAsyncCommands;
+	class GpuDevice;
 
 	class NAZARA_RENDERER_API GpuBuffer : public Buffer
 	{
 		public:
-			inline GpuBuffer(RenderDevice& renderDevice, UInt64 size, BufferUsageFlags usage);
+			inline GpuBuffer(GpuDevice& renderDevice, UInt64 size, BufferUsageFlags usage);
 			GpuBuffer(const GpuBuffer&) = delete;
 			GpuBuffer(GpuBuffer&&) = delete;
 			~GpuBuffer();
 
 			using Buffer::Fill;
-			virtual bool Fill(AsyncRenderCommands& asyncTransfer, const void* data, UInt64 offset, UInt64 size) = 0;
+			virtual bool Fill(GpuAsyncCommands& asyncTransfer, const void* data, UInt64 offset, UInt64 size) = 0;
 
-			inline RenderDevice& GetRenderDevice();
-			inline const RenderDevice& GetRenderDevice() const;
+			inline GpuDevice& GetRenderDevice();
+			inline const GpuDevice& GetRenderDevice() const;
 
 			virtual void UpdateDebugName(std::string_view name) = 0;
 
@@ -41,10 +41,10 @@ namespace Nz
 			NazaraSignal(OnGpuBufferRelease, GpuBuffer* /*renderBuffer*/);
 
 		private:
-			RenderDevice& m_renderDevice;
+			GpuDevice& m_renderDevice;
 	};
 
-	NAZARA_RENDERER_API BufferFactory GetGpuBufferFactory(std::shared_ptr<RenderDevice> device);
+	NAZARA_RENDERER_API BufferFactory GetGpuBufferFactory(std::shared_ptr<GpuDevice> device);
 }
 
 #include <Nazara/Renderer/GpuBuffer.inl>

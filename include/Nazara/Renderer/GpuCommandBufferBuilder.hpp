@@ -15,23 +15,23 @@
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Export.hpp>
 #include <Nazara/Renderer/GpuBufferView.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <span>
 #include <string_view>
 
 namespace Nz
 {
-	class CommandBuffer;
+	class GpuCommandBuffer;
 	class GpuComputePipeline;
 	class Framebuffer;
-	class RenderPass;
+	class GpuRenderPass;
 	class GpuRenderPipeline;
 	class GpuPipelineLayout;
 	class ShaderBinding;
 	class Swapchain;
 	class Texture;
 
-	class NAZARA_RENDERER_API CommandBufferBuilder
+	class NAZARA_RENDERER_API GpuCommandBufferBuilder
 	{
 		public:
 			struct BufferBarrierInfo;
@@ -39,15 +39,15 @@ namespace Nz
 			struct MemoryBarrierInfo;
 			struct TextureBarrierInfo;
 
-			CommandBufferBuilder() = default;
-			CommandBufferBuilder(const CommandBufferBuilder&) = delete;
-			CommandBufferBuilder(CommandBufferBuilder&&) = default;
-			virtual ~CommandBufferBuilder();
+			GpuCommandBufferBuilder() = default;
+			GpuCommandBufferBuilder(const GpuCommandBufferBuilder&) = delete;
+			GpuCommandBufferBuilder(GpuCommandBufferBuilder&&) = default;
+			virtual ~GpuCommandBufferBuilder();
 
 			virtual void BeginDebugRegion(std::string_view regionName, const Color& color) = 0;
-			virtual void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) = 0;
-			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect);
-			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, std::initializer_list<ClearValues> clearValues);
+			virtual void BeginRenderPass(const Framebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) = 0;
+			inline void BeginRenderPass(const Framebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect);
+			inline void BeginRenderPass(const Framebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& renderRect, std::initializer_list<ClearValues> clearValues);
 
 			virtual void BindComputePipeline(const GpuComputePipeline& pipeline) = 0;
 			virtual void BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
@@ -67,8 +67,8 @@ namespace Nz
 
 			inline void CopyBuffer(const GpuBufferView& source, const GpuBufferView& target);
 			virtual void CopyBuffer(const GpuBufferView& source, const GpuBufferView& target, UInt64 size, UInt64 fromOffset = 0, UInt64 toOffset = 0) = 0;
-			inline void CopyBuffer(const UploadPool::Allocation& allocation, const GpuBufferView& target);
-			virtual void CopyBuffer(const UploadPool::Allocation& allocation, const GpuBufferView& target, UInt64 size, UInt64 fromOffset = 0, UInt64 toOffset = 0) = 0;
+			inline void CopyBuffer(const GpuUploadPool::Allocation& allocation, const GpuBufferView& target);
+			virtual void CopyBuffer(const GpuUploadPool::Allocation& allocation, const GpuBufferView& target, UInt64 size, UInt64 fromOffset = 0, UInt64 toOffset = 0) = 0;
 			virtual void CopyTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Vector3ui& toPos, TextureLayout toLayout) = 0;
 
 			virtual void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0) = 0;
@@ -83,7 +83,7 @@ namespace Nz
 			virtual void EndDebugRegion() = 0;
 			virtual void EndRenderPass() = 0;
 
-			virtual void ExecuteCommands(std::span<const CommandBuffer*> commandBuffers) = 0;
+			virtual void ExecuteCommands(std::span<const GpuCommandBuffer*> commandBuffers) = 0;
 
 			virtual void InsertDebugLabel(std::string_view label, const Color& color) = 0;
 
@@ -100,8 +100,8 @@ namespace Nz
 
 			inline void TextureBarrier(const TextureBarrierInfo& barrierInfo);
 
-			CommandBufferBuilder& operator=(const CommandBufferBuilder&) = delete;
-			CommandBufferBuilder& operator=(CommandBufferBuilder&&) = default;
+			GpuCommandBufferBuilder& operator=(const GpuCommandBufferBuilder&) = delete;
+			GpuCommandBufferBuilder& operator=(GpuCommandBufferBuilder&&) = default;
 
 			struct MemoryBarrierInfo
 			{
@@ -140,6 +140,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Renderer/CommandBufferBuilder.inl>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.inl>
 
 #endif // NAZARA_RENDERER_COMMANDBUFFERBUILDER_HPP

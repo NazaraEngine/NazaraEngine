@@ -13,7 +13,7 @@
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <NazaraUtils/FixedVector.hpp>
 #include <memory>
 
@@ -24,7 +24,7 @@ namespace Nz
 	class FramePipeline;
 	class Light;
 	class GraphicalMesh;
-	class RenderDevice;
+	class GpuDevice;
 	class RenderFrame;
 	class GpuRenderPipeline;
 	class GpuPipelineLayout;
@@ -54,8 +54,8 @@ namespace Nz
 
 		private:
 			void SetupMeshes();
-			void SetupPipelineLayouts(RenderDevice& renderDevice, const std::string& shaderName);
-			void SetupPipelines(RenderDevice& renderDevice, std::string&& shaderName);
+			void SetupPipelineLayouts(GpuDevice& renderDevice, const std::string& shaderName);
+			void SetupPipelines(GpuDevice& renderDevice, std::string&& shaderName);
 
 			struct LightBlockMemory
 			{
@@ -83,14 +83,14 @@ namespace Nz
 			{
 				std::size_t lightCount = 0;
 				LightBlockMemory memory;
-				UploadPool::Allocation* uploadAllocation;
+				GpuUploadPool::Allocation* uploadAllocation;
 			};
 
 			struct LightBlockShadow
 			{
 				std::size_t lightCount = 0;
 				LightBlockMemoryShadow memory;
-				UploadPool::Allocation* uploadAllocation;
+				GpuUploadPool::Allocation* uploadAllocation;
 			};
 
 			struct LightPipeline
@@ -101,10 +101,10 @@ namespace Nz
 				std::shared_ptr<GpuRenderPipeline> stencilPipelineShadow;
 			};
 
-			void* PushLightData(RenderDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemory>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlock>& lights, UInt64 lightSize);
-			void* PushLightData(RenderDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemoryShadow>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlockShadow>& lights, UInt64 lightSize, const Texture* shadowMap, const TextureSampler* shadowMapSampler);
-			void ReleaseLights(std::vector<LightBlockMemory>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlock>& lights);
-			void ReleaseLights(std::vector<LightBlockMemoryShadow>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlockShadow>& lights);
+			void* PushLightData(GpuDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemory>& lightMemoryPool, GpuResources& renderResources, std::vector<LightBlock>& lights, UInt64 lightSize);
+			void* PushLightData(GpuDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemoryShadow>& lightMemoryPool, GpuResources& renderResources, std::vector<LightBlockShadow>& lights, UInt64 lightSize, const Texture* shadowMap, const TextureSampler* shadowMapSampler);
+			void ReleaseLights(std::vector<LightBlockMemory>& lightMemoryPool, GpuResources& renderResources, std::vector<LightBlock>& lights);
+			void ReleaseLights(std::vector<LightBlockMemoryShadow>& lightMemoryPool, GpuResources& renderResources, std::vector<LightBlockShadow>& lights);
 
 			std::shared_ptr<GraphicalMesh> m_pointLightMesh;
 			std::shared_ptr<GraphicalMesh> m_spotLightMesh;

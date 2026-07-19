@@ -5,7 +5,7 @@
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 #include <NZSL/Ast/Cloner.hpp>
 #include <NZSL/Ast/ReflectVisitor.hpp>
 #include <NZSL/Ast/TransformerExecutor.hpp>

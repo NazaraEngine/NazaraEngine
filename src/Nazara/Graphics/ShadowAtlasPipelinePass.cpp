@@ -76,7 +76,7 @@ namespace Nz
 
 		preparePass.AddOutput(prepareAttachment);
 
-		preparePass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		preparePass.SetCommandCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			m_pipeline.ForEachShadowCastingLight([&](std::size_t lightIndex, const Light* /*light*/, LightShadowData* shadowData)
 			{
@@ -158,7 +158,7 @@ namespace Nz
 		cullPass.AddInput(prepareAttachment);
 		cullPass.AddOutput(cullAttachment);
 
-		cullPass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		cullPass.SetCommandCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			m_pipeline.ForEachShadowCastingLight([&](std::size_t lightIndex, const Light* /*light*/, LightShadowData* shadowData)
 			{
@@ -227,7 +227,7 @@ namespace Nz
 		renderPass.SetDepthStencilClear(1.0f, 0);
 		renderPass.SetDepthStencilOutput(shadowAtlasIndex);
 
-		renderPass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		renderPass.SetRenderCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			ElementRenderer::RenderData renderData;
 			renderData.shaderBindingCache = m_pipeline.GetShaderBindingCache();

@@ -3,7 +3,7 @@
 #include <Nazara/Platform/Clipboard.hpp>
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Platform/WindowEventHandler.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/GpuRenderPipeline.hpp>
 #include <Nazara/Renderer/GpuPipelineLayout.hpp>
@@ -223,7 +223,7 @@ namespace NzImGui
 	{
 		std::shared_ptr<Nz::GpuBuffer> indexBuffer;
 		std::shared_ptr<Nz::GpuBuffer> vertexBuffer;
-		std::shared_ptr<Nz::RenderDevice> device;
+		std::shared_ptr<Nz::GpuDevice> device;
 		std::shared_ptr<Nz::GpuRenderPipeline> renderPipeline;
 		std::shared_ptr<Nz::GpuPipelineLayout> renderPipelineLayout;
 		std::shared_ptr<Nz::Texture> fontTexture;
@@ -267,7 +267,7 @@ namespace NzImGui
 			}
 
 		private:
-			void Draw(ImGuiContext* context, Nz::CommandBufferBuilder& commandBufferBuilder) override
+			void Draw(ImGuiContext* context, Nz::GpuCommandBufferBuilder& commandBufferBuilder) override
 			{
 				ImGui::SetCurrentContext(context);
 
@@ -373,7 +373,7 @@ namespace NzImGui
 				io.DeltaTime = updateTime.AsSeconds();
 			}
 
-			void Prepare(ImGuiContext* context, Nz::RenderResources& renderResources) override
+			void Prepare(ImGuiContext* context, Nz::GpuResources& renderResources) override
 			{
 				ImDrawData* drawData = ImGui::GetDrawData();
 				if (!drawData || drawData->CmdListsCount == 0)
@@ -450,7 +450,7 @@ namespace NzImGui
 				if (!rendererBackend->vertexBuffer)
 					rendererBackend->vertexBuffer = rendererBackend->device->InstantiateBuffer(totalVertexCount * sizeof(ImDrawVert), Nz::BufferUsage::VertexBuffer | Nz::BufferUsage::DeviceLocal, nullptr);
 
-				renderResources.Execute([&](Nz::CommandBufferBuilder& builder)
+				renderResources.Execute([&](Nz::GpuCommandBufferBuilder& builder)
 				{
 					builder.CopyBuffer(indexAllocation, Nz::GpuBufferView(rendererBackend->indexBuffer.get()));
 					builder.CopyBuffer(vertexAllocation, Nz::GpuBufferView(rendererBackend->vertexBuffer.get()));

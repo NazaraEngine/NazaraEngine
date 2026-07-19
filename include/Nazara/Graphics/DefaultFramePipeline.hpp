@@ -73,7 +73,7 @@ namespace Nz
 			const Light* RetrieveLight(std::size_t lightIndex) const override;
 			const LightShadowData* RetrieveLightShadowData(std::size_t lightIndex) const override;
 
-			void Render(RenderResources& renderResources) override;
+			void Render(GpuResources& renderResources) override;
 
 			void UnregisterInstance(UInt32 instanceIndex) override;
 			void UnregisterLight(std::size_t lightIndex) override;
@@ -108,7 +108,7 @@ namespace Nz
 
 			std::size_t InsertTransferPass(FrameGraph& frameGraph, std::function<void()> callback);
 
-			void ProcesRemovedData(RenderResources& renderResources);
+			void ProcesRemovedData(GpuResources& renderResources);
 
 			void RegisterMaterialInstance(MaterialInstance* materialPass, std::size_t renderableIndex);
 			void RegisterShadowCaster(std::size_t lightIndex, LightData* lightData);

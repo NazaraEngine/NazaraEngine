@@ -25,12 +25,12 @@ namespace Nz
 			VulkanRenderer() = default;
 			~VulkanRenderer();
 
-			std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures) override;
+			std::shared_ptr<GpuDevice> InstanciateRenderDevice(std::size_t deviceIndex, const GpuDeviceFeatures& enabledFeatures) override;
 
-			RenderAPI QueryAPI() const override;
+			GpuBackend QueryAPI() const override;
 			std::string QueryAPIString() const override;
 			UInt32 QueryAPIVersion() const override;
-			const std::vector<RenderDeviceInfo>& QueryRenderDevices() const override;
+			const std::vector<GpuDeviceInfo>& QueryRenderDevices() const override;
 
 			bool Prepare(const Renderer::Config& parameters) override;
 
@@ -38,7 +38,7 @@ namespace Nz
 
 		private:
 			std::list<Vk::Device> m_devices;
-			std::vector<RenderDeviceInfo> m_deviceInfos;
+			std::vector<GpuDeviceInfo> m_deviceInfos;
 			ParameterList m_initializationParameters;
 			Vk::Instance m_instance;
 	};

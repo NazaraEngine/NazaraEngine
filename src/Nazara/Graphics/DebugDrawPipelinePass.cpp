@@ -7,7 +7,7 @@
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
 
 namespace Nz
 {
@@ -20,7 +20,7 @@ namespace Nz
 		debugDrawer->SetViewerData(m_viewer->GetViewerInstance().GetViewProjMatrix());
 		debugDrawer->Prepare(frameData.renderResources);
 
-		frameData.renderResources.Execute([&](CommandBufferBuilder& builder)
+		frameData.renderResources.Execute([&](GpuCommandBufferBuilder& builder)
 		{
 			debugDrawer->Upload(builder, frameData.renderResources);
 		}, Nz::QueueType::Graphics);
@@ -49,7 +49,7 @@ namespace Nz
 			return (m_viewer->GetDebugDrawer()) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Skip;
 		});
 
-		debugDrawPass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
+		debugDrawPass.SetRenderCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
 		{
 			Recti viewport = m_viewer->GetViewport();
 

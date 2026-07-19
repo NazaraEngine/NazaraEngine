@@ -8,7 +8,7 @@
 
 namespace Nz::Vk
 {
-	inline bool Instance::Create(RenderAPIValidationLevel validationLevel, const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, UInt32 apiVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator)
+	inline bool Instance::Create(GpuValidationLevel validationLevel, const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, UInt32 apiVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator)
 	{
 		VkApplicationInfo appInfo =
 		{
@@ -73,7 +73,7 @@ namespace Nz::Vk
 		return func;
 	}
 
-	inline RenderAPIValidationLevel Instance::GetValidationLevel() const
+	inline GpuValidationLevel Instance::GetValidationLevel() const
 	{
 		return m_validationLevel;
 	}

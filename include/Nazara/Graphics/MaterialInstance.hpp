@@ -87,7 +87,7 @@ namespace Nz
 
 			inline UInt32 GetRenderQueueMask() const;
 
-			const ShaderBinding& GetShaderBinding(RenderResources& renderResources) const override;
+			const ShaderBinding& GetShaderBinding(GpuResources& renderResources) const override;
 
 			inline const std::shared_ptr<TextureAsset>* GetTextureProperty(std::string_view propertyName) const;
 			inline const std::shared_ptr<TextureAsset>& GetTextureProperty(std::size_t textureIndex) const;
@@ -103,7 +103,7 @@ namespace Nz
 			bool HasPass(std::string_view passName) const;
 			inline bool HasPass(std::size_t passIndex) const;
 
-			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
+			void OnTransfer(GpuResources& renderResources, GpuCommandBufferBuilder& builder) override;
 
 			inline void SetBufferProperty(std::string_view propertyName, const MaterialSettings::BufferValue& bufferValue);
 			void SetBufferProperty(std::size_t valueIndex, const MaterialSettings::BufferValue& bufferValue);

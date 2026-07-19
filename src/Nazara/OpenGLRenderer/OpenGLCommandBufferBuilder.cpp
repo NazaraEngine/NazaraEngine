@@ -19,7 +19,7 @@ namespace Nz
 		m_commandBuffer.BeginDebugRegion(regionName, color);
 	}
 
-	void OpenGLCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& /*renderRect*/, const ClearValues* clearValues, std::size_t clearValueCount)
+	void OpenGLCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const GpuRenderPass& renderPass, const Recti& /*renderRect*/, const ClearValues* clearValues, std::size_t clearValueCount)
 	{
 		m_commandBuffer.SetFramebuffer(SafeCast<const OpenGLFramebuffer&>(framebuffer), SafeCast<const OpenGLRenderPass&>(renderPass), clearValues, clearValueCount);
 	}
@@ -118,7 +118,7 @@ namespace Nz
 		m_commandBuffer.CopyBuffer(sourceBuffer.GetBuffer().GetObjectId(), targetBuffer.GetBuffer().GetObjectId(), size, sourceOffset + source.GetOffset(), targetOffset + target.GetOffset());
 	}
 
-	void OpenGLCommandBufferBuilder::CopyBuffer(const UploadPool::Allocation& allocation, const GpuBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
+	void OpenGLCommandBufferBuilder::CopyBuffer(const GpuUploadPool::Allocation& allocation, const GpuBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
 		OpenGLBuffer& targetBuffer = *SafeCast<OpenGLBuffer*>(target.GetBuffer());
 
@@ -188,9 +188,9 @@ namespace Nz
 		/* nothing to do */
 	}
 
-	void OpenGLCommandBufferBuilder::ExecuteCommands(std::span<const CommandBuffer*> commandBuffers)
+	void OpenGLCommandBufferBuilder::ExecuteCommands(std::span<const GpuCommandBuffer*> commandBuffers)
 	{
-		for (const CommandBuffer* commandBuffer : commandBuffers)
+		for (const GpuCommandBuffer* commandBuffer : commandBuffers)
 		{
 			const OpenGLCommandBuffer& oglCommandBuffer = *SafeCast<const OpenGLCommandBuffer*>(commandBuffer);
 			m_commandBuffer.ExecuteCommandBuffer(oglCommandBuffer);

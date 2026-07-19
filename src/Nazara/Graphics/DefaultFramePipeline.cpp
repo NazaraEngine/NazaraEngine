@@ -13,7 +13,7 @@
 #include <Nazara/Graphics/RenderTarget.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Math/Frustum.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
 #include <NazaraUtils/StackVector.hpp>
 
 namespace Nz
@@ -419,7 +419,7 @@ namespace Nz
 		return m_lightPool.RetrieveFromIndex(lightIndex)->shadowData.get();
 	}
 
-	void DefaultFramePipeline::Render(RenderResources& renderResources)
+	void DefaultFramePipeline::Render(GpuResources& renderResources)
 	{
 		ProcesRemovedData(renderResources);
 
@@ -997,7 +997,7 @@ namespace Nz
 		mergePass.AddOutput(mergedAttachment);
 		mergePass.SetClearColor(0, Color::Black());
 
-		mergePass.SetRenderCallback([targetViewers](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		mergePass.SetRenderCallback([targetViewers](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			Graphics* graphics = Graphics::Instance();
 			builder.BindRenderPipeline(*graphics->GetBlitPipeline(false));
@@ -1056,7 +1056,7 @@ namespace Nz
 			return (!m_transferSet.empty()) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Skip;
 		});
 
-		framePass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		framePass.SetCommandCallback([this](GpuCommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			builder.MemoryBarrier({ .srcStageMask = PipelineStage::BottomOfPipe, .dstStageMask = PipelineStage::Transfer, .srcAccessMask = {}, .dstAccessMask = MemoryAccess::TransferRead | MemoryAccess::TransferWrite });
 
@@ -1074,7 +1074,7 @@ namespace Nz
 		return viewerUploadAttachment;
 	}
 
-	void DefaultFramePipeline::ProcesRemovedData(RenderResources& renderResources)
+	void DefaultFramePipeline::ProcesRemovedData(GpuResources& renderResources)
 	{
 			for (std::size_t lightIndex : m_removedLightInstances.IterBits())
 		{

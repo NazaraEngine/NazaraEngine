@@ -2,15 +2,15 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 
 namespace Nz
 {
-	RenderDevice::~RenderDevice() = default;
+	GpuDevice::~GpuDevice() = default;
 
-	std::shared_ptr<ShaderModule> RenderDevice::InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const std::filesystem::path& sourcePath, const nzsl::BackendParameters& states)
+	std::shared_ptr<ShaderModule> GpuDevice::InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const std::filesystem::path& sourcePath, const nzsl::BackendParameters& states)
 	{
 		File file(sourcePath);
 		if (!file.Open(OpenMode::Read | OpenMode::Text))
@@ -31,7 +31,7 @@ namespace Nz
 		return InstantiateShaderModule(shaderStages, lang, source.data(), source.size(), states);
 	}
 
-	void RenderDevice::ValidateFeatures(const RenderDeviceFeatures& supportedFeatures, RenderDeviceFeatures& enabledFeatures)
+	void GpuDevice::ValidateFeatures(const GpuDeviceFeatures& supportedFeatures, GpuDeviceFeatures& enabledFeatures)
 	{
 #define NzValidateFeature(field, name) \
 		if (enabledFeatures.field && !supportedFeatures.field) \

@@ -9,7 +9,7 @@ namespace Nz
 {
 	Swapchain::~Swapchain() = default;
 
-	void Swapchain::BuildRenderPass(PixelFormat colorFormat, PixelFormat depthFormat, std::vector<RenderPass::Attachment>& attachments, std::vector<RenderPass::SubpassDescription>& subpassDescriptions, std::vector<RenderPass::SubpassDependency>& subpassDependencies)
+	void Swapchain::BuildRenderPass(PixelFormat colorFormat, PixelFormat depthFormat, std::vector<GpuRenderPass::Attachment>& attachments, std::vector<GpuRenderPass::SubpassDescription>& subpassDescriptions, std::vector<GpuRenderPass::SubpassDependency>& subpassDependencies)
 	{
 		assert(colorFormat != PixelFormat::Undefined);
 
@@ -23,7 +23,7 @@ namespace Nz
 			TextureLayout::Present
 		});
 
-		RenderPass::AttachmentReference colorReference = {
+		GpuRenderPass::AttachmentReference colorReference = {
 			0,
 			TextureLayout::ColorOutput
 		};
@@ -37,7 +37,7 @@ namespace Nz
 		});
 
 		subpassDependencies.push_back({
-			RenderPass::ExternalSubpassIndex,
+			GpuRenderPass::ExternalSubpassIndex,
 			PipelineStage::ColorOutput,
 			{},
 
@@ -60,7 +60,7 @@ namespace Nz
 				TextureLayout::DepthStencilReadWrite
 			});
 
-			subpassDescriptions.front().depthStencilAttachment = RenderPass::AttachmentReference{
+			subpassDescriptions.front().depthStencilAttachment = GpuRenderPass::AttachmentReference{
 				1,
 				TextureLayout::DepthStencilReadWrite
 			};

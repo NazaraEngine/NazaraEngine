@@ -23,7 +23,7 @@ namespace Nz
 	class FrameGraph;
 	class FramePass;
 	class FramePipeline;
-	class RenderResources;
+	class GpuResources;
 
 	class NAZARA_GRAPHICS_API FramePipelinePass
 	{
@@ -51,7 +51,7 @@ namespace Nz
 			{
 				const Bitset<UInt64>* visibleLights;
 				const Frustumf& frustum;
-				RenderResources& renderResources;
+				GpuResources& renderResources;
 			};
 
 			struct PassData

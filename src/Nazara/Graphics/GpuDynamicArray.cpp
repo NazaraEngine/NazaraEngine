@@ -3,14 +3,14 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/GpuDynamicArray.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <NazaraUtils/Assert.hpp>
 
 namespace Nz
 {
-	GpuDynamicArray::GpuDynamicArray(RenderDevice& renderDevice, UInt32 entrySize, UInt32 initialCapacity, UInt32 headerSize, BufferUsageFlags bufferUsageFlags) :
+	GpuDynamicArray::GpuDynamicArray(GpuDevice& renderDevice, UInt32 entrySize, UInt32 initialCapacity, UInt32 headerSize, BufferUsageFlags bufferUsageFlags) :
 	m_bufferUsageFlags(bufferUsageFlags),
 	m_capacity(initialCapacity),
 	m_entrySize(entrySize),
@@ -51,14 +51,14 @@ namespace Nz
 		return m_memory.data();
 	}
 
-	void GpuDynamicArray::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)
+	void GpuDynamicArray::OnTransfer(GpuResources& renderResources, GpuCommandBufferBuilder& builder)
 	{
 		NazaraAssert(m_invalidatedRange.start <= m_invalidatedRange.end);
 		UInt64 size = m_invalidatedRange.end - m_invalidatedRange.start;
 		if (size == 0)
 			return;
 
-		const RenderDeviceInfo& deviceInfo = m_renderDevice.GetDeviceInfo();
+		const GpuDeviceInfo& deviceInfo = m_renderDevice.GetDeviceInfo();
 
 		// Ensure alignment is respected
 		UInt64 offsetAlignment = 1;
@@ -75,7 +75,7 @@ namespace Nz
 
 		size = m_invalidatedRange.end - m_invalidatedRange.start;
 
-		UploadPool::Allocation& allocation = renderResources.GetUploadPool().Allocate(size);
+		GpuUploadPool::Allocation& allocation = renderResources.GetUploadPool().Allocate(size);
 		std::memcpy(allocation.mappedPtr, &m_memory[m_invalidatedRange.start], size);
 
 		builder.CopyBuffer(allocation, GpuBufferView(m_gpuBuffer.get(), m_invalidatedRange.start, m_invalidatedRange.end));

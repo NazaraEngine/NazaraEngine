@@ -4,12 +4,12 @@
 
 namespace Nz
 {
-	inline void AsyncRenderCommands::AddCompletionCallback(CompletionCallback&& callback)
+	inline void GpuAsyncCommands::AddCompletionCallback(CompletionCallback&& callback)
 	{
 		m_completionCallbacks.push_back(std::move(callback));
 	}
 
-	inline void AsyncRenderCommands::TriggerCallbacks()
+	inline void GpuAsyncCommands::TriggerCallbacks()
 	{
 		for (CompletionCallback& callback : m_completionCallbacks)
 			callback();

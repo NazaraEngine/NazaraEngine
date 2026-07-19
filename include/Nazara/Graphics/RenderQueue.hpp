@@ -18,7 +18,7 @@ namespace Nz
 {
 	class ElementRendererRegistry;
 	class InstancedRenderable;
-	class RenderResources;
+	class GpuResources;
 	class SkeletonInstance;
 
 	class RenderQueue
@@ -39,7 +39,7 @@ namespace Nz
 			inline RenderQueueFlags GetFlags() const;
 			inline std::size_t GetPassIndex() const;
 
-			void Prepare(RenderResources& renderResources);
+			void Prepare(GpuResources& renderResources);
 
 			template<typename F> void Process(UInt32 renderMask, F&& callback) const;
 

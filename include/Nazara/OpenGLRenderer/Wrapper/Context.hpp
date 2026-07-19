@@ -114,7 +114,7 @@ namespace Nz::GL
 	struct ContextParams
 	{
 		ContextType type = ContextType::OpenGL_ES;
-		RenderAPIValidationLevel validationLevel = RenderAPIValidationLevel::Warnings;
+		GpuValidationLevel validationLevel = GpuValidationLevel::Warnings;
 		bool doubleBuffering = true;
 		bool wrapErrorHandling = false;
 		unsigned int bitsPerPixel = 32;

@@ -17,12 +17,12 @@
 
 namespace Nz
 {
-	class CommandBuffer;
-	class CommandBufferBuilder;
-	class RenderDevice;
-	class UploadPool;
+	class GpuCommandBuffer;
+	class GpuCommandBufferBuilder;
+	class GpuDevice;
+	class GpuUploadPool;
 
-	class NAZARA_RENDERER_API RenderResources
+	class NAZARA_RENDERER_API GpuResources
 	{
 		public:
 			class Releasable;
@@ -30,26 +30,26 @@ namespace Nz
 			template<typename T> class ReleasableData;
 			template<std::invocable T> class ReleasableFunctor;
 
-			virtual ~RenderResources();
+			virtual ~GpuResources();
 
-			virtual void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) = 0;
+			virtual void Execute(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) = 0;
 
 			inline void FlushReleaseQueue();
 
 			virtual UInt32 GetImageIndex() const = 0;
-			inline RenderDevice& GetRenderDevice();
-			virtual UploadPool& GetUploadPool() = 0;
+			inline GpuDevice& GetRenderDevice();
+			virtual GpuUploadPool& GetUploadPool() = 0;
 
 			template<typename T> void PushForRelease(const T& value) = delete;
 			template<typename T> void PushForRelease(T&& value);
 			template<typename F> void PushReleaseCallback(F&& callback);
 
-			virtual void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) = 0;
+			virtual void SubmitCommandBuffer(GpuCommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) = 0;
 
 		protected:
-			inline RenderResources(RenderDevice& renderDvice);
-			RenderResources(const RenderResources&) = delete;
-			RenderResources(RenderResources&&) = delete;
+			inline GpuResources(GpuDevice& renderDvice);
+			GpuResources(const GpuResources&) = delete;
+			GpuResources(GpuResources&&) = delete;
 
 		private:
 			template<typename T> T* Allocate();
@@ -62,23 +62,23 @@ namespace Nz
 			std::vector<ReleasableCallback*> m_callbackQueue;
 			std::vector<Releasable*> m_releaseQueue;
 			std::vector<Block> m_releaseMemoryPool;
-			RenderDevice& m_renderDevice;
+			GpuDevice& m_renderDevice;
 	};
 
-	class NAZARA_RENDERER_API RenderResources::Releasable
+	class NAZARA_RENDERER_API GpuResources::Releasable
 	{
 		public:
 			virtual ~Releasable();
 	};
 
-	class RenderResources::ReleasableCallback : public Releasable
+	class GpuResources::ReleasableCallback : public Releasable
 	{
 		public:
 			virtual void Release() = 0;
 	};
 
 	template<typename T>
-	class RenderResources::ReleasableData : public Releasable
+	class GpuResources::ReleasableData : public Releasable
 	{
 		public:
 			ReleasableData(T&& data);
@@ -94,7 +94,7 @@ namespace Nz
 	};
 
 	template<std::invocable T>
-	class RenderResources::ReleasableFunctor final : public ReleasableCallback
+	class GpuResources::ReleasableFunctor final : public ReleasableCallback
 	{
 		public:
 			template<typename U> requires(std::constructible_from<T, U&&>) ReleasableFunctor(U&& lambda);
@@ -112,6 +112,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Renderer/RenderResources.inl>
+#include <Nazara/Renderer/GpuResources.inl>
 
 #endif // NAZARA_RENDERER_RENDERRESOURCES_HPP

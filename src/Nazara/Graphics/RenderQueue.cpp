@@ -4,7 +4,7 @@
 
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
 
 namespace Nz
 {
@@ -89,7 +89,7 @@ namespace Nz
 		}
 	}
 
-	void RenderQueue::Prepare(RenderResources& renderResources)
+	void RenderQueue::Prepare(GpuResources& renderResources)
 	{
 		if (!m_deletedRenderElements.empty())
 		{

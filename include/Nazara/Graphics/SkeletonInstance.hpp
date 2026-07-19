@@ -17,12 +17,12 @@
 
 namespace Nz
 {
-	class CommandBufferBuilder;
+	class GpuCommandBufferBuilder;
 	class Material;
 	class GpuBuffer;
 	struct RenderResourceReferences;
 	class SkeletonInstance;
-	class UploadPool;
+	class GpuUploadPool;
 
 	using SkeletonInstancePtr = std::shared_ptr<SkeletonInstance>;
 
@@ -38,7 +38,7 @@ namespace Nz
 			inline const std::shared_ptr<GpuBuffer>& GetSkeletalBuffer() const;
 			inline const std::shared_ptr<const Skeleton>& GetSkeleton() const;
 
-			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
+			void OnTransfer(GpuResources& renderResources, GpuCommandBufferBuilder& builder) override;
 
 			SkeletonInstance& operator=(const SkeletonInstance&) = delete;
 			SkeletonInstance& operator=(SkeletonInstance&& skeletonInstance) noexcept;

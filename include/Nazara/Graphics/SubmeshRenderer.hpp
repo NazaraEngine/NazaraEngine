@@ -23,7 +23,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API SubmeshRenderer final : public ElementRenderer
 	{
 		public:
-			SubmeshRenderer(RenderDevice& device);
+			SubmeshRenderer(GpuDevice& device);
 			~SubmeshRenderer() = default;
 
 			void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(GpuBuffer& buffer, std::size_t commandCount)> callback) override;
@@ -32,9 +32,9 @@ namespace Nz
 
 			std::unique_ptr<ElementRendererData> InstanciateData() override;
 
-			void Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
-			void Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
-			void Reset(ElementRendererData& rendererData, RenderResources& renderResources) override;
+			void Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, GpuResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
+			void Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, GpuResources& renderResources, GpuCommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
+			void Reset(ElementRendererData& rendererData, GpuResources& renderResources) override;
 
 		private:
 			struct PoolData
@@ -48,7 +48,7 @@ namespace Nz
 			std::shared_ptr<PoolData> m_pool;
 			std::vector<ShaderBinding::Binding> m_bindingCache;
 			RenderElementPool<RenderSubmesh> m_submeshPool;
-			RenderDevice& m_device;
+			GpuDevice& m_device;
 	};
 
 	struct SubmeshRendererData : public ElementRendererData

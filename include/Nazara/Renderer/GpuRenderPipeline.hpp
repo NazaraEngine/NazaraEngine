@@ -31,7 +31,7 @@ namespace Nz
 		VertexInputVector vertexBuffers;
 	};
 
-	class RenderDevice;
+	class GpuDevice;
 
 	class NAZARA_RENDERER_API GpuRenderPipeline
 	{
@@ -46,7 +46,7 @@ namespace Nz
 			NazaraSignal(OnRenderPipelineRelease, GpuRenderPipeline* /*emitter*/);
 
 		protected:
-			static void ValidatePipelineInfo(const RenderDevice& device, RenderPipelineInfo& pipelineInfo);
+			static void ValidatePipelineInfo(const GpuDevice& device, RenderPipelineInfo& pipelineInfo);
 	};
 }
 

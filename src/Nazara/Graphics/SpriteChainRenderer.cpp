@@ -10,14 +10,14 @@
 #include <Nazara/Graphics/ShaderBindingCache.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <utility>
 
 namespace Nz
 {
-	SpriteChainRenderer::SpriteChainRenderer(RenderDevice& device) :
+	SpriteChainRenderer::SpriteChainRenderer(GpuDevice& device) :
 	m_device(device)
 	{
 		m_pool = std::make_shared<PoolData>();
@@ -60,7 +60,7 @@ namespace Nz
 		return std::make_unique<SpriteChainRendererData>();
 	}
 
-	void SpriteChainRenderer::Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements)
+	void SpriteChainRenderer::Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, GpuResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
@@ -210,7 +210,7 @@ namespace Nz
 		data.drawCallPerElement[firstSpriteChain] = SpriteChainRendererData::DrawCallIndices{ oldDrawCallCount, drawCallCount };
 	}
 
-	void SpriteChainRenderer::PrepareEnd(ElementRendererData& /*rendererData*/, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer)
+	void SpriteChainRenderer::PrepareEnd(ElementRendererData& /*rendererData*/, GpuResources& /*renderResources*/, GpuCommandBufferBuilder& commandBuffer)
 	{
 		Flush();
 
@@ -227,7 +227,7 @@ namespace Nz
 		m_pendingData = PendingData{};
 	}
 
-	void SpriteChainRenderer::Render(const RenderData& renderData, const SceneData& /*sceneData*/, const AbstractViewer& /*viewer*/, ElementRendererData& rendererData, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements)
+	void SpriteChainRenderer::Render(const RenderData& renderData, const SceneData& /*sceneData*/, const AbstractViewer& /*viewer*/, ElementRendererData& rendererData, GpuResources& /*renderResources*/, GpuCommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
@@ -296,7 +296,7 @@ namespace Nz
 		}
 	}
 
-	void SpriteChainRenderer::Reset(ElementRendererData& rendererData, RenderResources& renderResources)
+	void SpriteChainRenderer::Reset(ElementRendererData& rendererData, GpuResources& renderResources)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 

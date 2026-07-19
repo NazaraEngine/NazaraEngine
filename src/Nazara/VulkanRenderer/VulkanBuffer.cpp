@@ -75,7 +75,7 @@ namespace Nz
 		return true;
 	}
 
-	bool VulkanBuffer::Fill(AsyncRenderCommands& asyncTransfer, const void* data, UInt64 offset, UInt64 size)
+	bool VulkanBuffer::Fill(GpuAsyncCommands& asyncTransfer, const void* data, UInt64 offset, UInt64 size)
 	{
 		VkBufferCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -99,7 +99,7 @@ namespace Nz
 
 		std::memcpy(allocationInfo.pMappedData, data, size);
 
-		asyncTransfer.AddCommands([=, this](CommandBufferBuilder& builder)
+		asyncTransfer.AddCommands([=, this](GpuCommandBufferBuilder& builder)
 		{
 			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
 			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();

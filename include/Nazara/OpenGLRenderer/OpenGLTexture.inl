@@ -37,12 +37,12 @@ namespace Nz
 			targetTexture->SetParameteri(GL_TEXTURE_MAX_LEVEL, m_textureInfo.levelCount - 1);
 	}
 
-	inline RenderDevice* OpenGLTexture::GetDevice()
+	inline GpuDevice* OpenGLTexture::GetDevice()
 	{
 		return m_texture.GetDevice();
 	}
 
-	inline const RenderDevice* OpenGLTexture::GetDevice() const
+	inline const GpuDevice* OpenGLTexture::GetDevice() const
 	{
 		return m_texture.GetDevice();
 	}

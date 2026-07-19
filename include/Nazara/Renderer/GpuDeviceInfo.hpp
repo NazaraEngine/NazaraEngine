@@ -14,7 +14,7 @@
 
 namespace Nz
 {
-	struct RenderDeviceFeatures
+	struct GpuDeviceFeatures
 	{
 		bool anisotropicFiltering = false;
 		bool computeShaders = false;
@@ -33,7 +33,7 @@ namespace Nz
 		bool unrestrictedTextureViews = false;
 	};
 
-	struct RenderDeviceLimits
+	struct GpuDeviceLimits
 	{
 		UInt64 maxComputeSharedMemorySize;
 		UInt32 maxComputeWorkGroupInvocations;
@@ -45,11 +45,11 @@ namespace Nz
 		UInt64 minUniformBufferOffsetAlignment;
 	};
 
-	struct RenderDeviceInfo
+	struct GpuDeviceInfo
 	{
-		RenderDeviceFeatures features;
-		RenderDeviceLimits limits;
-		RenderDeviceType type;
+		GpuDeviceFeatures features;
+		GpuDeviceLimits limits;
+		GpuDeviceType type;
 		std::string name;
 	};
 }

@@ -47,6 +47,44 @@ namespace Nz
 		Texture,
 		Window
 	};
+	
+	enum class GpuBackend
+	{
+		Direct3D,  //< Microsoft Render API, only works on MS platforms
+		Mantle,    //< AMD Render API, Vulkan predecessor, only works on AMD GPUs
+		Metal,     //< Apple Render API, only works on OS X platforms
+		OpenGL,    //< Khronos Render API, works on Desktop and some consoles
+		OpenGL_ES, //< Khronos Render API, works on Web, Mobile and some consoles
+		Vulkan,    //< New Khronos Render API, made to replace OpenGL, works on desktop (Windows/Linux) and mobile (Android), and Apple platform using MoltenVK
+
+		Unknown,   //< RenderAPI not corresponding to an entry of the enum, or result of a failed query
+
+		Max = Unknown
+	};
+
+	constexpr std::size_t GpuBackendCount = static_cast<std::size_t>(GpuBackend::Max) + 1;
+
+	enum class GpuValidationLevel
+	{
+		None = 0,
+
+		Errors   = 1,
+		Warnings = 2,
+		Verbose  = 3,
+		Debug    = 4
+	};
+
+	enum class GpuDeviceType
+	{
+		Integrated, ///< Hardware-accelerated chipset integrated to a CPU (ex: Intel Graphics HD 4000)
+		Dedicated,  ///< Hardware-accelerated GPU (ex: AMD R9 390)
+		Software,   ///< Software-renderer
+		Virtual,    ///< Proxy renderer relaying instructions to another unknown device
+
+		Unknown,    ///< Device type not corresponding to an entry of the enum, or result of a failed query
+
+		Max = Unknown
+	};
 
 	enum class MemoryAccess
 	{
@@ -146,44 +184,6 @@ namespace Nz
 	};
 
 	using QueueTypeFlags = Flags<QueueType>;
-
-	enum class RenderAPI
-	{
-		Direct3D,  //< Microsoft Render API, only works on MS platforms
-		Mantle,    //< AMD Render API, Vulkan predecessor, only works on AMD GPUs
-		Metal,     //< Apple Render API, only works on OS X platforms
-		OpenGL,    //< Khronos Render API, works on Desktop and some consoles
-		OpenGL_ES, //< Khronos Render API, works on Web, Mobile and some consoles
-		Vulkan,    //< New Khronos Render API, made to replace OpenGL, works on desktop (Windows/Linux) and mobile (Android), and Apple platform using MoltenVK
-
-		Unknown,   //< RenderAPI not corresponding to an entry of the enum, or result of a failed query
-
-		Max = Unknown
-	};
-
-	constexpr std::size_t RenderAPICount = static_cast<std::size_t>(RenderAPI::Max) + 1;
-
-	enum class RenderAPIValidationLevel
-	{
-		None = 0,
-
-		Errors   = 1,
-		Warnings = 2,
-		Verbose  = 3,
-		Debug    = 4
-	};
-
-	enum class RenderDeviceType
-	{
-		Integrated, ///< Hardware-accelerated chipset integrated to a CPU (ex: Intel Graphics HD 4000)
-		Dedicated,  ///< Hardware-accelerated GPU (ex: AMD R9 390)
-		Software,   ///< Software-renderer
-		Virtual,    ///< Proxy renderer relaying instructions to another unknown device
-
-		Unknown,    ///< Device type not corresponding to an entry of the enum, or result of a failed query
-
-		Max = Unknown
-	};
 
 	enum class ShaderBindingType
 	{

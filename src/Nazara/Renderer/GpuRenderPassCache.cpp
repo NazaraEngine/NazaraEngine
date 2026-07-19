@@ -2,13 +2,13 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Renderer/RenderPassCache.hpp>
+#include <Nazara/Renderer/GpuRenderPassCache.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/GpuDevice.hpp>
 
 namespace Nz
 {
-	const std::shared_ptr<RenderPass>& RenderPassCache::Get(const std::vector<RenderPass::Attachment>& attachments, const std::vector<RenderPass::SubpassDescription>& subpassDescriptions, const std::vector<RenderPass::SubpassDependency>& subpassDependencies) const
+	const std::shared_ptr<GpuRenderPass>& GpuRenderPassCache::Get(const std::vector<GpuRenderPass::Attachment>& attachments, const std::vector<GpuRenderPass::SubpassDescription>& subpassDescriptions, const std::vector<GpuRenderPass::SubpassDependency>& subpassDependencies) const
 	{
 		RenderPassData data;
 		data.attachmentCount = attachments.size();
@@ -24,12 +24,12 @@ namespace Nz
 		if (it != m_renderPasses.end())
 			return it->second;
 
-		std::shared_ptr<RenderPass> renderPass = m_device.InstantiateRenderPass(attachments, subpassDescriptions, subpassDependencies);
+		std::shared_ptr<GpuRenderPass> renderPass = m_device.InstantiateRenderPass(attachments, subpassDescriptions, subpassDependencies);
 
 		return m_renderPasses.emplace(renderPass, renderPass).first->second;
 	}
 
-	std::size_t RenderPassCache::Hasher::operator()(const RenderPassData& renderPassData) const
+	std::size_t GpuRenderPassCache::Hasher::operator()(const RenderPassData& renderPassData) const
 	{
 		std::size_t seed = 0;
 		for (std::size_t i = 0; i < renderPassData.attachmentCount; ++i)
@@ -49,7 +49,7 @@ namespace Nz
 		{
 			const auto& subpassDesc = renderPassData.subpassDescriptions[i];
 
-			auto CombineAttachment = [&](const RenderPass::AttachmentReference& attachmentReference)
+			auto CombineAttachment = [&](const GpuRenderPass::AttachmentReference& attachmentReference)
 			{
 				HashCombine(seed, attachmentReference.attachmentIndex);
 				HashCombine(seed, attachmentReference.attachmentLayout);
@@ -86,7 +86,7 @@ namespace Nz
 		return seed;
 	}
 
-	bool RenderPassCache::EqualityChecker::operator()(const RenderPassData& lhs, const RenderPassData& rhs) const
+	bool GpuRenderPassCache::EqualityChecker::operator()(const RenderPassData& lhs, const RenderPassData& rhs) const
 	{
 		if (lhs.attachmentCount != rhs.attachmentCount ||
 		    lhs.dependencyCount != rhs.dependencyCount ||
@@ -128,7 +128,7 @@ namespace Nz
 			const auto& lhsSubpassDesc = lhs.subpassDescriptions[i];
 			const auto& rhsSubpassDesc = rhs.subpassDescriptions[i];
 
-			auto CompareAttachments = [&](const RenderPass::AttachmentReference& lhsAttachmentReference, const RenderPass::AttachmentReference& rhsAttachmentReference)
+			auto CompareAttachments = [&](const GpuRenderPass::AttachmentReference& lhsAttachmentReference, const GpuRenderPass::AttachmentReference& rhsAttachmentReference)
 			{
 				if (lhsAttachmentReference.attachmentIndex != rhsAttachmentReference.attachmentIndex)
 					return false;

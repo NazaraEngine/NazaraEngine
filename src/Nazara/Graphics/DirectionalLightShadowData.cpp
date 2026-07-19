@@ -58,7 +58,7 @@ namespace Nz
 		}
 	}
 
-	void DirectionalLightShadowData::PrepareRendering(RenderResources& renderResources)
+	void DirectionalLightShadowData::PrepareRendering(GpuResources& renderResources)
 	{
 		// Push unregistered viewers data for release
 		for (auto& perViewerData : m_destructionQueue)

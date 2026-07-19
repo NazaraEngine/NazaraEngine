@@ -18,7 +18,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLTextureSampler.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
-#include <Nazara/Renderer/CommandPool.hpp>
+#include <Nazara/Renderer/GpuCommandPool.hpp>
 #include <NazaraUtils/Algorithm.hpp>
 #include <array>
 #include <stdexcept>
@@ -61,7 +61,7 @@ namespace Nz
 
 		m_deviceInfo.name += ')';
 
-		m_deviceInfo.type = RenderDeviceType::Unknown; //< TODO: Try to extract from device name pattern
+		m_deviceInfo.type = GpuDeviceType::Unknown; //< TODO: Try to extract from device name pattern
 
 		// Features
 		const auto& contextParams = m_referenceContext->GetParams();
@@ -189,7 +189,7 @@ namespace Nz
 #endif
 	}
 
-	void OpenGLDevice::Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType /*queueType*/)
+	void OpenGLDevice::Execute(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback, QueueType /*queueType*/)
 	{
 		OpenGLCommandBuffer commandBuffer;
 		OpenGLCommandBufferBuilder commandBufferBuilder(commandBuffer);
@@ -198,18 +198,18 @@ namespace Nz
 		commandBuffer.Execute();
 	}
 
-	const RenderDeviceInfo& OpenGLDevice::GetDeviceInfo() const
+	const GpuDeviceInfo& OpenGLDevice::GetDeviceInfo() const
 	{
 		return m_deviceInfo;
 	}
 
-	const RenderDeviceFeatures& OpenGLDevice::GetEnabledFeatures() const
+	const GpuDeviceFeatures& OpenGLDevice::GetEnabledFeatures() const
 	{
 		//FIXME
 		return m_deviceInfo.features;
 	}
 
-	std::unique_ptr<AsyncRenderCommands> OpenGLDevice::InstantiateAsyncCommands(QueueType /*queueType*/)
+	std::unique_ptr<GpuAsyncCommands> OpenGLDevice::InstantiateAsyncCommands(QueueType /*queueType*/)
 	{
 		return std::make_unique<OpenGLAsyncCommands>();
 	}
@@ -219,7 +219,7 @@ namespace Nz
 		return std::make_shared<OpenGLBuffer>(*this, size, usageFlags, initialData);
 	}
 
-	std::shared_ptr<CommandPool> OpenGLDevice::InstantiateCommandPool(QueueType /*queueType*/)
+	std::shared_ptr<GpuCommandPool> OpenGLDevice::InstantiateCommandPool(QueueType /*queueType*/)
 	{
 		return std::make_shared<OpenGLCommandPool>();
 	}
@@ -229,12 +229,12 @@ namespace Nz
 		return std::make_shared<OpenGLComputePipeline>(*this, std::move(pipelineInfo));
 	}
 
-	std::shared_ptr<Framebuffer> OpenGLDevice::InstantiateFramebuffer(unsigned int /*width*/, unsigned int /*height*/, const std::shared_ptr<RenderPass>& /*renderPass*/, const std::vector<std::shared_ptr<Texture>>& attachments)
+	std::shared_ptr<Framebuffer> OpenGLDevice::InstantiateFramebuffer(unsigned int /*width*/, unsigned int /*height*/, const std::shared_ptr<GpuRenderPass>& /*renderPass*/, const std::vector<std::shared_ptr<Texture>>& attachments)
 	{
 		return std::make_shared<OpenGLFboFramebuffer>(*this, attachments);
 	}
 
-	std::shared_ptr<RenderPass> OpenGLDevice::InstantiateRenderPass(std::vector<RenderPass::Attachment> attachments, std::vector<RenderPass::SubpassDescription> subpassDescriptions, std::vector<RenderPass::SubpassDependency> subpassDependencies)
+	std::shared_ptr<GpuRenderPass> OpenGLDevice::InstantiateRenderPass(std::vector<GpuRenderPass::Attachment> attachments, std::vector<GpuRenderPass::SubpassDescription> subpassDescriptions, std::vector<GpuRenderPass::SubpassDependency> subpassDependencies)
 	{
 		return std::make_shared<OpenGLRenderPass>(std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies));
 	}
@@ -399,7 +399,7 @@ namespace Nz
 		return false;
 	}
 
-	void OpenGLDevice::SubmitAsyncCommands(std::unique_ptr<AsyncRenderCommands>&& transfer, bool waitForCompletion)
+	void OpenGLDevice::SubmitAsyncCommands(std::unique_ptr<GpuAsyncCommands>&& transfer, bool waitForCompletion)
 	{
 		// TODO: Implement multiple queues using multiple contexts
 		std::unique_ptr<OpenGLAsyncCommands> asyncTransfer = StaticUniquePointerCast<OpenGLAsyncCommands>(std::move(transfer));

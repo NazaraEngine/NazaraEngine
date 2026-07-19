@@ -17,7 +17,7 @@
 
 namespace Nz
 {
-	class AsyncRenderCommands;
+	class GpuAsyncCommands;
 
 	class NAZARA_GRAPHICS_API GraphicalMesh
 	{
@@ -59,7 +59,7 @@ namespace Nz
 			static inline std::shared_ptr<GraphicalMesh> Build(const Primitive& primitive, const MeshParams& params = MeshParams());
 			static inline std::shared_ptr<GraphicalMesh> Build(const PrimitiveList& primitiveList, const MeshParams& params = MeshParams());
 			static std::shared_ptr<GraphicalMesh> BuildFromMesh(const Mesh& mesh);
-			static std::shared_ptr<GraphicalMesh> BuildFromMesh(AsyncRenderCommands& asyncTransfer, const Mesh& mesh);
+			static std::shared_ptr<GraphicalMesh> BuildFromMesh(GpuAsyncCommands& asyncTransfer, const Mesh& mesh);
 
 			NazaraSignal(OnInvalidated, GraphicalMesh* /*gfxMesh*/);
 

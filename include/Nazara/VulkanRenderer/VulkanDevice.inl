@@ -5,7 +5,7 @@
 
 namespace Nz
 {
-	inline VulkanDevice::VulkanDevice(Vk::Instance& instance, const RenderDeviceFeatures& enabledFeatures, RenderDeviceInfo renderDeviceInfo) :
+	inline VulkanDevice::VulkanDevice(Vk::Instance& instance, const GpuDeviceFeatures& enabledFeatures, GpuDeviceInfo renderDeviceInfo) :
 	Device(instance),
 	m_enabledFeatures(enabledFeatures),
 	m_renderDeviceInfo(std::move(renderDeviceInfo))

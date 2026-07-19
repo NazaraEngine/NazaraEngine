@@ -7,12 +7,12 @@
 
 namespace Nz
 {
-	inline RenderResources::RenderResources(RenderDevice& renderDevice) :
+	inline GpuResources::GpuResources(GpuDevice& renderDevice) :
 	m_renderDevice(renderDevice)
 	{
 	}
 
-	inline void RenderResources::FlushReleaseQueue()
+	inline void GpuResources::FlushReleaseQueue()
 	{
 		for (ReleasableCallback* callback : m_callbackQueue)
 			callback->Release();
@@ -28,13 +28,13 @@ namespace Nz
 			memoryblock.clear();
 	}
 
-	inline RenderDevice& RenderResources::GetRenderDevice()
+	inline GpuDevice& GpuResources::GetRenderDevice()
 	{
 		return m_renderDevice;
 	}
 
 	template<typename T>
-	void RenderResources::PushForRelease(T&& value)
+	void GpuResources::PushForRelease(T&& value)
 	{
 		static_assert(std::is_rvalue_reference_v<decltype(value)>);
 
@@ -47,7 +47,7 @@ namespace Nz
 	}
 
 	template<typename F>
-	void RenderResources::PushReleaseCallback(F&& callback)
+	void GpuResources::PushReleaseCallback(F&& callback)
 	{
 		using ReleaseFunctor = ReleasableFunctor<std::remove_cvref_t<F>>;
 
@@ -59,12 +59,12 @@ namespace Nz
 	}
 
 	template<typename T>
-	T* RenderResources::Allocate()
+	T* GpuResources::Allocate()
 	{
 		return static_cast<T*>(Allocate(sizeof(T), alignof(T)));
 	}
 
-	void* RenderResources::Allocate(std::size_t size, std::size_t alignment)
+	void* GpuResources::Allocate(std::size_t size, std::size_t alignment)
 	{
 		// Try to minimize lost space
 		struct
@@ -111,7 +111,7 @@ namespace Nz
 
 
 	template<typename T>
-	RenderResources::ReleasableData<T>::ReleasableData(T&& data) :
+	GpuResources::ReleasableData<T>::ReleasableData(T&& data) :
 	m_data(std::move(data))
 	{
 	}
@@ -119,13 +119,13 @@ namespace Nz
 	template<std::invocable T>
 	template<typename U>
 	requires(std::constructible_from<T, U&&>)
-	RenderResources::ReleasableFunctor<T>::ReleasableFunctor(U&& lambda) :
+	GpuResources::ReleasableFunctor<T>::ReleasableFunctor(U&& lambda) :
 	m_lambda(std::forward<U>(lambda))
 	{
 	}
 
 	template<std::invocable T>
-	void RenderResources::ReleasableFunctor<T>::Release()
+	void GpuResources::ReleasableFunctor<T>::Release()
 	{
 		m_lambda();
 	}

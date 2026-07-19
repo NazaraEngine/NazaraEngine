@@ -92,9 +92,9 @@ int main()
 #ifndef NAZARA_PLATFORM_WEB
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;
 	if (std::getchar() == 'y')
-		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
+		rendererConfig.preferredAPI = Nz::GpuBackend::Vulkan;
 	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+		rendererConfig.preferredAPI = Nz::GpuBackend::OpenGL;
 #endif
 
 	Nz::Application<Nz::Renderer> app(rendererConfig);
@@ -103,7 +103,7 @@ int main()
 	auto& pluginManager = app.AddComponent<Nz::PluginManagerAppComponent>();
 	Nz::ImGuiPlugin& imgui = pluginManager.Load<Nz::ImGuiPlugin>();
 
-	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0);
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0);
 
 	std::string windowTitle = "Render Test";
 	Nz::Window& window = windowingApp.CreateWindow(Nz::VideoMode(1280, 720), windowTitle);
@@ -241,7 +241,7 @@ int main()
 
 	std::shared_ptr<Nz::GpuRenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
 
-	std::shared_ptr<Nz::CommandPool> commandPool = device->InstantiateCommandPool(Nz::QueueType::Graphics);
+	std::shared_ptr<Nz::GpuCommandPool> commandPool = device->InstantiateCommandPool(Nz::QueueType::Graphics);
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
@@ -358,7 +358,7 @@ int main()
 
 			std::memcpy(allocation.mappedPtr, &ubo, sizeof(ubo));
 
-			frame.Execute([&](Nz::CommandBufferBuilder& builder)
+			frame.Execute([&](Nz::GpuCommandBufferBuilder& builder)
 			{
 				builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow());
 				{
@@ -382,12 +382,12 @@ int main()
 		imgui.Prepare(context, frame);
 
 		const Nz::WindowSwapchain* windowRT = &windowSwapchain;
-		frame.Execute([&](Nz::CommandBufferBuilder& builder)
+		frame.Execute([&](Nz::GpuCommandBufferBuilder& builder)
 		{
 			windowSize = window.GetSize();
 			Nz::Recti renderRect(0, 0, windowSize.x, windowSize.y);
 
-			Nz::CommandBufferBuilder::ClearValues clearValues[2];
+			Nz::GpuCommandBufferBuilder::ClearValues clearValues[2];
 			clearValues[0].color = Nz::Color::Black();
 			clearValues[1].depth = 1.f;
 			clearValues[1].stencil = 0;

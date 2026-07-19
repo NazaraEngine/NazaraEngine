@@ -28,7 +28,7 @@ namespace Nz
 	class PipelineViewer;
 	class GpuBuffer;
 	class RenderQueue;
-	class RenderResources;
+	class GpuResources;
 	class ShaderBindingCache;
 
 	class NAZARA_GRAPHICS_API FramePipeline
@@ -67,7 +67,7 @@ namespace Nz
 			virtual const Light* RetrieveLight(std::size_t lightIndex) const = 0;
 			virtual const LightShadowData* RetrieveLightShadowData(std::size_t lightIndex) const = 0;
 
-			virtual void Render(RenderResources& renderResources) = 0;
+			virtual void Render(GpuResources& renderResources) = 0;
 
 			virtual void UnregisterInstance(UInt32 worldInstance) = 0;
 			virtual void UnregisterLight(std::size_t lightIndex) = 0;
@@ -86,7 +86,7 @@ namespace Nz
 			FramePipeline& operator=(const FramePipeline&) = delete;
 			FramePipeline& operator=(FramePipeline&&) = delete;
 
-			NazaraSignal(OnTransfer, FramePipeline* /*pipeline*/, RenderResources& /*renderResources*/, CommandBufferBuilder& /*builder*/);
+			NazaraSignal(OnTransfer, FramePipeline* /*pipeline*/, GpuResources& /*renderResources*/, GpuCommandBufferBuilder& /*builder*/);
 
 			static constexpr std::size_t NoSkeletonInstance = MaxValue();
 

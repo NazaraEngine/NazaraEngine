@@ -9,7 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Export.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/GpuUploadPool.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <array>
 #include <memory>
@@ -17,7 +17,7 @@
 
 namespace Nz
 {
-	class NAZARA_OPENGLRENDERER_API OpenGLUploadPool : public UploadPool
+	class NAZARA_OPENGLRENDERER_API OpenGLUploadPool : public GpuUploadPool
 	{
 		public:
 			inline OpenGLUploadPool(UInt64 blockSize);

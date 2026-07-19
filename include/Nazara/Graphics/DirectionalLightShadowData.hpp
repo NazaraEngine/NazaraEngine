@@ -40,7 +40,7 @@ namespace Nz
 
 			inline bool IsShadowStabilizationEnabled() const;
 
-			void PrepareRendering(RenderResources& renderResources) override;
+			void PrepareRendering(GpuResources& renderResources) override;
 
 			void RegisterToAtlas(ShadowAtlas& atlas) override;
 			void RegisterViewer(const AbstractViewer* viewer) override;

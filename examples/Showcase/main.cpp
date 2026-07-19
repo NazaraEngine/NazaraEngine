@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 	Nz::PluginManagerAppComponent& pluginManager = app.AddComponent<Nz::PluginManagerAppComponent>();
 	pluginManager.Load<Nz::AssimpPlugin>();
 
-	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
+	std::shared_ptr<Nz::GpuDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
 	auto& ecs = app.AddComponent<Nz::EntitySystemAppComponent>();
 

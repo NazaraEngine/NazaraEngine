@@ -12,12 +12,12 @@
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderResources.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
+#include <Nazara/Renderer/GpuResources.hpp>
 
 namespace Nz
 {
-	SubmeshRenderer::SubmeshRenderer(RenderDevice& device) :
+	SubmeshRenderer::SubmeshRenderer(GpuDevice& device) :
 	m_device(device)
 	{
 		m_pool = std::make_shared<PoolData>();
@@ -46,7 +46,7 @@ namespace Nz
 		return std::make_unique<SubmeshRendererData>();
 	}
 
-	void SubmeshRenderer::Prepare(const RenderData& /*renderData*/, const SceneData& /*sceneData*/, const AbstractViewer& /*viewer*/, ElementRendererData& rendererData, RenderResources& /*renderResources*/, std::size_t elementCount, const Pointer<const RenderElement>* elements)
+	void SubmeshRenderer::Prepare(const RenderData& /*renderData*/, const SceneData& /*sceneData*/, const AbstractViewer& /*viewer*/, ElementRendererData& rendererData, GpuResources& /*renderResources*/, std::size_t elementCount, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
 
@@ -108,7 +108,7 @@ namespace Nz
 		}
 	}
 
-	void SubmeshRenderer::Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements)
+	void SubmeshRenderer::Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, GpuResources& renderResources, GpuCommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
 		if (!data.references)
@@ -275,7 +275,7 @@ namespace Nz
 		}
 	}
 
-	void SubmeshRenderer::Reset(ElementRendererData& rendererData, RenderResources& renderResources)
+	void SubmeshRenderer::Reset(ElementRendererData& rendererData, GpuResources& renderResources)
 	{
 		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
 

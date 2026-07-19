@@ -8,7 +8,7 @@
 #define NAZARA_VULKANRENDERER_VULKANCOMMANDPOOL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Renderer/CommandPool.hpp>
+#include <Nazara/Renderer/GpuCommandPool.hpp>
 #include <Nazara/VulkanRenderer/Export.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
@@ -28,8 +28,8 @@ namespace Nz
 			VulkanCommandPool(VulkanCommandPool&&) noexcept = default;
 			~VulkanCommandPool() = default;
 
-			CommandBufferPtr BuildPrimaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) override;
-			CommandBufferPtr BuildSecondaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) override;
+			GpuCommandBufferPtr BuildPrimaryCommandBuffer(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback) override;
+			GpuCommandBufferPtr BuildSecondaryCommandBuffer(const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback) override;
 
 			void UpdateDebugName(std::string_view name) override;
 
@@ -40,9 +40,9 @@ namespace Nz
 			struct CommandPool;
 
 			CommandPool& AllocatePool();
-			template<typename... Args> CommandBufferPtr AllocateFromPool(std::size_t poolIndex, Args&&... args);
-			CommandBufferPtr BuildCommandBuffer(VkCommandBufferLevel level, const FunctionRef<void(CommandBufferBuilder& builder)>& callback);
-			void Release(CommandBuffer& commandBuffer);
+			template<typename... Args> GpuCommandBufferPtr AllocateFromPool(std::size_t poolIndex, Args&&... args);
+			GpuCommandBufferPtr BuildCommandBuffer(VkCommandBufferLevel level, const FunctionRef<void(GpuCommandBufferBuilder& builder)>& callback);
+			void Release(GpuCommandBuffer& commandBuffer);
 			inline void TryToShrink();
 
 			struct CommandPool

@@ -10,7 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Core/ParameterList.hpp>
-#include <Nazara/Renderer/RenderDeviceInfo.hpp>
+#include <Nazara/Renderer/GpuDeviceInfo.hpp>
 #include <Nazara/VulkanRenderer/Export.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
@@ -36,18 +36,18 @@ namespace Nz
 			Vulkan() = delete;
 			~Vulkan() = delete;
 
-			static RenderDeviceInfo BuildRenderDeviceInfo(const Vk::PhysicalDevice& physDevice);
+			static GpuDeviceInfo BuildRenderDeviceInfo(const Vk::PhysicalDevice& physDevice);
 
-			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures);
-			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex);
-			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures, const QueueFamily* queueFamilies, std::size_t queueFamilyCount);
+			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const GpuDeviceFeatures& enabledFeatures);
+			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const GpuDeviceFeatures& enabledFeatures, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex);
+			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const GpuDeviceFeatures& enabledFeatures, const QueueFamily* queueFamilies, std::size_t queueFamilyCount);
 
 			static Vk::Instance& GetInstance();
 
 			static const std::vector<Vk::PhysicalDevice>& GetPhysicalDevices();
 			static const Vk::PhysicalDevice& GetPhysicalDeviceInfo(VkPhysicalDevice physDevice);
 
-			static bool Initialize(UInt32 targetApiVersion, RenderAPIValidationLevel validationLevel, const ParameterList& parameters);
+			static bool Initialize(UInt32 targetApiVersion, GpuValidationLevel validationLevel, const ParameterList& parameters);
 
 			static bool IsInitialized();
 

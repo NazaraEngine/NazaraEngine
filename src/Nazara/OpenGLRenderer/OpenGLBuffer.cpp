@@ -69,7 +69,7 @@ namespace Nz
 		return true;
 	}
 
-	bool OpenGLBuffer::Fill(AsyncRenderCommands& /*asyncTransfer*/, const void* data, UInt64 offset, UInt64 size)
+	bool OpenGLBuffer::Fill(GpuAsyncCommands& /*asyncTransfer*/, const void* data, UInt64 offset, UInt64 size)
 	{
 		return Fill(data, offset, size); //< TODO
 	}

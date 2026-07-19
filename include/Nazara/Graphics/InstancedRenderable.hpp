@@ -17,7 +17,7 @@
 
 namespace Nz
 {
-	class CommandBufferBuilder;
+	class GpuCommandBufferBuilder;
 	class ElementRendererRegistry;
 	class MaterialInstance;
 	class RenderElement;
