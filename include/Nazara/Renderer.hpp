@@ -42,8 +42,8 @@
 #include <Nazara/Renderer/GpuSwitch.hpp>
 #include <Nazara/Renderer/PredefinedShaderStructBuilder.hpp>
 #include <Nazara/Renderer/PredefinedShaderStructs.hpp>
-#include <Nazara/Renderer/RenderBuffer.hpp>
-#include <Nazara/Renderer/RenderBufferView.hpp>
+#include <Nazara/Renderer/GpuBuffer.hpp>
+#include <Nazara/Renderer/GpuBufferView.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/RenderDeviceInfo.hpp>
 #include <Nazara/Renderer/Renderer.hpp>

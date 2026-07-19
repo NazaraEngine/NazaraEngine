@@ -475,7 +475,7 @@ namespace Nz
 			UpdatePassStates(materialPassRegistry.GetIndex(passName), stateUpdater);
 	}
 
-	void MaterialInstance::UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer)
+	void MaterialInstance::UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<GpuBuffer> storageBuffer)
 	{
 		NazaraAssertMsg(storageBuffer, "invalid buffer");
 
@@ -483,7 +483,7 @@ namespace Nz
 		return UpdateStorageBufferBinding(storageBufferBinding, std::move(storageBuffer), 0, size);
 	}
 
-	void MaterialInstance::UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer, UInt64 offset, UInt64 size)
+	void MaterialInstance::UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<GpuBuffer> storageBuffer, UInt64 offset, UInt64 size)
 	{
 		NazaraAssertMsg(storageBuffer, "invalid buffer");
 		NazaraAssertMsg(storageBuffer->GetUsageFlags() & BufferUsage::StorageBuffer, "buffer does not have storage buffer usage flag");

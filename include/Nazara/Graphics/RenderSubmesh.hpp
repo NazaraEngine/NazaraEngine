@@ -26,18 +26,18 @@ namespace Nz
 	class RenderSubmesh : public RenderElement
 	{
 		public:
-			inline RenderSubmesh(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox, const Spheref& boundingSphere, UInt32 renderMask);
+			inline RenderSubmesh(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<GpuBuffer> indexBuffer, std::shared_ptr<GpuBuffer> vertexBuffer, const Recti& scissorBox, const Spheref& boundingSphere, UInt32 renderMask);
 			~RenderSubmesh() = default;
 
 			inline const Spheref& GetBoundingSphere() const;
-			inline const RenderBuffer* GetIndexBuffer() const;
+			inline const GpuBuffer* GetIndexBuffer() const;
 			inline std::size_t GetIndexCount() const;
 			inline IndexType GetIndexType() const;
 			inline const MaterialProxy& GetMaterialProxy() const;
 			inline const RenderPipeline* GetRenderPipeline() const;
 			inline const Recti& GetScissorBox() const;
 			inline const SkeletonInstance* GetSkeletonInstance() const;
-			inline const RenderBuffer* GetVertexBuffer() const;
+			inline const GpuBuffer* GetVertexBuffer() const;
 
 			inline void Register(RenderQueueRegistry& registry) const override;
 
@@ -46,8 +46,8 @@ namespace Nz
 		private:
 			inline UInt64 ComputeSortKey(const RenderQueueRegistry& registry) const override;
 
-			std::shared_ptr<RenderBuffer> m_indexBuffer;
-			std::shared_ptr<RenderBuffer> m_vertexBuffer;
+			std::shared_ptr<GpuBuffer> m_indexBuffer;
+			std::shared_ptr<GpuBuffer> m_vertexBuffer;
 			std::shared_ptr<MaterialProxy> m_materialProxy;
 			std::shared_ptr<RenderPipeline> m_renderPipeline;
 			std::size_t m_indexCount;

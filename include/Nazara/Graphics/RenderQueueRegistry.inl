@@ -38,7 +38,7 @@ namespace Nz
 		return it->second.index;
 	}
 
-	inline std::size_t RenderQueueRegistry::FetchVertexBuffer(const RenderBuffer* vertexBuffer) const
+	inline std::size_t RenderQueueRegistry::FetchVertexBuffer(const GpuBuffer* vertexBuffer) const
 	{
 		auto it = m_vertexBuffers.find(vertexBuffer);
 		assert(it != m_vertexBuffers.end());

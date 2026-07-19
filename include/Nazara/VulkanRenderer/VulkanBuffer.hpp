@@ -8,7 +8,7 @@
 #define NAZARA_VULKANRENDERER_VULKANBUFFER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Renderer/RenderBuffer.hpp>
+#include <Nazara/Renderer/GpuBuffer.hpp>
 #include <Nazara/VulkanRenderer/Export.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Buffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceMemory.hpp>
@@ -18,7 +18,7 @@
 
 namespace Nz
 {
-	class NAZARA_VULKANRENDERER_API VulkanBuffer : public RenderBuffer
+	class NAZARA_VULKANRENDERER_API VulkanBuffer : public GpuBuffer
 	{
 		public:
 			VulkanBuffer(VulkanDevice& device, UInt64 size, BufferUsageFlags usage, const void* initialData = nullptr);

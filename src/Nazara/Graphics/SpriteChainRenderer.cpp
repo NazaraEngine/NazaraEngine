@@ -45,7 +45,7 @@ namespace Nz
 		m_indexBuffer = m_device.InstantiateBuffer(indexCount * sizeof(UInt16), BufferUsage::IndexBuffer | BufferUsage::DeviceLocal, indices.data());
 	}
 
-	void SpriteChainRenderer::ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer& buffer, std::size_t commandCount)> callback)
+	void SpriteChainRenderer::ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(GpuBuffer& buffer, std::size_t commandCount)> callback)
 	{
 		// TODO
 	}
@@ -129,7 +129,7 @@ namespace Nz
 				m_pendingData.currentAllocation = &renderResources.GetUploadPool().Allocate(VertexBufferSize);
 				m_pendingData.currentAllocationMemPtr = static_cast<UInt8*>(m_pendingData.currentAllocation->mappedPtr);
 
-				std::shared_ptr<RenderBuffer> vertexBuffer;
+				std::shared_ptr<GpuBuffer> vertexBuffer;
 
 				// Reuse vertex buffers from pool if any
 				if (!m_pool->vertexBuffers.empty())
@@ -233,7 +233,7 @@ namespace Nz
 
 		commandBuffer.BindIndexBuffer(*m_indexBuffer, Nz::IndexType::U16);
 
-		const RenderBuffer* currentVertexBuffer = nullptr;
+		const GpuBuffer* currentVertexBuffer = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentMaterialShaderBinding = nullptr;
 		const ShaderBinding* currentSceneShaderBinding = nullptr;

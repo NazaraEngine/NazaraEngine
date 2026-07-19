@@ -41,7 +41,7 @@ namespace Nz
 		UInt32, Vector2<UInt32>, Vector3<UInt32>, Vector4<UInt32>
 	>;
 
-	class RenderBuffer;
+	class GpuBuffer;
 	class TextureAsset;
 
 	class NAZARA_GRAPHICS_API MaterialSettings
@@ -60,8 +60,8 @@ namespace Nz
 			~MaterialSettings() = default;
 
 			inline void AddBufferProperty(std::string propertyName);
-			void AddBufferProperty(std::string propertyName, std::shared_ptr<RenderBuffer> defaultBuffer);
-			void AddBufferProperty(std::string propertyName, std::shared_ptr<RenderBuffer> defaultBuffer, UInt64 defaultOffset, UInt64 defaultSize);
+			void AddBufferProperty(std::string propertyName, std::shared_ptr<GpuBuffer> defaultBuffer);
+			void AddBufferProperty(std::string propertyName, std::shared_ptr<GpuBuffer> defaultBuffer, UInt64 defaultOffset, UInt64 defaultSize);
 
 			void AddPass(std::string_view passName, MaterialPass materialPass);
 			inline void AddPass(std::size_t passIndex, MaterialPass materialPass);
@@ -98,9 +98,9 @@ namespace Nz
 			struct NAZARA_GRAPHICS_API BufferValue
 			{
 				BufferValue() = default;
-				BufferValue(std::shared_ptr<RenderBuffer> buffer);
+				BufferValue(std::shared_ptr<GpuBuffer> buffer);
 
-				std::shared_ptr<RenderBuffer> buffer;
+				std::shared_ptr<GpuBuffer> buffer;
 				UInt64 offset = 0;
 				UInt64 size = 0;
 			};

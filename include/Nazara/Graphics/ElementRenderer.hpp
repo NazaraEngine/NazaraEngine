@@ -21,7 +21,7 @@ namespace Nz
 	class AbstractViewer;
 	class CommandBufferBuilder;
 	class Material;
-	class RenderBuffer;
+	class GpuBuffer;
 	class RenderElement;
 	class RenderResources;
 	class ShaderBindingCache;
@@ -38,7 +38,7 @@ namespace Nz
 			ElementRenderer() = default;
 			virtual ~ElementRenderer();
 
-			virtual void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer& buffer, std::size_t commandCount)> callback) = 0;
+			virtual void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(GpuBuffer& buffer, std::size_t commandCount)> callback) = 0;
 
 			virtual RenderElementPoolBase& GetPool() = 0;
 
@@ -57,13 +57,13 @@ namespace Nz
 
 			struct SceneData
 			{
-				std::shared_ptr<RenderBuffer> directionalLights = {};
-				std::shared_ptr<RenderBuffer> directionalLightAtlasMapping = {};
-				std::shared_ptr<RenderBuffer> instanceBuffer;
-				std::shared_ptr<RenderBuffer> pointLights = {};
-				std::shared_ptr<RenderBuffer> pointLightAtlasMapping = {};
-				std::shared_ptr<RenderBuffer> spotLights = {};
-				std::shared_ptr<RenderBuffer> spotLightAtlasMapping = {};
+				std::shared_ptr<GpuBuffer> directionalLights = {};
+				std::shared_ptr<GpuBuffer> directionalLightAtlasMapping = {};
+				std::shared_ptr<GpuBuffer> instanceBuffer;
+				std::shared_ptr<GpuBuffer> pointLights = {};
+				std::shared_ptr<GpuBuffer> pointLightAtlasMapping = {};
+				std::shared_ptr<GpuBuffer> spotLights = {};
+				std::shared_ptr<GpuBuffer> spotLightAtlasMapping = {};
 				std::shared_ptr<Texture> shadowAtlas = {};
 			};
 	};

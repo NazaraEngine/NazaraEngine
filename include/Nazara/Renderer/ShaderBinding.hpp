@@ -10,7 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Export.hpp>
-#include <Nazara/Renderer/RenderBufferView.hpp>
+#include <Nazara/Renderer/GpuBufferView.hpp>
 #include <memory>
 #include <string_view>
 #include <variant>
@@ -59,13 +59,13 @@ namespace Nz
 
 			struct StorageBufferBinding
 			{
-				RenderBuffer* buffer;
+				GpuBuffer* buffer;
 				UInt64 offset;
 				UInt64 range;
 				bool dynamic = false;
 
-				static inline StorageBufferBinding FromView(const RenderBufferView& view, bool dynamic = false);
-				static inline StorageBufferBinding WholeBuffer(RenderBuffer& buffer, bool dynamic = false);
+				static inline StorageBufferBinding FromView(const GpuBufferView& view, bool dynamic = false);
+				static inline StorageBufferBinding WholeBuffer(GpuBuffer& buffer, bool dynamic = false);
 			};
 
 			struct TextureBinding
@@ -76,13 +76,13 @@ namespace Nz
 
 			struct UniformBufferBinding
 			{
-				RenderBuffer* buffer;
+				GpuBuffer* buffer;
 				UInt64 offset;
 				UInt64 range;
 				bool dynamic = false;
 
-				static inline UniformBufferBinding FromView(const RenderBufferView& view, bool dynamic = false);
-				static inline UniformBufferBinding WholeBuffer(RenderBuffer& buffer, bool dynamic = false);
+				static inline UniformBufferBinding FromView(const GpuBufferView& view, bool dynamic = false);
+				static inline UniformBufferBinding WholeBuffer(GpuBuffer& buffer, bool dynamic = false);
 			};
 
 			struct Binding

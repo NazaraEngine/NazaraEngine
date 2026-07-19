@@ -9,24 +9,24 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Export.hpp>
-#include <Nazara/Renderer/RenderBufferView.hpp>
+#include <Nazara/Renderer/GpuBufferView.hpp>
 #include <NazaraUtils/Bitset.hpp>
 #include <vector>
 
 namespace Nz
 {
-	class RenderBuffer;
+	class GpuBuffer;
 	class RenderDevice;
 
-	class NAZARA_GRAPHICS_API RenderBufferPool
+	class NAZARA_GRAPHICS_API GpuBufferPool
 	{
 		public:
-			RenderBufferPool(std::shared_ptr<RenderDevice> renderDevice, BufferUsageFlags bufferUsages, std::size_t bufferSize, std::size_t bufferPerBlock = 2048);
-			RenderBufferPool(const RenderBufferPool&) = delete;
-			RenderBufferPool(RenderBufferPool&&) = delete;
-			~RenderBufferPool() = default;
+			GpuBufferPool(std::shared_ptr<RenderDevice> renderDevice, BufferUsageFlags bufferUsages, std::size_t bufferSize, std::size_t bufferPerBlock = 2048);
+			GpuBufferPool(const GpuBufferPool&) = delete;
+			GpuBufferPool(GpuBufferPool&&) = delete;
+			~GpuBufferPool() = default;
 
-			std::pair<std::shared_ptr<RenderBuffer>, RenderBufferView> Allocate(std::size_t& index);
+			std::pair<std::shared_ptr<GpuBuffer>, GpuBufferView> Allocate(std::size_t& index);
 
 			void Free(std::size_t index);
 
@@ -35,20 +35,20 @@ namespace Nz
 			inline UInt64 GetBufferSize() const;
 			inline BufferUsageFlags GetBufferUsageFlags() const;
 
-			RenderBufferPool& operator=(const RenderBufferPool&) = delete;
-			RenderBufferPool& operator=(RenderBufferPool&&) = delete;
+			GpuBufferPool& operator=(const GpuBufferPool&) = delete;
+			GpuBufferPool& operator=(GpuBufferPool&&) = delete;
 
 		private:
 			UInt64 m_bufferAlignedSize;
 			UInt64 m_bufferPerBlock;
 			UInt64 m_bufferSize;
 			std::shared_ptr<RenderDevice> m_renderDevice;
-			std::vector<std::shared_ptr<RenderBuffer>> m_bufferBlocks;
+			std::vector<std::shared_ptr<GpuBuffer>> m_bufferBlocks;
 			Bitset<UInt64> m_availableEntries;
 			BufferUsageFlags m_bufferUsages;
 	};
 }
 
-#include <Nazara/Graphics/RenderBufferPool.inl>
+#include <Nazara/Graphics/GpuBufferPool.inl>
 
 #endif // NAZARA_GRAPHICS_RENDERBUFFERPOOL_HPP

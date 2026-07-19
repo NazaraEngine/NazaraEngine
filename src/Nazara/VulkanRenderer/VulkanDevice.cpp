@@ -49,7 +49,7 @@ namespace Nz
 		return std::make_unique<VulkanAsyncCommands>(*this, queueType);
 	}
 
-	std::shared_ptr<RenderBuffer> VulkanDevice::InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData)
+	std::shared_ptr<GpuBuffer> VulkanDevice::InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData)
 	{
 		return std::make_shared<VulkanBuffer>(*this, size, usageFlags, initialData);
 	}

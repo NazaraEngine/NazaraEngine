@@ -10,7 +10,7 @@
 namespace Nz
 {
 	OpenGLBuffer::OpenGLBuffer(OpenGLDevice& device, UInt64 size, BufferUsageFlags usage, const void* initialData) :
-	RenderBuffer(device, size, usage)
+	GpuBuffer(device, size, usage)
 	{
 		if (!m_buffer.Create(device))
 			throw std::runtime_error("failed to create buffer"); //< TODO: Handle OpenGL error

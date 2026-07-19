@@ -19,12 +19,12 @@ namespace Nz
 		return PipelineBarrier({}, std::span(&barrierInfo, 1), {});
 	}
 
-	inline void CommandBufferBuilder::CopyBuffer(const RenderBufferView& from, const RenderBufferView& to)
+	inline void CommandBufferBuilder::CopyBuffer(const GpuBufferView& from, const GpuBufferView& to)
 	{
 		return CopyBuffer(from, to, from.GetSize());
 	}
 
-	inline void CommandBufferBuilder::CopyBuffer(const UploadPool::Allocation& allocation, const RenderBufferView& target)
+	inline void CommandBufferBuilder::CopyBuffer(const UploadPool::Allocation& allocation, const GpuBufferView& target)
 	{
 		return CopyBuffer(allocation, target, allocation.size);
 	}

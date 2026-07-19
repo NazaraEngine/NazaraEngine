@@ -201,8 +201,8 @@ namespace NzImGui
 
 	struct ImGuiPool
 	{
-		Nz::HybridVector<std::shared_ptr<Nz::RenderBuffer>, 4> indexBuffers;
-		Nz::HybridVector<std::shared_ptr<Nz::RenderBuffer>, 4> vertexBuffers;
+		Nz::HybridVector<std::shared_ptr<Nz::GpuBuffer>, 4> indexBuffers;
+		Nz::HybridVector<std::shared_ptr<Nz::GpuBuffer>, 4> vertexBuffers;
 	};
 
 	struct ImGuiPlatformBackend
@@ -221,8 +221,8 @@ namespace NzImGui
 
 	struct ImGuiRendererBackend
 	{
-		std::shared_ptr<Nz::RenderBuffer> indexBuffer;
-		std::shared_ptr<Nz::RenderBuffer> vertexBuffer;
+		std::shared_ptr<Nz::GpuBuffer> indexBuffer;
+		std::shared_ptr<Nz::GpuBuffer> vertexBuffer;
 		std::shared_ptr<Nz::RenderDevice> device;
 		std::shared_ptr<Nz::RenderPipeline> renderPipeline;
 		std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout;
@@ -452,8 +452,8 @@ namespace NzImGui
 
 				renderResources.Execute([&](Nz::CommandBufferBuilder& builder)
 				{
-					builder.CopyBuffer(indexAllocation, Nz::RenderBufferView(rendererBackend->indexBuffer.get()));
-					builder.CopyBuffer(vertexAllocation, Nz::RenderBufferView(rendererBackend->vertexBuffer.get()));
+					builder.CopyBuffer(indexAllocation, Nz::GpuBufferView(rendererBackend->indexBuffer.get()));
+					builder.CopyBuffer(vertexAllocation, Nz::GpuBufferView(rendererBackend->vertexBuffer.get()));
 
 					builder.MemoryBarrier({ .srcStageMask = Nz::PipelineStage::Transfer, .dstStageMask = Nz::PipelineStage::VertexInput, .srcAccessMask = Nz::MemoryAccess::TransferWrite, .dstAccessMask = Nz::MemoryAccess::VertexBufferRead });
 				}, Nz::QueueType::Transfer);

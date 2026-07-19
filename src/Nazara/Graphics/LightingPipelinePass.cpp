@@ -136,13 +136,13 @@ namespace Nz
 				for (auto& lightBlockContainer : { &m_directionalLights, &m_pointLights, &m_spotLights })
 				{
 					for (auto& lightBlock : *lightBlockContainer)
-						builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_directionalLightSize));
+						builder.CopyBuffer(*lightBlock.uploadAllocation, GpuBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_directionalLightSize));
 				}
 
 				for (auto& lightBlockContainer : { &m_shadowDirectionalLights, &m_shadowPointLights, &m_shadowSpotLights })
 				{
 					for (auto& lightBlock : *lightBlockContainer)
-						builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_directionalLightSize));
+						builder.CopyBuffer(*lightBlock.uploadAllocation, GpuBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_directionalLightSize));
 				}
 
 				builder.MemoryBarrier({ .srcStageMask = PipelineStage::Transfer, .dstStageMask = PipelineStage::VertexInput, .srcAccessMask = MemoryAccess::TransferWrite, .dstAccessMask = MemoryAccess::VertexBufferRead });

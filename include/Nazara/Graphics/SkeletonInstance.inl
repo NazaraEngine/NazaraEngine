@@ -5,12 +5,12 @@
 
 namespace Nz
 {
-	inline std::shared_ptr<RenderBuffer>& SkeletonInstance::GetSkeletalBuffer()
+	inline std::shared_ptr<GpuBuffer>& SkeletonInstance::GetSkeletalBuffer()
 	{
 		return m_skeletalDataBuffer;
 	}
 
-	inline const std::shared_ptr<RenderBuffer>& SkeletonInstance::GetSkeletalBuffer() const
+	inline const std::shared_ptr<GpuBuffer>& SkeletonInstance::GetSkeletalBuffer() const
 	{
 		return m_skeletalDataBuffer;
 	}

@@ -5,22 +5,22 @@
 
 namespace Nz
 {
-	inline UInt64 Nz::RenderBufferPool::GetBufferAlignedSize() const
+	inline UInt64 Nz::GpuBufferPool::GetBufferAlignedSize() const
 	{
 		return m_bufferAlignedSize;
 	}
 
-	inline UInt64 RenderBufferPool::GetBufferPerBlock() const
+	inline UInt64 GpuBufferPool::GetBufferPerBlock() const
 	{
 		return m_bufferPerBlock;
 	}
 
-	inline UInt64 RenderBufferPool::GetBufferSize() const
+	inline UInt64 GpuBufferPool::GetBufferSize() const
 	{
 		return m_bufferSize;
 	}
 
-	inline BufferUsageFlags RenderBufferPool::GetBufferUsageFlags() const
+	inline BufferUsageFlags GpuBufferPool::GetBufferUsageFlags() const
 	{
 		return m_bufferUsages;
 	}

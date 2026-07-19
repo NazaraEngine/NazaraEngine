@@ -19,7 +19,7 @@
 
 namespace Nz
 {
-	class RenderBuffer;
+	class GpuBuffer;
 	class RenderDevice;
 
 	class NAZARA_GRAPHICS_API GpuDynamicArray : public TransferInterface
@@ -33,7 +33,7 @@ namespace Nz
 			UInt8* AccessEntry(UInt32 entryIndex);
 			UInt8* AccessHeader();
 
-			inline const std::shared_ptr<RenderBuffer>& GetBuffer() const;
+			inline const std::shared_ptr<GpuBuffer>& GetBuffer() const;
 			inline UInt32 GetCapacity() const;
 			inline const UInt8* GetEntryData(UInt32 entryIndex) const;
 			inline UInt32 GetEntrySize() const;
@@ -65,7 +65,7 @@ namespace Nz
 				UInt64 end = 0;
 			};
 
-			std::shared_ptr<RenderBuffer> m_gpuBuffer;
+			std::shared_ptr<GpuBuffer> m_gpuBuffer;
 			std::string m_debugName;
 			std::vector<UInt8> m_memory;
 			BufferUsageFlags m_bufferUsageFlags;

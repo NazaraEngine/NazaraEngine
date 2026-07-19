@@ -22,9 +22,9 @@ namespace Nz
 		Register<Skeleton, &RenderQueueRegistry::m_skeletonBitset, &RenderQueueRegistry::m_skeletons>(skeleton, skeleton->OnSkeletonRelease);
 	}
 
-	void RenderQueueRegistry::RegisterVertexBuffer(const RenderBuffer* vertexBuffer)
+	void RenderQueueRegistry::RegisterVertexBuffer(const GpuBuffer* vertexBuffer)
 	{
-		Register<RenderBuffer, &RenderQueueRegistry::m_vertexBufferBitset, &RenderQueueRegistry::m_vertexBuffers>(vertexBuffer, vertexBuffer->OnRenderBufferRelease);
+		Register<GpuBuffer, &RenderQueueRegistry::m_vertexBufferBitset, &RenderQueueRegistry::m_vertexBuffers>(vertexBuffer, vertexBuffer->OnGpuBufferRelease);
 	}
 
 	void RenderQueueRegistry::RegisterVertexDeclaration(const VertexDeclaration* vertexDeclaration)

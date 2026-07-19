@@ -214,7 +214,7 @@ namespace Nz
 		return std::make_unique<OpenGLAsyncCommands>();
 	}
 
-	std::shared_ptr<RenderBuffer> OpenGLDevice::InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData)
+	std::shared_ptr<GpuBuffer> OpenGLDevice::InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData)
 	{
 		return std::make_shared<OpenGLBuffer>(*this, size, usageFlags, initialData);
 	}

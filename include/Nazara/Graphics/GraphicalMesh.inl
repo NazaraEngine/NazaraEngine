@@ -28,7 +28,7 @@ namespace Nz
 		return m_aabb;
 	}
 
-	inline const std::shared_ptr<RenderBuffer>& GraphicalMesh::GetIndexBuffer(std::size_t subMesh) const
+	inline const std::shared_ptr<GpuBuffer>& GraphicalMesh::GetIndexBuffer(std::size_t subMesh) const
 	{
 		assert(subMesh < m_subMeshes.size());
 		return m_subMeshes[subMesh].indexBuffer;
@@ -46,7 +46,7 @@ namespace Nz
 		return m_subMeshes[subMesh].indexType;
 	}
 
-	inline const std::shared_ptr<RenderBuffer>& GraphicalMesh::GetVertexBuffer(std::size_t subMesh) const
+	inline const std::shared_ptr<GpuBuffer>& GraphicalMesh::GetVertexBuffer(std::size_t subMesh) const
 	{
 		assert(subMesh < m_subMeshes.size());
 		return m_subMeshes[subMesh].vertexBuffer;

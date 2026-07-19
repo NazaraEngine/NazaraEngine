@@ -11,13 +11,13 @@
 #include <Nazara/OpenGLRenderer/Export.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Buffer.hpp>
-#include <Nazara/Renderer/RenderBuffer.hpp>
+#include <Nazara/Renderer/GpuBuffer.hpp>
 #include <memory>
 #include <vector>
 
 namespace Nz
 {
-	class NAZARA_OPENGLRENDERER_API OpenGLBuffer : public RenderBuffer
+	class NAZARA_OPENGLRENDERER_API OpenGLBuffer : public GpuBuffer
 	{
 		public:
 			OpenGLBuffer(OpenGLDevice& device, UInt64 size, BufferUsageFlags usage, const void* initialData = nullptr);

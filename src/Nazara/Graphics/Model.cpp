@@ -82,7 +82,7 @@ namespace Nz
 		return std::make_shared<Model>(*this, CopyToken{});
 	}
 
-	const std::shared_ptr<RenderBuffer>& Model::GetIndexBuffer(std::size_t subMeshIndex) const
+	const std::shared_ptr<GpuBuffer>& Model::GetIndexBuffer(std::size_t subMeshIndex) const
 	{
 		return m_graphicalMesh->GetIndexBuffer(subMeshIndex);
 	}
@@ -111,7 +111,7 @@ namespace Nz
 		return subMeshData.vertexBufferData;
 	}
 
-	const std::shared_ptr<RenderBuffer>& Model::GetVertexBuffer(std::size_t subMeshIndex) const
+	const std::shared_ptr<GpuBuffer>& Model::GetVertexBuffer(std::size_t subMeshIndex) const
 	{
 		return m_graphicalMesh->GetVertexBuffer(subMeshIndex);
 	}

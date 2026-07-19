@@ -103,7 +103,7 @@ namespace Nz
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_COMPUTE, vkPipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet(), SafeCaster(dynamicOffsets.size()), dynamicOffsets.data());
 	}
 
-	void VulkanCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset)
+	void VulkanCommandBufferBuilder::BindIndexBuffer(const GpuBuffer& indexBuffer, IndexType indexType, UInt64 offset)
 	{
 		const VulkanBuffer& vkBuffer = SafeCast<const VulkanBuffer&>(indexBuffer);
 
@@ -136,7 +136,7 @@ namespace Nz
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet(), SafeCaster(dynamicOffsets.size()), dynamicOffsets.data());
 	}
 
-	void VulkanCommandBufferBuilder::BindVertexBuffer(UInt32 binding, const RenderBuffer& vertexBuffer, UInt64 offset)
+	void VulkanCommandBufferBuilder::BindVertexBuffer(UInt32 binding, const GpuBuffer& vertexBuffer, UInt64 offset)
 	{
 		const VulkanBuffer& vkBuffer = SafeCast<const VulkanBuffer&>(vertexBuffer);
 
@@ -294,7 +294,7 @@ namespace Nz
 		m_commandBuffer.ImageBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, ToVulkan(dstStageMask), 0, VK_ACCESS_TRANSFER_WRITE_BIT, ToVulkan(dstAccessMask), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, ToVulkan(newLayout), vkImage, vkTexture.BuildSubresourceRange(levelCount - 1, 1));
 	}
 
-	void VulkanCommandBufferBuilder::CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
+	void VulkanCommandBufferBuilder::CopyBuffer(const GpuBufferView& source, const GpuBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
 		VulkanBuffer& sourceBuffer = *SafeCast<VulkanBuffer*>(source.GetBuffer());
 		VulkanBuffer& targetBuffer = *SafeCast<VulkanBuffer*>(target.GetBuffer());
@@ -302,7 +302,7 @@ namespace Nz
 		m_commandBuffer.CopyBuffer(sourceBuffer.GetBuffer(), targetBuffer.GetBuffer(), size, sourceOffset + source.GetOffset(), targetOffset + target.GetOffset());
 	}
 
-	void VulkanCommandBufferBuilder::CopyBuffer(const UploadPool::Allocation& allocation, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
+	void VulkanCommandBufferBuilder::CopyBuffer(const UploadPool::Allocation& allocation, const GpuBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
 		const auto& vkAllocation = SafeCast<const VulkanUploadPool::VulkanAllocation&>(allocation);
 		VulkanBuffer& targetBuffer = *SafeCast<VulkanBuffer*>(target.GetBuffer());
@@ -359,14 +359,14 @@ namespace Nz
 		m_commandBuffer.DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 	}
 
-	void VulkanCommandBufferBuilder::DrawIndirect(const RenderBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
+	void VulkanCommandBufferBuilder::DrawIndirect(const GpuBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
 	{
 		const VulkanBuffer& indirectBuffer = SafeCast<const VulkanBuffer&>(buffer);
 
 		m_commandBuffer.DrawIndirect(indirectBuffer.GetBuffer(), offset, drawCount, stride);
 	}
 
-	void VulkanCommandBufferBuilder::DrawIndirectCount(const RenderBuffer& buffer, UInt64 offset, const RenderBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
+	void VulkanCommandBufferBuilder::DrawIndirectCount(const GpuBuffer& buffer, UInt64 offset, const GpuBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
 	{
 		const VulkanBuffer& indirectBuffer = SafeCast<const VulkanBuffer&>(buffer);
 		const VulkanBuffer& indirectCountBuffer = SafeCast<const VulkanBuffer&>(countBuffer);
@@ -374,14 +374,14 @@ namespace Nz
 		m_commandBuffer.DrawIndirectCount(indirectBuffer.GetBuffer(), offset, indirectCountBuffer.GetBuffer(), countBufferOffset, maxDrawCount, stride);
 	}
 
-	void VulkanCommandBufferBuilder::DrawIndexedIndirect(const RenderBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
+	void VulkanCommandBufferBuilder::DrawIndexedIndirect(const GpuBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
 	{
 		const VulkanBuffer& indirectBuffer = SafeCast<const VulkanBuffer&>(buffer);
 
 		m_commandBuffer.DrawIndexedIndirect(indirectBuffer.GetBuffer(), offset, drawCount, stride);
 	}
 
-	void VulkanCommandBufferBuilder::DrawIndexedIndirectCount(const RenderBuffer& buffer, UInt64 offset, const RenderBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
+	void VulkanCommandBufferBuilder::DrawIndexedIndirectCount(const GpuBuffer& buffer, UInt64 offset, const GpuBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
 	{
 		const VulkanBuffer& indirectBuffer = SafeCast<const VulkanBuffer&>(buffer);
 		const VulkanBuffer& indirectCountBuffer = SafeCast<const VulkanBuffer&>(countBuffer);

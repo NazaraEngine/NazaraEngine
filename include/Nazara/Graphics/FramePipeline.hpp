@@ -26,7 +26,7 @@ namespace Nz
 	class LightShadowData;
 	class MaterialInstance;
 	class PipelineViewer;
-	class RenderBuffer;
+	class GpuBuffer;
 	class RenderQueue;
 	class RenderResources;
 	class ShaderBindingCache;
@@ -45,16 +45,16 @@ namespace Nz
 			virtual void ForEachShadowCastingLight(FunctionRef<void(std::size_t lightIndex, const Light* light, LightShadowData* lightShadowData)> callback) = 0;
 
 			// TODO: Move to another class
-			virtual const std::shared_ptr<RenderBuffer>& GetDirectionalLightBuffer() const = 0;
-			virtual const std::shared_ptr<RenderBuffer>& GetDirectionalShadowMappingBuffer() const = 0;
-			virtual const std::shared_ptr<RenderBuffer>& GetInstanceBuffer() const = 0;
-			virtual const std::shared_ptr<RenderBuffer>& GetPointLightBuffer() const = 0;
-			virtual const std::shared_ptr<RenderBuffer>& GetPointShadowMappingBuffer() const = 0;
+			virtual const std::shared_ptr<GpuBuffer>& GetDirectionalLightBuffer() const = 0;
+			virtual const std::shared_ptr<GpuBuffer>& GetDirectionalShadowMappingBuffer() const = 0;
+			virtual const std::shared_ptr<GpuBuffer>& GetInstanceBuffer() const = 0;
+			virtual const std::shared_ptr<GpuBuffer>& GetPointLightBuffer() const = 0;
+			virtual const std::shared_ptr<GpuBuffer>& GetPointShadowMappingBuffer() const = 0;
 			virtual RenderQueue& GetRenderQueue(std::size_t renderQueueIndex) = 0;
 			virtual ShaderBindingCache* GetShaderBindingCache() const = 0;
 			virtual const std::shared_ptr<Texture>& GetShadowAtlasTexture() const = 0;
-			virtual const std::shared_ptr<RenderBuffer>& GetSpotLightBuffer() const = 0;
-			virtual const std::shared_ptr<RenderBuffer>& GetSpotShadowMappingBuffer() const = 0;
+			virtual const std::shared_ptr<GpuBuffer>& GetSpotLightBuffer() const = 0;
+			virtual const std::shared_ptr<GpuBuffer>& GetSpotShadowMappingBuffer() const = 0;
 
 			virtual void QueueTransfer(TransferInterface* transfer) = 0;
 

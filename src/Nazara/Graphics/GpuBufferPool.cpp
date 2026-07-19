@@ -2,12 +2,12 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Graphics/RenderBufferPool.hpp>
+#include <Nazara/Graphics/GpuBufferPool.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 
 namespace Nz
 {
-	RenderBufferPool::RenderBufferPool(std::shared_ptr<RenderDevice> renderDevice, BufferUsageFlags bufferUsages, std::size_t bufferSize, std::size_t bufferPerBlock) :
+	GpuBufferPool::GpuBufferPool(std::shared_ptr<RenderDevice> renderDevice, BufferUsageFlags bufferUsages, std::size_t bufferSize, std::size_t bufferPerBlock) :
 	m_bufferPerBlock(bufferPerBlock),
 	m_bufferSize(bufferSize),
 	m_renderDevice(std::move(renderDevice)),
@@ -21,7 +21,7 @@ namespace Nz
 			m_bufferAlignedSize = AlignPow2(m_bufferAlignedSize, m_renderDevice->GetDeviceInfo().limits.minUniformBufferOffsetAlignment);
 	}
 
-	std::pair<std::shared_ptr<RenderBuffer>, RenderBufferView> RenderBufferPool::Allocate(std::size_t& index)
+	std::pair<std::shared_ptr<GpuBuffer>, GpuBufferView> GpuBufferPool::Allocate(std::size_t& index)
 	{
 		// First try to fetch from an already allocated block
 		index = m_availableEntries.FindFirst();
@@ -32,7 +32,7 @@ namespace Nz
 
 			std::size_t localIndex = index - (blockIndex * m_bufferPerBlock); //< faster than index % m_bufferPerBlock
 
-			return { m_bufferBlocks[blockIndex], RenderBufferView(m_bufferBlocks[blockIndex].get(), localIndex * m_bufferAlignedSize, m_bufferSize) };
+			return { m_bufferBlocks[blockIndex], GpuBufferView(m_bufferBlocks[blockIndex].get(), localIndex * m_bufferAlignedSize, m_bufferSize) };
 		}
 
 		// Allocate a new block
@@ -45,10 +45,10 @@ namespace Nz
 
 		std::size_t localIndex = index - (blockIndex * m_bufferPerBlock); //< faster than index % m_bufferPerBlock
 
-		return { m_bufferBlocks[blockIndex], RenderBufferView(m_bufferBlocks[blockIndex].get(), localIndex * m_bufferAlignedSize, m_bufferSize) };
+		return { m_bufferBlocks[blockIndex], GpuBufferView(m_bufferBlocks[blockIndex].get(), localIndex * m_bufferAlignedSize, m_bufferSize) };
 	}
 
-	void RenderBufferPool::Free(std::size_t index)
+	void GpuBufferPool::Free(std::size_t index)
 	{
 		NazaraAssertMsg(!m_availableEntries.Test(index), "index is not a currently active buffer");
 

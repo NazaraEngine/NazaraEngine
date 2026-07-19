@@ -298,8 +298,8 @@ int main()
 		};
 	}
 
-	std::shared_ptr<Nz::RenderBuffer> renderBufferIB = device->InstantiateBuffer(indices.size() * sizeof(Nz::UInt16), Nz::BufferUsage::IndexBuffer | Nz::BufferUsage::DeviceLocal, indices.data());
-	std::shared_ptr<Nz::RenderBuffer> renderBufferVB = device->InstantiateBuffer(vertices.size() * meshParams.vertexDeclaration->GetStride(), Nz::BufferUsage::VertexBuffer | Nz::BufferUsage::DeviceLocal, vertices.data());
+	std::shared_ptr<Nz::GpuBuffer> renderBufferIB = device->InstantiateBuffer(indices.size() * sizeof(Nz::UInt16), Nz::BufferUsage::IndexBuffer | Nz::BufferUsage::DeviceLocal, indices.data());
+	std::shared_ptr<Nz::GpuBuffer> renderBufferVB = device->InstantiateBuffer(vertices.size() * meshParams.vertexDeclaration->GetStride(), Nz::BufferUsage::VertexBuffer | Nz::BufferUsage::DeviceLocal, vertices.data());
 
 	struct ObjectData
 	{
@@ -319,7 +319,7 @@ int main()
 		objectData[i].lodVertexOffset = std::array<Nz::Int32, 4>{ lods[0].vertexOffset, lods[1].vertexOffset, lods[2].vertexOffset, lods[3].vertexOffset };
 	}
 
-	std::shared_ptr<Nz::RenderBuffer> objectBuffers = device->InstantiateBuffer(instanceCount * sizeof(ObjectData), Nz::BufferUsage::StorageBuffer | Nz::BufferUsage::DeviceLocal, objectData.data());
+	std::shared_ptr<Nz::GpuBuffer> objectBuffers = device->InstantiateBuffer(instanceCount * sizeof(ObjectData), Nz::BufferUsage::StorageBuffer | Nz::BufferUsage::DeviceLocal, objectData.data());
 
 
 	// Texture
@@ -375,7 +375,7 @@ int main()
 
 	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 
-	std::shared_ptr<Nz::RenderBuffer> uniformBuffer = device->InstantiateBuffer(uniformSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal);
+	std::shared_ptr<Nz::GpuBuffer> uniformBuffer = device->InstantiateBuffer(uniformSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal);
 
 
 	Nz::RenderPipelineInfo renderPipelineInfo;
@@ -414,7 +414,7 @@ int main()
 		indirectCommand.vertexOffset = lods[0].vertexOffset;
 	}
 
-	std::shared_ptr<Nz::RenderBuffer> indirectBuffer = device->InstantiateBuffer(sizeof(Nz::DrawIndexedIndirectCommand) * instanceCount, Nz::BufferUsage::IndirectBuffer | Nz::BufferUsage::StorageBuffer | Nz::BufferUsage::DeviceLocal, indirectCommands.data());
+	std::shared_ptr<Nz::GpuBuffer> indirectBuffer = device->InstantiateBuffer(sizeof(Nz::DrawIndexedIndirectCommand) * instanceCount, Nz::BufferUsage::IndirectBuffer | Nz::BufferUsage::StorageBuffer | Nz::BufferUsage::DeviceLocal, indirectCommands.data());
 
 	Nz::ShaderBindingPtr viewerShaderBinding = basePipelineLayout->AllocateShaderBinding(0);
 	viewerShaderBinding->Update({

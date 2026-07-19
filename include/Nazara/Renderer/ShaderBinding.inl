@@ -10,7 +10,7 @@ namespace Nz
 		Update(bindings.begin(), bindings.size());
 	}
 
-	inline auto ShaderBinding::StorageBufferBinding::FromView(const RenderBufferView& view, bool dynamic) -> StorageBufferBinding
+	inline auto ShaderBinding::StorageBufferBinding::FromView(const GpuBufferView& view, bool dynamic) -> StorageBufferBinding
 	{
 		return StorageBufferBinding{
 			.buffer = view.GetBuffer(),
@@ -20,7 +20,7 @@ namespace Nz
 		};
 	}
 
-	inline auto ShaderBinding::StorageBufferBinding::WholeBuffer(RenderBuffer& buffer, bool dynamic) -> StorageBufferBinding
+	inline auto ShaderBinding::StorageBufferBinding::WholeBuffer(GpuBuffer& buffer, bool dynamic) -> StorageBufferBinding
 	{
 		return StorageBufferBinding{
 			.buffer = &buffer,
@@ -30,7 +30,7 @@ namespace Nz
 		};
 	}
 
-	inline auto ShaderBinding::UniformBufferBinding::FromView(const RenderBufferView& view, bool dynamic) -> UniformBufferBinding
+	inline auto ShaderBinding::UniformBufferBinding::FromView(const GpuBufferView& view, bool dynamic) -> UniformBufferBinding
 	{
 		return UniformBufferBinding{
 			.buffer = view.GetBuffer(),
@@ -40,7 +40,7 @@ namespace Nz
 		};
 	}
 
-	inline auto ShaderBinding::UniformBufferBinding::WholeBuffer(RenderBuffer& buffer, bool dynamic) -> UniformBufferBinding
+	inline auto ShaderBinding::UniformBufferBinding::WholeBuffer(GpuBuffer& buffer, bool dynamic) -> UniformBufferBinding
 	{
 		return UniformBufferBinding{
 			.buffer = &buffer,

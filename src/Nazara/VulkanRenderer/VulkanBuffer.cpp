@@ -13,7 +13,7 @@
 namespace Nz
 {
 	VulkanBuffer::VulkanBuffer(VulkanDevice& device, UInt64 size, BufferUsageFlags usage, const void* initialData) :
-	RenderBuffer(device, size, usage),
+	GpuBuffer(device, size, usage),
 	m_device(device)
 	{
 		VkBufferUsageFlags bufferUsage = ToVulkan(usage);

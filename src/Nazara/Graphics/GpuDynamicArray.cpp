@@ -78,7 +78,7 @@ namespace Nz
 		UploadPool::Allocation& allocation = renderResources.GetUploadPool().Allocate(size);
 		std::memcpy(allocation.mappedPtr, &m_memory[m_invalidatedRange.start], size);
 
-		builder.CopyBuffer(allocation, RenderBufferView(m_gpuBuffer.get(), m_invalidatedRange.start, m_invalidatedRange.end));
+		builder.CopyBuffer(allocation, GpuBufferView(m_gpuBuffer.get(), m_invalidatedRange.start, m_invalidatedRange.end));
 
 		ResetInvalidationRanges();
 	}

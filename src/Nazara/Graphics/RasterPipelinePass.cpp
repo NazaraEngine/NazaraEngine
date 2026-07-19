@@ -111,7 +111,7 @@ namespace Nz
 				if (elementType >= m_elementRendererData.size() || !m_elementRendererData[elementType])
 					return;
 
-				elementRenderer.ForEachIndirectBuffer(*m_elementRendererData[elementType], [&](RenderBuffer& buffer, std::size_t commandCount)
+				elementRenderer.ForEachIndirectBuffer(*m_elementRendererData[elementType], [&](GpuBuffer& buffer, std::size_t commandCount)
 				{
 					ShaderBindingPtr computeShaderBinding = m_computePipelineLayout->AllocateShaderBinding(0);
 					computeShaderBinding->Update({

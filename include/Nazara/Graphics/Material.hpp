@@ -16,7 +16,7 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
-#include <Nazara/Graphics/RenderBufferPool.hpp>
+#include <Nazara/Graphics/GpuBufferPool.hpp>
 #include <Nazara/Graphics/ShaderReflection.hpp>
 #include <NazaraUtils/StringHash.hpp>
 #include <NZSL/Ast/Module.hpp>
@@ -107,7 +107,7 @@ namespace Nz
 				UInt32 bindingSet;
 				UInt32 bindingIndex;
 				std::size_t structIndex;
-				std::unique_ptr<RenderBufferPool> bufferPool;
+				std::unique_ptr<GpuBufferPool> bufferPool;
 			};
 
 			static constexpr UInt32 InstanceBindingSet = 3;

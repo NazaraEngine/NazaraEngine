@@ -26,7 +26,7 @@
 namespace Nz
 {
 	class CommandBufferBuilder;
-	class RenderBuffer;
+	class GpuBuffer;
 	class RenderDevice;
 	class RenderPipeline;
 	class RenderPipelineLayout;
@@ -71,26 +71,26 @@ namespace Nz
 		private:
 			struct ViewerData
 			{
-				std::shared_ptr<RenderBuffer> buffer;
+				std::shared_ptr<GpuBuffer> buffer;
 				ShaderBindingPtr binding;
 			};
 
 			struct DataPool
 			{
-				std::vector<std::shared_ptr<RenderBuffer>> vertexBuffers;
+				std::vector<std::shared_ptr<GpuBuffer>> vertexBuffers;
 				std::vector<ViewerData> viewerData;
 			};
 
 			struct DrawCall
 			{
-				std::shared_ptr<RenderBuffer> vertexBuffer;
+				std::shared_ptr<GpuBuffer> vertexBuffer;
 				std::size_t vertexCount;
 			};
 
 			struct PendingUpload
 			{
 				UploadPool::Allocation* allocation;
-				RenderBuffer* vertexBuffer;
+				GpuBuffer* vertexBuffer;
 			};
 
 			std::array<UInt8, PredefinedDebugDrawerOffsets.totalSize> m_viewerData;

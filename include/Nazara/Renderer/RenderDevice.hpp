@@ -14,7 +14,7 @@
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Export.hpp>
 #include <Nazara/Renderer/Framebuffer.hpp>
-#include <Nazara/Renderer/RenderBuffer.hpp>
+#include <Nazara/Renderer/GpuBuffer.hpp>
 #include <Nazara/Renderer/RenderDeviceInfo.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
@@ -49,7 +49,7 @@ namespace Nz
 			virtual const RenderDeviceFeatures& GetEnabledFeatures() const = 0;
 
 			virtual std::unique_ptr<AsyncRenderCommands> InstantiateAsyncCommands(QueueType queueType) = 0;
-			virtual std::shared_ptr<RenderBuffer> InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData = nullptr) = 0;
+			virtual std::shared_ptr<GpuBuffer> InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData = nullptr) = 0;
 			virtual std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) = 0;
 			virtual std::shared_ptr<ComputePipeline> InstantiateComputePipeline(ComputePipelineInfo pipelineInfo) = 0;
 			virtual std::shared_ptr<Framebuffer> InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) = 0;

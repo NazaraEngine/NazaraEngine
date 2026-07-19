@@ -26,7 +26,7 @@ namespace Nz
 			SubmeshRenderer(RenderDevice& device);
 			~SubmeshRenderer() = default;
 
-			void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer& buffer, std::size_t commandCount)> callback) override;
+			void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(GpuBuffer& buffer, std::size_t commandCount)> callback) override;
 
 			RenderElementPool<RenderSubmesh>& GetPool() override;
 
@@ -40,7 +40,7 @@ namespace Nz
 			struct PoolData
 			{
 				std::vector<RenderResourceReferences> references;
-				std::vector<std::shared_ptr<RenderBuffer>> indirectBuffers;
+				std::vector<std::shared_ptr<GpuBuffer>> indirectBuffers;
 			};
 
 			static constexpr UInt64 IndirectCommandBufferCount = 10 * 1024;
@@ -57,7 +57,7 @@ namespace Nz
 		std::size_t drawIndirectBufferIndex = 0;
 		std::size_t totalElementCount = 0;
 		std::vector<ShaderBindingPtr> shaderBindings;
-		std::vector<std::shared_ptr<RenderBuffer>> drawIndirectBuffers;
+		std::vector<std::shared_ptr<GpuBuffer>> drawIndirectBuffers;
 		UInt8* currentIndirectBufferPtr = nullptr;
 		UInt32 drawElementCounter = 0;
 		UInt32 indirectCommandIndex = 0;

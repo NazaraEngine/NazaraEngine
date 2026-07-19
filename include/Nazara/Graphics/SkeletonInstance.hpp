@@ -19,7 +19,7 @@ namespace Nz
 {
 	class CommandBufferBuilder;
 	class Material;
-	class RenderBuffer;
+	class GpuBuffer;
 	struct RenderResourceReferences;
 	class SkeletonInstance;
 	class UploadPool;
@@ -34,8 +34,8 @@ namespace Nz
 			SkeletonInstance(SkeletonInstance&& skeletonInstance) noexcept;
 			~SkeletonInstance() = default;
 
-			inline std::shared_ptr<RenderBuffer>& GetSkeletalBuffer();
-			inline const std::shared_ptr<RenderBuffer>& GetSkeletalBuffer() const;
+			inline std::shared_ptr<GpuBuffer>& GetSkeletalBuffer();
+			inline const std::shared_ptr<GpuBuffer>& GetSkeletalBuffer() const;
 			inline const std::shared_ptr<const Skeleton>& GetSkeleton() const;
 
 			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
@@ -46,7 +46,7 @@ namespace Nz
 		private:
 			NazaraSlot(Skeleton, OnSkeletonJointsInvalidated, m_onSkeletonJointsInvalidated);
 
-			std::shared_ptr<RenderBuffer> m_skeletalDataBuffer;
+			std::shared_ptr<GpuBuffer> m_skeletalDataBuffer;
 			std::shared_ptr<const Skeleton> m_skeleton;
 			bool m_dataInvalidated;
 	};

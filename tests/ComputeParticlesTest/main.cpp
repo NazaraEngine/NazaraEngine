@@ -16,7 +16,7 @@ NAZARA_REQUEST_DEDICATED_GPU()
 
 struct SpriteRenderData
 {
-	std::shared_ptr<Nz::RenderBuffer> vertexBuffer;
+	std::shared_ptr<Nz::GpuBuffer> vertexBuffer;
 	Nz::ShaderBindingPtr shaderBinding;
 };
 
@@ -29,7 +29,7 @@ struct SpriteRenderPipeline
 
 std::shared_ptr<Nz::ComputePipeline> BuildComputePipeline(Nz::RenderDevice& device, std::shared_ptr<Nz::RenderPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver);
 SpriteRenderPipeline BuildSpritePipeline(Nz::RenderDevice& device);
-SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPipeline& pipelineData, const Nz::Rectf& textureRect, const Nz::Vector2f& screenSize, const Nz::RenderBufferView& buffer, const Nz::RenderBufferView& particleBuffer, std::shared_ptr<Nz::Texture> texture, std::shared_ptr<Nz::TextureSampler> sampler);
+SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPipeline& pipelineData, const Nz::Rectf& textureRect, const Nz::Vector2f& screenSize, const Nz::GpuBufferView& buffer, const Nz::GpuBufferView& particleBuffer, std::shared_ptr<Nz::Texture> texture, std::shared_ptr<Nz::TextureSampler> sampler);
 std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std::shared_ptr<nzsl::ModuleResolver> moduleResolver, Nz::WindowSwapchain& swapchain);
 
 int main()
@@ -130,7 +130,7 @@ int main()
 		particleVelPtr[i] = Nz::Vector2f(velDis(rand), velDis(rand));
 	}
 
-	std::shared_ptr<Nz::RenderBuffer> particleBuffer = device->InstantiateBuffer(bufferSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::MemoryMapping | Nz::BufferUsage::StorageBuffer, particleBufferInitialData.data());
+	std::shared_ptr<Nz::GpuBuffer> particleBuffer = device->InstantiateBuffer(bufferSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::MemoryMapping | Nz::BufferUsage::StorageBuffer, particleBufferInitialData.data());
 
 	nzsl::FieldOffsets sceneBufferLayout(nzsl::StructLayout::Std140);
 	std::size_t deltaTimeOffset = sceneBufferLayout.AddField(nzsl::StructFieldType::Float1);
@@ -139,7 +139,7 @@ int main()
 
 	std::size_t sceneBufferSize = sceneBufferLayout.GetAlignedSize();
 
-	std::shared_ptr<Nz::RenderBuffer> sceneDataBuffer = device->InstantiateBuffer(sceneBufferSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::UniformBuffer);
+	std::shared_ptr<Nz::GpuBuffer> sceneDataBuffer = device->InstantiateBuffer(sceneBufferSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::UniformBuffer);
 
 	// Compute part
 	Nz::RenderPipelineLayoutInfo computePipelineLayoutInfo;
@@ -213,7 +213,7 @@ int main()
 	std::vector<Nz::UInt8> viewerBufferInitialData(viewerBufferSize);
 	Nz::AccessByOffset<Nz::Matrix4f&>(viewerBufferInitialData.data(), projectionMatrixOffset) = Nz::Matrix4f::Ortho(0.f, float(windowSize.x), 0.f, float(windowSize.y));
 
-	std::shared_ptr<Nz::RenderBuffer> uniformBuffer = device->InstantiateBuffer(viewerBufferSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal, viewerBufferInitialData.data());
+	std::shared_ptr<Nz::GpuBuffer> uniformBuffer = device->InstantiateBuffer(viewerBufferSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal, viewerBufferInitialData.data());
 
 	std::shared_ptr<Nz::Texture> texture = GenerateSpriteTexture(*device, moduleResolver, windowSwapchain);
 	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
@@ -563,7 +563,7 @@ SpriteRenderPipeline BuildSpritePipeline(Nz::RenderDevice& device)
 	}
 }
 
-SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPipeline& pipelineData, const Nz::Rectf& textureRect, const Nz::Vector2f& screenSize, const Nz::RenderBufferView& buffer, const Nz::RenderBufferView& particleBuffer, std::shared_ptr<Nz::Texture> texture, std::shared_ptr<Nz::TextureSampler> sampler)
+SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPipeline& pipelineData, const Nz::Rectf& textureRect, const Nz::Vector2f& screenSize, const Nz::GpuBufferView& buffer, const Nz::GpuBufferView& particleBuffer, std::shared_ptr<Nz::Texture> texture, std::shared_ptr<Nz::TextureSampler> sampler)
 {
 	try
 	{

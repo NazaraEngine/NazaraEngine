@@ -32,7 +32,7 @@ namespace Nz
 	{
 		struct DrawCall
 		{
-			const RenderBuffer* vertexBuffer;
+			const GpuBuffer* vertexBuffer;
 			const RenderPipeline* renderPipeline;
 			const ShaderBinding* materialShaderBinding;
 			const ShaderBinding* sceneShaderBinding;
@@ -52,7 +52,7 @@ namespace Nz
 		std::optional<RenderResourceReferences> references;
 		std::unordered_map<const RenderSpriteChain*, DrawCallIndices> drawCallPerElement;
 		std::vector<DrawCall> drawCalls;
-		std::vector<std::shared_ptr<RenderBuffer>> vertexBuffers;
+		std::vector<std::shared_ptr<GpuBuffer>> vertexBuffers;
 		std::vector<ShaderBindingPtr> shaderBindings;
 	};
 
@@ -62,7 +62,7 @@ namespace Nz
 			SpriteChainRenderer(RenderDevice& device);
 			~SpriteChainRenderer() = default;
 
-			void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer& buffer, std::size_t commandCount)> callback) override;
+			void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(GpuBuffer& buffer, std::size_t commandCount)> callback) override;
 
 			RenderElementPool<RenderSpriteChain>& GetPool() override;
 
@@ -77,7 +77,7 @@ namespace Nz
 
 			struct BufferCopy
 			{
-				RenderBuffer* targetBuffer;
+				GpuBuffer* targetBuffer;
 				UploadPool::Allocation* allocation;
 				std::size_t size;
 			};
@@ -90,7 +90,7 @@ namespace Nz
 				UploadPool::Allocation* currentAllocation = nullptr;
 				UInt8* currentAllocationMemPtr = nullptr;
 				const VertexDeclaration* currentVertexDeclaration = nullptr;
-				RenderBuffer* currentVertexBuffer = nullptr;
+				GpuBuffer* currentVertexBuffer = nullptr;
 				const MaterialProxy* currentMaterialProxy = nullptr;
 				const RenderPipeline* currentPipeline = nullptr;
 				const ShaderBinding* currentMaterialShaderBinding = nullptr;
@@ -102,10 +102,10 @@ namespace Nz
 			struct PoolData
 			{
 				std::vector<RenderResourceReferences> references;
-				std::vector<std::shared_ptr<RenderBuffer>> vertexBuffers;
+				std::vector<std::shared_ptr<GpuBuffer>> vertexBuffers;
 			};
 
-			std::shared_ptr<RenderBuffer> m_indexBuffer;
+			std::shared_ptr<GpuBuffer> m_indexBuffer;
 			std::shared_ptr<PoolData> m_pool;
 			std::vector<BufferCopy> m_pendingCopies;
 			std::vector<ShaderBinding::Binding> m_bindingCache;

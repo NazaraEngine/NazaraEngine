@@ -28,7 +28,7 @@ namespace Nz
 {
 	class CommandLineParameters;
 	class FilesystemAppComponent;
-	class RenderBuffer;
+	class GpuBuffer;
 	class TextureAsset;
 
 	class NAZARA_GRAPHICS_API Graphics : public ModuleBase<Graphics>

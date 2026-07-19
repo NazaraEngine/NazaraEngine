@@ -19,7 +19,7 @@ namespace Nz
 	class CommandBufferBuilder;
 	class Material;
 	class MaterialSettings;
-	class RenderBuffer;
+	class GpuBuffer;
 	class UploadPool;
 
 	class NAZARA_GRAPHICS_API ViewerInstance : public TransferInterface
@@ -41,8 +41,8 @@ namespace Nz
 			inline const Vector2f& GetTargetSize() const;
 			inline const Matrix4f& GetViewMatrix() const;
 			inline const Matrix4f& GetViewProjMatrix() const;
-			inline std::shared_ptr<RenderBuffer>& GetViewerBuffer();
-			inline const std::shared_ptr<RenderBuffer>& GetViewerBuffer() const;
+			inline std::shared_ptr<GpuBuffer>& GetViewerBuffer();
+			inline const std::shared_ptr<GpuBuffer>& GetViewerBuffer() const;
 
 			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
 
@@ -65,7 +65,7 @@ namespace Nz
 		private:
 			inline void InvalidateData();
 
-			std::shared_ptr<RenderBuffer> m_viewerDataBuffer;
+			std::shared_ptr<GpuBuffer> m_viewerDataBuffer;
 			Frustumf m_frustum;
 			Matrix4f m_invProjectionMatrix;
 			Matrix4f m_invViewProjMatrix;

@@ -12,7 +12,7 @@ NAZARA_REQUEST_DEDICATED_GPU()
 
 struct SpriteRenderData
 {
-	std::shared_ptr<Nz::RenderBuffer> vertexBuffer;
+	std::shared_ptr<Nz::GpuBuffer> vertexBuffer;
 	Nz::ShaderBindingPtr shaderBinding;
 };
 

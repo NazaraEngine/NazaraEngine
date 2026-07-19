@@ -13,7 +13,7 @@
 
 namespace Nz
 {
-	class RenderBuffer;
+	class GpuBuffer;
 	class Texture;
 	class TextureSampler;
 
@@ -33,7 +33,7 @@ namespace Nz
 
 		inline void Clear();
 
-		ankerl::unordered_dense::set<std::shared_ptr<RenderBuffer>, TransparentHash, std::equal_to<>> renderBuffers;
+		ankerl::unordered_dense::set<std::shared_ptr<GpuBuffer>, TransparentHash, std::equal_to<>> renderBuffers;
 		ankerl::unordered_dense::set<std::shared_ptr<Texture>, TransparentHash, std::equal_to<>> textures;
 		ankerl::unordered_dense::set<std::shared_ptr<TextureSampler>, TransparentHash, std::equal_to<>> samplers;
 	};

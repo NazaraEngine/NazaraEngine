@@ -78,7 +78,7 @@
 #include <Nazara/Graphics/PredefinedShaderStructBuilder.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RasterPipelinePass.hpp>
-#include <Nazara/Graphics/RenderBufferPool.hpp>
+#include <Nazara/Graphics/GpuBufferPool.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderElementOwner.hpp>
 #include <Nazara/Graphics/RenderElementPool.hpp>

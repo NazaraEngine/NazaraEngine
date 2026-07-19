@@ -11,14 +11,14 @@
 #include <Nazara/Core/Skeleton.hpp>
 #include <Nazara/Graphics/MaterialProxy.hpp>
 #include <Nazara/Graphics/Thirdparty/ankerl/unordered_dense.h>
-#include <Nazara/Renderer/RenderBuffer.hpp>
+#include <Nazara/Renderer/GpuBuffer.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <NazaraUtils/Bitset.hpp>
 
 namespace Nz
 {
 	class MaterialProxy;
-	class RenderBuffer;
+	class GpuBuffer;
 	class RenderPipeline;
 	class Skeleton;
 	class VertexDeclaration;
@@ -36,13 +36,13 @@ namespace Nz
 			inline std::size_t FetchMaterialProxyIndex(const MaterialProxy* materialProxy) const;
 			inline std::size_t FetchPipelineIndex(const RenderPipeline* pipeline) const;
 			inline std::size_t FetchSkeletonIndex(const Skeleton* skeleton) const;
-			inline std::size_t FetchVertexBuffer(const RenderBuffer* vertexBuffer) const;
+			inline std::size_t FetchVertexBuffer(const GpuBuffer* vertexBuffer) const;
 			inline std::size_t FetchVertexDeclaration(const VertexDeclaration* vertexDeclaration) const;
 
 			void RegisterMaterialProxy(const MaterialProxy* materialProxy);
 			void RegisterPipeline(const RenderPipeline* pipeline);
 			void RegisterSkeleton(const Skeleton* skeleton);
-			void RegisterVertexBuffer(const RenderBuffer* vertexBuffer);
+			void RegisterVertexBuffer(const GpuBuffer* vertexBuffer);
 			void RegisterVertexDeclaration(const VertexDeclaration* vertexDeclaration);
 
 			RenderQueueRegistry& operator=(const RenderQueueRegistry&) = delete;
@@ -58,11 +58,11 @@ namespace Nz
 				NazaraSlot(MaterialProxy, OnMaterialProxyRelease, onRelease);
 			};
 
-			struct RenderBufferEntry
+			struct GpuBufferEntry
 			{
 				std::size_t index;
 
-				NazaraSlot(RenderBuffer, OnRenderBufferRelease, onRelease);
+				NazaraSlot(GpuBuffer, OnGpuBufferRelease, onRelease);
 			};
 
 			struct RenderPipelineEntry
@@ -88,7 +88,7 @@ namespace Nz
 
 			ankerl::unordered_dense::map<const MaterialProxy*, MaterialProxyEntry> m_materialProxies;
 			ankerl::unordered_dense::map<const RenderPipeline*, RenderPipelineEntry> m_pipelines;
-			ankerl::unordered_dense::map<const RenderBuffer*, RenderBufferEntry> m_vertexBuffers;
+			ankerl::unordered_dense::map<const GpuBuffer*, GpuBufferEntry> m_vertexBuffers;
 			ankerl::unordered_dense::map<const Skeleton*, SkeletonEntry> m_skeletons;
 			ankerl::unordered_dense::map<const VertexDeclaration*, VertexDeclarationEntry> m_vertexDeclarations;
 			Bitset<UInt64> m_materialProxyBitset;

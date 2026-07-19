@@ -59,13 +59,13 @@ namespace Nz
 
 			struct LightBlockMemory
 			{
-				std::shared_ptr<RenderBuffer> lightUbo;
+				std::shared_ptr<GpuBuffer> lightUbo;
 				ShaderBindingPtr shaderBinding;
 			};
 
 			struct LightBlockMemoryShadow
 			{
-				std::shared_ptr<RenderBuffer> lightUbo;
+				std::shared_ptr<GpuBuffer> lightUbo;
 				std::vector<ShaderBindingPtr> shaderBindings;
 			};
 

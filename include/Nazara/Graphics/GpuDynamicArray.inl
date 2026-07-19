@@ -9,7 +9,7 @@ namespace Nz
 		return m_headerSize + UInt64(entryCount) * m_entrySize;
 	}
 
-	inline const std::shared_ptr<RenderBuffer>& GpuDynamicArray::GetBuffer() const
+	inline const std::shared_ptr<GpuBuffer>& GpuDynamicArray::GetBuffer() const
 	{
 		return m_gpuBuffer;
 	}

@@ -95,27 +95,27 @@ namespace Nz
 		}
 	}
 
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetDirectionalLightBuffer() const
+	const std::shared_ptr<GpuBuffer>& DefaultFramePipeline::GetDirectionalLightBuffer() const
 	{
 		return m_directionalLights.GetBuffer();
 	}
 
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetDirectionalShadowMappingBuffer() const
+	const std::shared_ptr<GpuBuffer>& DefaultFramePipeline::GetDirectionalShadowMappingBuffer() const
 	{
 		return m_directionalShadowAtlasEntries.GetBuffer();
 	}
 
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetInstanceBuffer() const
+	const std::shared_ptr<GpuBuffer>& DefaultFramePipeline::GetInstanceBuffer() const
 	{
 		return m_instanceBuffer.GetBuffer();
 	}
 
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetPointLightBuffer() const
+	const std::shared_ptr<GpuBuffer>& DefaultFramePipeline::GetPointLightBuffer() const
 	{
 		return m_pointLights.GetBuffer();
 	}
 
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetPointShadowMappingBuffer() const
+	const std::shared_ptr<GpuBuffer>& DefaultFramePipeline::GetPointShadowMappingBuffer() const
 	{
 		return m_pointShadowAtlasEntries.GetBuffer();
 	}
@@ -147,12 +147,12 @@ namespace Nz
 		return m_shadowAtlasPipelinePass->GetAtlas().GetTexture();
 	}
 
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetSpotLightBuffer() const
+	const std::shared_ptr<GpuBuffer>& DefaultFramePipeline::GetSpotLightBuffer() const
 	{
 		return m_spotLights.GetBuffer();
 	}
 
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetSpotShadowMappingBuffer() const
+	const std::shared_ptr<GpuBuffer>& DefaultFramePipeline::GetSpotShadowMappingBuffer() const
 	{
 		return m_spotShadowAtlasEntries.GetBuffer();
 	}

@@ -13,7 +13,7 @@
 #include <Nazara/Graphics/MaterialProxy.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/TransferInterface.hpp>
-#include <Nazara/Renderer/RenderBufferView.hpp>
+#include <Nazara/Renderer/GpuBufferView.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NZSL/Ast/ConstantValue.hpp>
@@ -136,8 +136,8 @@ namespace Nz
 			template<typename F> void UpdatePassesStates(std::initializer_list<std::size_t> passesIndex, F&& stateUpdater, bool ignoreDisabled = true);
 			template<typename F> void UpdatePassesStates(F&& stateUpdater, bool ignoreDisabled = true);
 
-			void UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer);
-			void UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer, UInt64 offset, UInt64 size);
+			void UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<GpuBuffer> storageBuffer);
+			void UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<GpuBuffer> storageBuffer, UInt64 offset, UInt64 size);
 			void UpdateTextureBinding(std::size_t textureBinding, std::shared_ptr<TextureAsset> texture, std::shared_ptr<TextureSampler> textureSampler);
 			void UpdateUniformBufferData(std::size_t uniformBufferIndex, std::size_t offset, std::size_t size, const void* data);
 
@@ -180,7 +180,7 @@ namespace Nz
 
 			struct StorageBuffer
 			{
-				std::shared_ptr<RenderBuffer> renderBuffer;
+				std::shared_ptr<GpuBuffer> renderBuffer;
 				UInt64 offset;
 				UInt64 size;
 			};
@@ -200,9 +200,9 @@ namespace Nz
 			struct UniformBuffer
 			{
 				std::size_t poolBufferIndex;
-				std::shared_ptr<RenderBuffer> renderBuffer;
+				std::shared_ptr<GpuBuffer> renderBuffer;
 				std::vector<UInt8> values;
-				RenderBufferView bufferView;
+				GpuBufferView bufferView;
 				bool dataInvalidated = true;
 			};
 
