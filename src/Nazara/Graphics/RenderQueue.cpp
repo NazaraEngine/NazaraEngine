@@ -89,7 +89,7 @@ namespace Nz
 		}
 	}
 
-	void RenderQueue::Prepare(GpuResources& renderResources)
+	void RenderQueue::Update(GpuResources& renderResources)
 	{
 		if (!m_deletedRenderElements.empty())
 		{

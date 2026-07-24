@@ -231,6 +231,7 @@ namespace Nz
 			MemoryPool<ViewerData> m_viewerPool;
 			mutable ShaderBindingCache m_shaderBindingCache;
 			UInt8 m_generationCounter;
+			bool m_invalidateSceneBindings;
 			bool m_rebuildFrameGraph;
 	};
 }

@@ -39,6 +39,8 @@ namespace Nz
 			inline ShadowAtlas& GetAtlas();
 			inline const ShadowAtlas& GetAtlas() const;
 
+			void InvalidateCommandBuffers() override;
+
 			void Prepare(FrameData& frameData) override;
 
 			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs) override;

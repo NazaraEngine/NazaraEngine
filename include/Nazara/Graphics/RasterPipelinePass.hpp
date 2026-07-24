@@ -31,6 +31,8 @@ namespace Nz
 			RasterPipelinePass(RasterPipelinePass&&) = delete;
 			~RasterPipelinePass() = default;
 
+			void InvalidateCommandBuffers() override;
+
 			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs) override;
 
 			RasterPipelinePass& operator=(const RasterPipelinePass&) = delete;

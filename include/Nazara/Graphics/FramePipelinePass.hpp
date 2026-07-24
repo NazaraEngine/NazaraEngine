@@ -37,6 +37,8 @@ namespace Nz
 			FramePipelinePass(FramePipelinePass&&) = delete;
 			virtual ~FramePipelinePass();
 
+			virtual void InvalidateCommandBuffers();
+
 			virtual void Prepare(FrameData& frameData);
 
 			virtual FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs) = 0;

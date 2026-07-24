@@ -29,6 +29,11 @@ namespace Nz
 			m_renderQueues.push_back(&m_pipeline.GetRenderQueue(renderQueues.GetIndex(renderQueueStr)));
 	}
 
+	void RasterPipelinePass::InvalidateCommandBuffers()
+	{
+		m_renderQueueHash = 0;
+	}
+
 	FramePass& RasterPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
 		std::size_t prepareAttachment = frameGraph.AddDummyAttachment();

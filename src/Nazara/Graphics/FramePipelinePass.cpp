@@ -8,6 +8,10 @@ namespace Nz
 {
 	FramePipelinePass::~FramePipelinePass() = default;
 
+	void FramePipelinePass::InvalidateCommandBuffers()
+	{
+	}
+
 	void FramePipelinePass::Prepare(FrameData& /*frameData*/)
 	{
 	}

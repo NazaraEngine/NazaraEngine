@@ -33,16 +33,17 @@ namespace Nz
 	m_skeletonInstancePool(1024),
 	m_viewerPool(8),
 	m_generationCounter(0),
+	m_invalidateSceneBindings(false),
 	m_rebuildFrameGraph(true)
 	{
 		// OnBufferInvalidated
-		m_directionalLights.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
-		m_directionalShadowAtlasEntries.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
-		m_instanceBuffer.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
-		m_pointLights.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
-		m_pointShadowAtlasEntries.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
-		m_spotLights.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
-		m_spotShadowAtlasEntries.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
+		m_directionalLights.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_invalidateSceneBindings = true; });
+		m_directionalShadowAtlasEntries.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_invalidateSceneBindings = true; });
+		m_instanceBuffer.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_invalidateSceneBindings = true; });
+		m_pointLights.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_invalidateSceneBindings = true; });
+		m_pointShadowAtlasEntries.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_invalidateSceneBindings = true; });
+		m_spotLights.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_invalidateSceneBindings = true; });
+		m_spotShadowAtlasEntries.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_invalidateSceneBindings = true; });
 
 		// OnTransferRequired
 		m_directionalLights.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
@@ -419,9 +420,9 @@ namespace Nz
 		return m_lightPool.RetrieveFromIndex(lightIndex)->shadowData.get();
 	}
 
-	void DefaultFramePipeline::Render(GpuResources& renderResources)
+	void DefaultFramePipeline::Render(GpuResources& gpuResources)
 	{
-		ProcesRemovedData(renderResources);
+		ProcesRemovedData(gpuResources);
 
 		for (std::size_t renderableIndex : m_invalidatedRenderables.IterBits())
 			BroadcastRenderable(*m_renderablePool.RetrieveFromIndex(renderableIndex));
@@ -431,13 +432,13 @@ namespace Nz
 		for (auto& renderQueuePtr : m_renderQueues)
 		{
 			if (renderQueuePtr)
-				renderQueuePtr->Prepare(renderResources);
+				renderQueuePtr->Update(gpuResources);
 		}
 
 		bool frameGraphInvalidated = false;
 		if (m_rebuildFrameGraph)
 		{
-			renderResources.PushForRelease(std::move(m_bakedFrameGraph));
+			gpuResources.PushForRelease(std::move(m_bakedFrameGraph));
 			m_bakedFrameGraph = BuildFrameGraph();
 			frameGraphInvalidated = true;
 		}
@@ -449,14 +450,28 @@ namespace Nz
 			viewerSizes.emplace_back(Vector2i(viewport.width, viewport.height));
 		}
 
-		frameGraphInvalidated |= m_bakedFrameGraph.Resize(renderResources, viewerSizes);
+		frameGraphInvalidated |= m_bakedFrameGraph.Resize(gpuResources, viewerSizes);
 		if (frameGraphInvalidated)
 		{
 			for (ViewerData& viewerData : m_viewerPool)
 			{
 				if (viewerData.blitShaderBinding)
-					renderResources.PushForRelease(std::move(viewerData.blitShaderBinding));
+					gpuResources.PushForRelease(std::move(viewerData.blitShaderBinding));
 			}
+		}
+
+		if (m_invalidateSceneBindings)
+		{
+			m_shaderBindingCache.InvalidateSceneBindings(gpuResources);
+			// Force re-recording of all passes
+			m_shadowAtlasPipelinePass->InvalidateCommandBuffers();
+			for (ViewerData* viewerData : m_orderedViewers)
+			{
+				for (auto& passPtr : viewerData->passes)
+					passPtr->InvalidateCommandBuffers();
+			}
+
+			m_invalidateSceneBindings = false;
 		}
 
 		// Find active lights (i.e. visible in any frustum)
@@ -489,7 +504,7 @@ namespace Nz
 			FramePipelinePass::FrameData passData = {
 				nullptr,
 				Nz::Frustumf{},
-				renderResources
+				gpuResources
 			};
 
 			m_shadowAtlasPipelinePass->Prepare(passData);
@@ -499,7 +514,7 @@ namespace Nz
 			{
 				LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
 				NazaraAssert(lightData->shadowData);
-				lightData->shadowData->PrepareRendering(renderResources);
+				lightData->shadowData->PrepareRendering(gpuResources);
 
 				// Write global states (independent from viewers)
 				if (!lightData->shadowData->IsPerViewer())
@@ -528,7 +543,7 @@ namespace Nz
 			FramePipelinePass::FrameData passData = {
 				&viewerData->frame.visibleLights,
 				viewerData->frame.frustum,
-				renderResources
+				gpuResources
 			};
 
 			for (auto& passPtr : viewerData->passes)
@@ -536,7 +551,7 @@ namespace Nz
 		}
 
 		// Rendering
-		m_bakedFrameGraph.Execute(renderResources);
+		m_bakedFrameGraph.Execute(gpuResources);
 		m_rebuildFrameGraph = false;
 	}
 
@@ -792,7 +807,7 @@ namespace Nz
 			FramePipelinePass::PassData passData{ nullptr, m_elementRegistry, *this };
 			m_shadowAtlasPipelinePass.emplace(passData, std::vector<std::string_view>{ "Shadow" });
 
-			m_shaderBindingCache.InvalidateSceneBindings();
+			m_invalidateSceneBindings = true;
 		}
 
 		std::size_t shadowAtlasIndex = MaxValue();
@@ -1074,13 +1089,13 @@ namespace Nz
 		return viewerUploadAttachment;
 	}
 
-	void DefaultFramePipeline::ProcesRemovedData(GpuResources& renderResources)
+	void DefaultFramePipeline::ProcesRemovedData(GpuResources& gpuResources)
 	{
 			for (std::size_t lightIndex : m_removedLightInstances.IterBits())
 		{
 			auto& lightData = *m_lightPool.RetrieveFromIndex(lightIndex);
 
-			renderResources.PushForRelease(std::move(lightData));
+			gpuResources.PushForRelease(std::move(lightData));
 			m_lightPool.Free(lightIndex);
 		}
 		m_removedLightInstances.Clear();
@@ -1089,7 +1104,7 @@ namespace Nz
 		{
 			auto& skeletonData = *m_skeletonInstancePool.RetrieveFromIndex(skeletonInstanceIndex);
 
-			renderResources.PushForRelease(std::move(skeletonData));
+			gpuResources.PushForRelease(std::move(skeletonData));
 			m_skeletonInstancePool.Free(skeletonInstanceIndex);
 		}
 		m_removedSkeletonInstances.Clear();
@@ -1098,9 +1113,9 @@ namespace Nz
 		{
 			auto& viewerData = *m_viewerPool.RetrieveFromIndex(viewerIndex);
 
-			m_shaderBindingCache.ClearViewerCache(viewerData.viewer->GetViewerInstance());
+			m_shaderBindingCache.InvalidateViewerBindings(gpuResources, viewerData.viewer->GetViewerInstance());
 
-			renderResources.PushForRelease(std::move(viewerData));
+			gpuResources.PushForRelease(std::move(viewerData));
 			m_viewerPool.Free(viewerIndex);
 		}
 		m_removedViewerInstances.Clear();
@@ -1116,7 +1131,7 @@ namespace Nz
 			m_removedInstances.Clear();
 
 			// TODO: Use a shared_ptr for this data
-			renderResources.PushReleaseCallback([this, instanceIndices = std::move(removedInstances)]
+			gpuResources.PushReleaseCallback([this, instanceIndices = std::move(removedInstances)]
 			{
 				for (std::size_t instanceIndex : instanceIndices)
 					m_freeInstanceIds.UnboundedSet(instanceIndex);

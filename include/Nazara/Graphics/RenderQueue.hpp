@@ -39,7 +39,7 @@ namespace Nz
 			inline RenderQueueFlags GetFlags() const;
 			inline std::size_t GetPassIndex() const;
 
-			void Prepare(GpuResources& renderResources);
+			void Update(GpuResources& renderResources);
 
 			template<typename F> void Process(UInt32 renderMask, F&& callback) const;
 

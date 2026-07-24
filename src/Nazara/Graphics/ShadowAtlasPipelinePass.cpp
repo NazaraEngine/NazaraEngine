@@ -32,6 +32,11 @@ namespace Nz
 			m_renderQueues.push_back(&m_pipeline.GetRenderQueue(renderQueues.GetIndex(renderQueueStr)));
 	}
 
+	void ShadowAtlasPipelinePass::InvalidateCommandBuffers()
+	{
+		m_renderQueueHash = 0;
+	}
+
 	void ShadowAtlasPipelinePass::Prepare(FrameData& /*frameData*/)
 	{
 		m_shadowAtlas.Clear();

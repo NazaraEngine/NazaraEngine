@@ -4,9 +4,17 @@
 
 namespace Nz
 {
-	inline void ShaderBindingCache::ClearViewerCache(const ViewerInstance& viewerInstance)
+	inline void ShaderBindingCache::ClearViewerCache(GpuResources& resources, const ViewerInstance& viewerInstance)
 	{
-		m_viewerBindings.erase(&viewerInstance);
+		auto viewerIt = m_viewerBindings.find(&viewerInstance);
+		if (viewerIt == m_viewerBindings.end())
+			return;
+
+		ViewerEntry& viewerEntry = viewerIt->second;
+		for (auto&& [hash, binding] : viewerEntry.bindings)
+			resources.PushForRelease(std::move(binding));
+
+		m_viewerBindings.erase(viewerIt);
 	}
 
 	template<typename F>
@@ -32,18 +40,24 @@ namespace Nz
 		return viewerEntry.bindings.emplace(setHash, createFunctor()).first->second.get();
 	}
 
-	inline void ShaderBindingCache::InvalidateSceneBindings()
+	inline void ShaderBindingCache::InvalidateSceneBindings(GpuResources& resources)
 	{
+		for (auto&& [hash, binding] : m_sceneBindings)
+			resources.PushForRelease(std::move(binding));
+
 		m_sceneBindings.clear();
 	}
 
-	inline void ShaderBindingCache::InvalidateViewerBindings(const ViewerInstance& viewerInstance)
+	inline void ShaderBindingCache::InvalidateViewerBindings(GpuResources& resources, const ViewerInstance& viewerInstance)
 	{
 		auto viewerIt = m_viewerBindings.find(&viewerInstance);
 		if (viewerIt == m_viewerBindings.end())
 			return;
 
 		ViewerEntry& viewerEntry = viewerIt->second;
+		for (auto&& [hash, binding] : viewerEntry.bindings)
+			resources.PushForRelease(std::move(binding));
+
 		viewerEntry.bindings.clear();
 	}
 }
