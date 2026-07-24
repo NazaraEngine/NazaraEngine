@@ -25,8 +25,8 @@ namespace NzImGui
 
 	constexpr Nz::EnumArray<Nz::Mouse::Button, int> s_mouseButtonMap = {
 		ImGuiMouseButton_Left,
-		ImGuiMouseButton_Right,
 		ImGuiMouseButton_Middle,
+		ImGuiMouseButton_Right,
 		-1,
 		-1
 	};
