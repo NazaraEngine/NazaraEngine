@@ -113,7 +113,7 @@ namespace Nz
 		return m_globalRotation * Vector3f::Backward();
 	}
 
-	inline const std::vector<Node*>& Node::GetChilds() const
+	inline const std::vector<Node*>& Node::GetChildren() const
 	{
 		return m_childs;
 	}

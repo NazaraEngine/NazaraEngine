@@ -40,7 +40,7 @@ namespace Nz
 			inline void EnsureTransformMatrixUpdate() const;
 
 			inline Vector3f GetBackward() const;
-			inline const std::vector<Node*>& GetChilds() const;
+			inline const std::vector<Node*>& GetChildren() const;
 			inline Vector3f GetDown() const;
 			inline Vector3f GetForward() const;
 			inline const Vector3f& GetGlobalPosition() const;
