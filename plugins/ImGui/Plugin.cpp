@@ -654,6 +654,7 @@ namespace NzImGui
 				};
 				renderPipelineInfo.depthBuffer = false;
 				renderPipelineInfo.frontFace = Nz::FrontFace::Clockwise;
+				renderPipelineInfo.faceCulling = Nz::FaceCulling::None;
 
 				renderPipelineInfo.pipelineLayout = rendererBackend->renderPipelineLayout;
 				renderPipelineInfo.vertexBuffers.push_back({
