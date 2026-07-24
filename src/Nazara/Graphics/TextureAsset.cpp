@@ -6,6 +6,7 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Renderer/GpuCommandBufferBuilder.hpp>
 #include <NazaraUtils/PathUtils.hpp>
 #include <algorithm>
 #include <cassert>
@@ -515,6 +516,10 @@ namespace Nz
 		if (image.GetLevelCount() > 1)
 		{
 			std::unique_ptr<GpuAsyncCommands> asyncCommands = renderDevice.InstantiateAsyncCommands(QueueType::Graphics);
+			asyncCommands->AddCommands([&](GpuCommandBufferBuilder& builder)
+			{
+				builder.TextureBarrier({ .srcStageMask = PipelineStage::AllGraphicsCommands, .dstStageMask = PipelineStage::Transfer, .srcAccessMask = MemoryAccess::ShaderRead, .dstAccessMask = MemoryAccess::TransferWrite, .oldLayout = TextureLayout::Undefined, .newLayout = TextureLayout::TransferDestination, .texture = entry->texture.get() });
+			});
 			for (UInt8 level = 0; level < image.GetLevelCount(); ++level)
 			{
 				auto callback = [&](void* pixels)
@@ -530,6 +535,10 @@ namespace Nz
 				if (!entry->texture->Update(*asyncCommands, callback, Boxui(0, 0, 0, image.GetWidth(level), image.GetHeight(level), depth), level))
 					return false;
 			}
+			asyncCommands->AddCommands([&](GpuCommandBufferBuilder& builder)
+			{
+				builder.TextureBarrier({ .srcStageMask = PipelineStage::Transfer, .dstStageMask = PipelineStage::AllGraphicsCommands, .srcAccessMask = MemoryAccess::TransferWrite, .dstAccessMask = MemoryAccess::ShaderRead, .oldLayout = TextureLayout::TransferDestination, .newLayout = TextureLayout::ColorInput, .texture = entry->texture.get() });
+			});
 
 			renderDevice.SubmitAsyncCommands(std::move(asyncCommands), true);
 		}
