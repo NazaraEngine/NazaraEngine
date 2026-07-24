@@ -98,6 +98,8 @@ namespace Nz
 			static std::shared_ptr<Texture> LoadFromFile(const std::filesystem::path& filePath, const TextureParams& textureParams, const CubemapParams& cubemapParams);
 			static std::shared_ptr<Texture> LoadFromMemory(const void* data, std::size_t size, const TextureParams& textureParams, const CubemapParams& cubemapParams);
 			static std::shared_ptr<Texture> LoadFromStream(Stream& stream, const TextureParams& textureParams, const CubemapParams& cubemapParams);
+
+			NazaraSignal(OnTextureDestruction, Texture* /*texture*/);
 	};
 }
 

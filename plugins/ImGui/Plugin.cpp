@@ -221,16 +221,23 @@ namespace NzImGui
 
 	struct ImGuiRendererBackend
 	{
+		struct TextureEntry
+		{
+			Nz::ShaderBindingPtr bindings;
+
+			NazaraSlot(Nz::Texture, OnTextureDestruction, onTextureDestruction);
+		};
+
 		std::shared_ptr<Nz::GpuBuffer> indexBuffer;
 		std::shared_ptr<Nz::GpuBuffer> vertexBuffer;
 		std::shared_ptr<Nz::GpuDevice> device;
 		std::shared_ptr<Nz::GpuRenderPipeline> renderPipeline;
 		std::shared_ptr<Nz::GpuPipelineLayout> renderPipelineLayout;
 		std::shared_ptr<Nz::Texture> fontTexture;
-		std::shared_ptr<Nz::TextureSampler> fontTextureSampler;
+		std::shared_ptr<Nz::TextureSampler> defaultTextureSampler;
 		std::shared_ptr<Nz::VertexDeclaration> vertexDeclaration;
 		std::shared_ptr<ImGuiPool> pool;
-		std::unordered_map<unsigned int, Nz::ShaderBindingPtr> shaderBindings;
+		std::unordered_map<Nz::Texture*, TextureEntry> shaderBindings;
 		Nz::WindowSwapchain* windowSwapchain;
 	};
 
@@ -333,9 +340,30 @@ namespace NzImGui
 							commandBufferBuilder.SetScissor(Nz::Recti(Nz::Rectf::FromExtends({ clipMin.x, clipMin.y }, { clipMax.x, clipMax.y })));
 
 							// Bind descriptor set
-							unsigned int textureIndex = Nz::PointerToInteger<unsigned int>(command.GetTexID());
-							if (auto it = rendererBackend->shaderBindings.find(textureIndex); it != rendererBackend->shaderBindings.end())
-								commandBufferBuilder.BindRenderShaderBinding(0, *it->second);
+							Nz::Texture* texture = Nz::SafeCast<Nz::Texture*>(command.GetTexID());
+							if (auto it = rendererBackend->shaderBindings.find(texture); it != rendererBackend->shaderBindings.end())
+								commandBufferBuilder.BindRenderShaderBinding(0, *it->second.bindings);
+							else
+							{
+								auto& textureEntry = rendererBackend->shaderBindings[texture];
+
+								textureEntry.bindings = rendererBackend->renderPipelineLayout->AllocateShaderBinding(0);
+								textureEntry.bindings->Update({
+									{
+										0,
+										Nz::ShaderBinding::SampledTextureBinding {
+											texture,
+											rendererBackend->defaultTextureSampler.get()
+										}
+									}
+								});
+								textureEntry.onTextureDestruction.Connect(texture->OnTextureDestruction, [rendererBackend](Nz::Texture* texture)
+								{
+									rendererBackend->shaderBindings.erase(texture);
+								});
+
+								commandBufferBuilder.BindRenderShaderBinding(0, *textureEntry.bindings);
+							}
 
 							commandBufferBuilder.DrawIndexed(command.ElemCount, 1, globalIndexOffset + command.IdxOffset, globalVertexOffset + command.VtxOffset);
 						}
@@ -525,19 +553,22 @@ namespace NzImGui
 				rendererBackend->fontTexture = rendererBackend->device->InstantiateTexture(textureInfo);
 				rendererBackend->fontTexture->Update(pixels, true);
 
-				rendererBackend->fontTextureSampler = rendererBackend->device->InstantiateTextureSampler({});
+				rendererBackend->defaultTextureSampler = rendererBackend->device->InstantiateTextureSampler({});
 
-				rendererBackend->shaderBindings[0] = rendererBackend->renderPipelineLayout->AllocateShaderBinding(0);
-				rendererBackend->shaderBindings[0]->Update({
+				Nz::ShaderBindingPtr noTextureBinding = rendererBackend->renderPipelineLayout->AllocateShaderBinding(0);
+				noTextureBinding->Update({
 					{
 						0,
 						Nz::ShaderBinding::SampledTextureBinding {
 							rendererBackend->fontTexture.get(),
-							rendererBackend->fontTextureSampler.get()
+							rendererBackend->defaultTextureSampler.get()
 						}
 					}
 				});
-				io.Fonts->SetTexID(Nz::IntegerToPointer<ImTextureID>(0));
+
+				rendererBackend->shaderBindings.emplace(nullptr, std::move(noTextureBinding));
+
+				io.Fonts->SetTexID(nullptr);
 			}
 
 			void SetupInputs(ImGuiIO& io, ImGuiPlatformBackend* platformBackend, Nz::WindowEventHandler& eventHandler)

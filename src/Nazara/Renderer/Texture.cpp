@@ -9,7 +9,10 @@
 
 namespace Nz
 {
-	Texture::~Texture() = default;
+	Texture::~Texture()
+	{
+		OnTextureDestruction(this);
+	}
 
 	bool TextureParams::IsValid() const
 	{
