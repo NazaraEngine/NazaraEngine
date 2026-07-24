@@ -14,7 +14,7 @@ passlist "Forward Passlist"
     {
         impl "Raster"
         {
-            RenderQueues "OpaqueForward + ForwardTransparent + UI"
+            RenderQueues "ForwardOpaque + ForwardTransparent + UI"
         }
 
         output "Output0" "ForwardOutput"
