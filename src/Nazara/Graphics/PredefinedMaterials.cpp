@@ -55,12 +55,7 @@ namespace Nz
 		settings.AddValueProperty<Color>("AmbientColor", Color::White());
 		settings.AddValueProperty<Color>("SpecularColor", Color::White());
 		settings.AddValueProperty<float>("Shininess", 2.f);
-#ifndef NAZARA_PLATFORM_WEB
 		settings.AddValueProperty<bool>("ShadowMapping", true);
-#else
-		// FIXME: Shadowmapping is currently broken on web because WebGL doesn't support non-constant array indexing
-		settings.AddValueProperty<bool>("ShadowMapping", false);
-#endif
 		settings.AddTextureProperty("EmissiveMap", ImageType::E2D);
 		settings.AddTextureProperty("HeightMap", ImageType::E2D);
 		settings.AddTextureProperty("NormalMap", ImageType::E2D);
