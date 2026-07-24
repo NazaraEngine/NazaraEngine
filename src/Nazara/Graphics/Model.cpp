@@ -46,6 +46,7 @@ namespace Nz
 	}
 
 	Model::Model(const Model& model, CopyToken) :
+	InstancedRenderable(model),
 	m_graphicalMesh(model.m_graphicalMesh),
 	m_submeshes(model.m_submeshes)
 	{

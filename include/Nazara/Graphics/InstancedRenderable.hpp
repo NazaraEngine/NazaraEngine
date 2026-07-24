@@ -31,7 +31,6 @@ namespace Nz
 			using ElementCallback = FunctionRef<void(UInt32 /*renderQueueMask*/, RenderQueueCallback /*callback*/)>;
 
 			inline InstancedRenderable();
-			InstancedRenderable(const InstancedRenderable&) = delete;
 			InstancedRenderable(InstancedRenderable&&) noexcept = default;
 			virtual ~InstancedRenderable();
 
@@ -59,6 +58,8 @@ namespace Nz
 			};
 
 		protected:
+			InstancedRenderable(const InstancedRenderable&) = default;
+
 			inline void UpdateAABB(Boxf aabb);
 
 		private:
