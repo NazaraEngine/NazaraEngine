@@ -382,6 +382,8 @@ namespace Nz
 			}
 
 			viewerData.renderMask = newRenderMask;
+			for (auto& passPtr : viewerData.passes)
+				passPtr->InvalidateCommandBuffers();
 		});
 
 		FramePipelinePass::PassData passData = {
