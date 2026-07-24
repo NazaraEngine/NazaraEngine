@@ -76,8 +76,11 @@ struct MaterialSettings
 	[tag("AmbientColor")]
 	AmbientColor: vec4[f32], //< TODO: Switch to vec3[f32]
 
+	[tag("EmissiveColor")]
+	EmissiveColor: vec4[f32], //< TODO: Switch to vec3[f32]
+
 	[tag("SpecularColor")]
-	SpecularColor: vec4[f32], //< TODO: Switch to vec3[f32
+	SpecularColor: vec4[f32], //< TODO: Switch to vec3[f32]
 
 	[tag("Shininess")]
 	Shininess: f32
@@ -268,7 +271,11 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 		lightSpecular *= Material.specularMap.Sample(input.uv).rgb;
 
 	let lightColor = lightAmbient + lightDiffuse + lightSpecular;
-	return color * lightColor;
+	color *= lightColor;
+
+	color += Material.settings.EmissiveColor.rgb;
+
+	return color;
 }
 
 [entry(frag), cond(!DepthPass)]

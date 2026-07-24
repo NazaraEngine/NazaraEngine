@@ -32,6 +32,7 @@ namespace Nz
 
 	void PredefinedMaterials::AddPbrSettings(MaterialSettings& settings)
 	{
+		settings.AddValueProperty<Color>("EmissiveColor", Color::Black());
 		settings.AddValueProperty<float>("MetallicFactor", 1.f);
 		settings.AddValueProperty<float>("RoughnessFactor", 1.f);
 		settings.AddTextureProperty("EmissiveMap", ImageType::E2D);
@@ -40,6 +41,7 @@ namespace Nz
 		settings.AddTextureProperty("NormalMap", ImageType::E2D);
 		settings.AddTextureProperty("RoughnessMap", ImageType::E2D);
 		settings.AddTextureProperty("SpecularMap", ImageType::E2D);
+		settings.AddPropertyHandler<UniformValuePropertyHandler>("EmissiveColor");
 		settings.AddPropertyHandler<UniformValuePropertyHandler>("MetallicFactor");
 		settings.AddPropertyHandler<UniformValuePropertyHandler>("RoughnessFactor");
 		settings.AddPropertyHandler<TexturePropertyHandler>("EmissiveMap", "HasEmissiveTexture");
@@ -53,6 +55,7 @@ namespace Nz
 	void PredefinedMaterials::AddPhongSettings(MaterialSettings& settings)
 	{
 		settings.AddValueProperty<Color>("AmbientColor", Color::White());
+		settings.AddValueProperty<Color>("EmissiveColor", Color::Black());
 		settings.AddValueProperty<Color>("SpecularColor", Color::White());
 		settings.AddValueProperty<float>("Shininess", 2.f);
 		settings.AddValueProperty<bool>("ShadowMapping", true);
@@ -66,6 +69,7 @@ namespace Nz
 		settings.AddPropertyHandler<TexturePropertyHandler>("NormalMap", "HasNormalTexture");
 		settings.AddPropertyHandler<TexturePropertyHandler>("SpecularMap", "HasSpecularTexture");
 		settings.AddPropertyHandler<UniformValuePropertyHandler>("AmbientColor");
+		settings.AddPropertyHandler<UniformValuePropertyHandler>("EmissiveColor");
 		settings.AddPropertyHandler<UniformValuePropertyHandler>("SpecularColor");
 		settings.AddPropertyHandler<UniformValuePropertyHandler>("Shininess");
 	}

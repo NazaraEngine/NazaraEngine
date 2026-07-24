@@ -77,6 +77,9 @@ struct MaterialSettings
 	BaseColor: vec4[f32],
 
 	// PBR settings
+	[tag("EmissiveColor")]
+	EmissiveColor: vec4[f32], //< TODO: Switch to vec3[f32]
+
 	[tag("MetallicFactor")]
 	MetallicFactor: f32,
 
@@ -288,7 +291,7 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 	let ambient = (0.03).rrr * albedo;
 
 	let finalColor = ambient + lightRadiance;
-	finalColor = finalColor / (finalColor + vec3[f32](1.0, 1.0, 1.0));
+	finalColor += Material.settings.EmissiveColor.rgb;
 
 	return finalColor;
 }
