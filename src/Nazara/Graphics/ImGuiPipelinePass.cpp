@@ -17,21 +17,52 @@ namespace Nz
 
 	FramePass& ImGuiPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		if (inputOuputs.inputAttachments.size() != 1)
-			throw std::runtime_error("one input expected");
-
 		if (inputOuputs.outputAttachments.size() != 1)
 			throw std::runtime_error("one output expected");
 
 		FramePass& imguiDrawPass = frameGraph.AddPass("ImGui draw pass");
-		imguiDrawPass.AddInput(inputOuputs.inputAttachments[0].attachmentIndex);
-		imguiDrawPass.AddOutput(inputOuputs.outputAttachments[0].attachmentIndex);
+		for (auto&& inputData : inputOuputs.inputAttachments)
+			imguiDrawPass.AddInput(inputData.attachmentIndex);
 
-		if (inputOuputs.depthStencilInput != InvalidAttachmentIndex)
+		for (auto&& outputData : inputOuputs.outputAttachments)
+		{
+			std::size_t outputIndex = imguiDrawPass.AddOutput(outputData.attachmentIndex);
+
+			std::visit(Overloaded{
+				[](DontClear) {},
+				[&](const Color& color)
+				{
+					imguiDrawPass.SetClearColor(outputIndex, color);
+				},
+				[&](ViewerClearValue)
+				{
+					imguiDrawPass.SetClearColor(outputIndex, m_viewer->GetClearColor());
+				}
+			}, outputData.clearColor);
+		}
+
+		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
 			imguiDrawPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
+		else if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
+		{
+			std::visit(Overloaded{
+				[](DontClear) {},
+				[&](float depth)
+				{
+					imguiDrawPass.SetDepthStencilClear(depth, 0);
+				},
+				[&](ViewerClearValue)
+				{
+					imguiDrawPass.SetDepthStencilClear(m_viewer->GetClearDepth(), 0);
+				}
+			}, inputOuputs.clearDepth);
+		}
 
 		if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
 			imguiDrawPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
+
+		if (inputOuputs.depthStencilInput != InvalidAttachmentIndex)
+			imguiDrawPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
 
 		imguiDrawPass.SetExecutionCallback([&]
 		{
