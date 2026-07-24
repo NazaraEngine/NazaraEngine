@@ -187,6 +187,8 @@ namespace Nz
 
 	inline void MaterialSettings::AddPass(std::size_t passIndex, MaterialPass materialPass)
 	{
+		NazaraAssertMsg(materialPass.renderQueue != MaxValue<UInt32>(), "MaterialPass renderQueue field must be set");
+
 		if (passIndex >= m_materialPasses.size())
 			m_materialPasses.resize(passIndex + 1);
 
