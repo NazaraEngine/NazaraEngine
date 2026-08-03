@@ -82,6 +82,11 @@ fn ComputeDirectionalLightShadow(shadowAtlas: depth_sampler2D[f32], light: Direc
 		let shadowCoords = lightProjPos.xyz / lightProjPos.w;
 
 		let coords = shadowAtlasEntry.offsets[cascadeIndex] + shadowCoords.xy * shadowAtlasEntry.sizes[cascadeIndex];
+
+		// Avoids bleeding to other shadow maps
+		let minCoords = shadowAtlasEntry.offsets[cascadeIndex] + InvShadowAtlasSize.xx;
+		let maxCoords = shadowAtlasEntry.offsets[cascadeIndex] + shadowAtlasEntry.sizes[cascadeIndex] - InvShadowAtlasSize.xx;
+
 		shadowFactor = 0.0;
 		[unroll]
 		for x in -1 -> 2
@@ -89,7 +94,7 @@ fn ComputeDirectionalLightShadow(shadowAtlas: depth_sampler2D[f32], light: Direc
 			[unroll]
 			for y in -1 -> 2
 			{
-				let coordOffseted = coords.xy + vec2[f32](f32(x), f32(y)) * InvShadowAtlasSize;
+				let coordOffseted = clamp(coords.xy + vec2[f32](f32(x), f32(y)) * InvShadowAtlasSize, minCoords, maxCoords);
 				shadowFactor += shadowAtlas.SampleDepthComp(coordOffseted, shadowCoords.z).r;
 			}
 		}
@@ -168,7 +173,12 @@ fn ComputePointLightShadow(shadowAtlas: depth_sampler2D[f32], light: PointLight,
 		shadowCoords.xy = shadowCoords.xy * 0.5 + (0.5).xx;
 
 		let coords = shadowAtlasEntry.offsets[faceIndex] + shadowCoords.xy * shadowAtlasEntry.sizes[faceIndex];
-		shadowFactor = shadowAtlas.SampleDepthComp(coords, shadowCoords.z).x;
+
+		// Avoids bleeding to other shadow maps
+		let minCoords = shadowAtlasEntry.offsets[faceIndex] + InvShadowAtlasSize.xx;
+		let maxCoords = shadowAtlasEntry.offsets[faceIndex] + shadowAtlasEntry.sizes[faceIndex] - InvShadowAtlasSize.xx;
+
+		shadowFactor = shadowAtlas.SampleDepthComp(clamp(coords, minCoords, maxCoords), shadowCoords.z).x;
 		/*
 		shadowFactor = 0.0;
 
@@ -216,6 +226,11 @@ fn ComputeSpotLightShadow(shadowAtlas: depth_sampler2D[f32], light: SpotLight, s
 		let shadowCoords = lightProjPos.xyz / lightProjPos.w;
 
 		let coords = shadowAtlasEntry.offset + shadowCoords.xy * shadowAtlasEntry.size;
+
+		// Avoids bleeding to other shadow maps
+		let minCoords = shadowAtlasEntry.offset + InvShadowAtlasSize.xx;
+		let maxCoords = shadowAtlasEntry.offset + shadowAtlasEntry.size - InvShadowAtlasSize.xx;
+
 		shadowFactor = 0.0;
 		[unroll]
 		for x in -1 -> 2
@@ -223,7 +238,7 @@ fn ComputeSpotLightShadow(shadowAtlas: depth_sampler2D[f32], light: SpotLight, s
 			[unroll]
 			for y in -1 -> 2
 			{
-				let coordOffseted = coords.xy + vec2[f32](f32(x), f32(y)) * InvShadowAtlasSize;
+				let coordOffseted = clamp(coords.xy + vec2[f32](f32(x), f32(y)) * InvShadowAtlasSize, minCoords, maxCoords);
 				shadowFactor += shadowAtlas.SampleDepthComp(coordOffseted, shadowCoords.z).r;
 			}
 		}
