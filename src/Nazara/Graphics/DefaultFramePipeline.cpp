@@ -466,7 +466,9 @@ namespace Nz
 		{
 			m_shaderBindingCache.InvalidateSceneBindings(gpuResources);
 			// Force re-recording of all passes
-			m_shadowAtlasPipelinePass->InvalidateCommandBuffers();
+			if (m_shadowAtlasPipelinePass)
+				m_shadowAtlasPipelinePass->InvalidateCommandBuffers();
+
 			for (ViewerData* viewerData : m_orderedViewers)
 			{
 				for (auto& passPtr : viewerData->passes)
