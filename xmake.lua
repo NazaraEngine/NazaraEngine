@@ -404,6 +404,7 @@ elseif is_mode("coverage") then
 elseif is_mode("releasedbg", "release") then
 	set_fpmodels("fast")
 	add_vectorexts("sse", "sse2", "sse3", "ssse3")
+	add_defines("NAZARA_ENABLE_ASSERTS")
 end
 
 if not is_mode("release") then
