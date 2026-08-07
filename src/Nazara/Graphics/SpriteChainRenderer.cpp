@@ -121,7 +121,7 @@ namespace Nz
 			std::size_t spriteCount = spriteChain.GetSpriteCount();
 
 			UInt64 requiredMemory = spriteCount * spriteStride;
-			UInt64 remainingMemory = (m_pendingData.currentAllocation) ? SafeCast<UInt64>(m_pendingData.currentAllocationMemPtr - static_cast<UInt8*>(m_pendingData.currentAllocation->mappedPtr)) : 0;
+			UInt64 remainingMemory = (m_pendingData.currentAllocation) ? m_pendingData.currentVertexBuffer->GetSize() - SafeCast<UInt64>(m_pendingData.currentAllocationMemPtr - static_cast<UInt8*>(m_pendingData.currentAllocation->mappedPtr)) : 0;
 			if (requiredMemory > remainingMemory)
 			{
 				Flush();
