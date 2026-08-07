@@ -565,89 +565,7 @@ namespace Nz
 
 	void DefaultFramePipeline::UnregisterLight(std::size_t lightIndex)
 	{
-		LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
-
-		if (lightData->light->IsShadowCaster())
-			UnregisterShadowCaster(lightIndex, lightData);
-
-		switch (lightData->light->GetLightType())
-		{
-			case SafeCast<int>(BasicLightType::Directional):
-			{
-				UInt32 lightCount = m_directionalLights.GetSize();
-				UInt32 lastLightIndex = lightCount - 1;
-				if (lightData->entryIndex != lastLightIndex)
-				{
-					// Swap and pop idiom
-					UInt8* lastLight = m_directionalLights.AccessEntry(lastLightIndex);
-					UInt8* freeSlot = m_directionalLights.AccessEntry(lightData->entryIndex);
-					std::memcpy(freeSlot, lastLight, m_directionalLights.GetEntrySize());
-
-					// Re-assign the light corresponding to the last entry to the new free slot
-					LightData& lastLightData = *m_lightPool.RetrieveFromIndex(m_directionalLightEntriesToIndices[lastLightIndex]);
-					lastLightData.entryIndex = lightData->entryIndex;
-
-					m_directionalLightEntriesToIndices[lightData->entryIndex] = m_directionalLightEntriesToIndices[lastLightIndex];
-				}
-				m_directionalLightEntriesToIndices[lastLightIndex] = MaxValue();
-				m_directionalLights.Pop();
-
-				UInt8* lightHeaderPtr = m_directionalLights.AccessHeader();
-				AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedDirectionalLightsOffsets.lightCount) -= 1;
-				break;
-			}
-
-			case SafeCast<int>(BasicLightType::Point):
-			{
-				UInt32 lightCount = m_pointLights.GetSize();
-				UInt32 lastLightIndex = lightCount - 1;
-				if (lightData->entryIndex != lastLightIndex)
-				{
-					// Swap and pop idiom
-					UInt8* lastLight = m_pointLights.AccessEntry(lastLightIndex);
-					UInt8* freeSlot = m_pointLights.AccessEntry(lightData->entryIndex);
-					std::memcpy(freeSlot, lastLight, m_pointLights.GetEntrySize());
-
-					// Re-assign the light corresponding to the last entry to the new free slot
-					LightData& lastLightData = *m_lightPool.RetrieveFromIndex(m_pointLightEntriesToIndices[lastLightIndex]);
-					lastLightData.entryIndex = lightData->entryIndex;
-
-					m_pointLightEntriesToIndices[lightData->entryIndex] = m_pointLightEntriesToIndices[lastLightIndex];
-				}
-				m_pointLightEntriesToIndices[lastLightIndex] = MaxValue();
-				m_pointLights.Pop();
-
-				UInt8* lightHeaderPtr = m_pointLights.AccessHeader();
-				AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedPointLightsOffsets.lightCount) -= 1;
-				break;
-			}
-
-			case SafeCast<int>(BasicLightType::Spot):
-			{
-				UInt32 lightCount = m_spotLights.GetSize();
-				UInt32 lastLightIndex = lightCount - 1;
-				if (lightData->entryIndex != lastLightIndex)
-				{
-					// Swap and pop idiom
-					UInt8* lastLight = m_spotLights.AccessEntry(lastLightIndex);
-					UInt8* freeSlot = m_spotLights.AccessEntry(lightData->entryIndex);
-					std::memcpy(freeSlot, lastLight, m_spotLights.GetEntrySize());
-
-					// Re-assign the light corresponding to the last entry to the new free slot
-					LightData& lastLightData = *m_lightPool.RetrieveFromIndex(m_spotLightEntriesToIndices[lastLightIndex]);
-					lastLightData.entryIndex = lightData->entryIndex;
-
-					m_spotLightEntriesToIndices[lightData->entryIndex] = m_spotLightEntriesToIndices[lastLightIndex];
-				}
-				m_spotLightEntriesToIndices[lastLightIndex] = MaxValue();
-				m_spotLights.Pop();
-
-				UInt8* lightHeaderPtr = m_spotLights.AccessHeader();
-				AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedSpotLightsOffsets.lightCount) -= 1;
-				break;
-			}
-		}
-
+		// Defer light release
 		m_removedLightInstances.UnboundedSet(lightIndex);
 	}
 
@@ -1093,9 +1011,90 @@ namespace Nz
 
 	void DefaultFramePipeline::ProcesRemovedData(GpuResources& gpuResources)
 	{
-			for (std::size_t lightIndex : m_removedLightInstances.IterBits())
+		for (std::size_t lightIndex : m_removedLightInstances.IterBits())
 		{
-			auto& lightData = *m_lightPool.RetrieveFromIndex(lightIndex);
+			auto* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
+
+			if (lightData->light->IsShadowCaster())
+				UnregisterShadowCaster(lightIndex, lightData);
+
+			switch (lightData->light->GetLightType())
+			{
+				case SafeCast<int>(BasicLightType::Directional):
+				{
+					UInt32 lightCount = m_directionalLights.GetSize();
+					UInt32 lastLightIndex = lightCount - 1;
+					if (lightData->entryIndex != lastLightIndex)
+					{
+						// Swap and pop idiom
+						UInt8* lastLight = m_directionalLights.AccessEntry(lastLightIndex);
+						UInt8* freeSlot = m_directionalLights.AccessEntry(lightData->entryIndex);
+						std::memcpy(freeSlot, lastLight, m_directionalLights.GetEntrySize());
+
+						// Re-assign the light corresponding to the last entry to the new free slot
+						LightData& lastLightData = *m_lightPool.RetrieveFromIndex(m_directionalLightEntriesToIndices[lastLightIndex]);
+						lastLightData.entryIndex = lightData->entryIndex;
+
+						m_directionalLightEntriesToIndices[lightData->entryIndex] = m_directionalLightEntriesToIndices[lastLightIndex];
+					}
+					m_directionalLightEntriesToIndices[lastLightIndex] = MaxValue();
+					m_directionalLights.Pop();
+
+					UInt8* lightHeaderPtr = m_directionalLights.AccessHeader();
+					AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedDirectionalLightsOffsets.lightCount) -= 1;
+					break;
+				}
+
+				case SafeCast<int>(BasicLightType::Point):
+				{
+					UInt32 lightCount = m_pointLights.GetSize();
+					UInt32 lastLightIndex = lightCount - 1;
+					if (lightData->entryIndex != lastLightIndex)
+					{
+						// Swap and pop idiom
+						UInt8* lastLight = m_pointLights.AccessEntry(lastLightIndex);
+						UInt8* freeSlot = m_pointLights.AccessEntry(lightData->entryIndex);
+						std::memcpy(freeSlot, lastLight, m_pointLights.GetEntrySize());
+
+						// Re-assign the light corresponding to the last entry to the new free slot
+						LightData& lastLightData = *m_lightPool.RetrieveFromIndex(m_pointLightEntriesToIndices[lastLightIndex]);
+						lastLightData.entryIndex = lightData->entryIndex;
+
+						m_pointLightEntriesToIndices[lightData->entryIndex] = m_pointLightEntriesToIndices[lastLightIndex];
+					}
+					m_pointLightEntriesToIndices[lastLightIndex] = MaxValue();
+					m_pointLights.Pop();
+
+					UInt8* lightHeaderPtr = m_pointLights.AccessHeader();
+					AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedPointLightsOffsets.lightCount) -= 1;
+					break;
+				}
+
+				case SafeCast<int>(BasicLightType::Spot):
+				{
+					UInt32 lightCount = m_spotLights.GetSize();
+					UInt32 lastLightIndex = lightCount - 1;
+					if (lightData->entryIndex != lastLightIndex)
+					{
+						// Swap and pop idiom
+						UInt8* lastLight = m_spotLights.AccessEntry(lastLightIndex);
+						UInt8* freeSlot = m_spotLights.AccessEntry(lightData->entryIndex);
+						std::memcpy(freeSlot, lastLight, m_spotLights.GetEntrySize());
+
+						// Re-assign the light corresponding to the last entry to the new free slot
+						LightData& lastLightData = *m_lightPool.RetrieveFromIndex(m_spotLightEntriesToIndices[lastLightIndex]);
+						lastLightData.entryIndex = lightData->entryIndex;
+
+						m_spotLightEntriesToIndices[lightData->entryIndex] = m_spotLightEntriesToIndices[lastLightIndex];
+					}
+					m_spotLightEntriesToIndices[lastLightIndex] = MaxValue();
+					m_spotLights.Pop();
+
+					UInt8* lightHeaderPtr = m_spotLights.AccessHeader();
+					AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedSpotLightsOffsets.lightCount) -= 1;
+					break;
+				}
+			}
 
 			gpuResources.PushForRelease(std::move(lightData));
 			m_lightPool.Free(lightIndex);
