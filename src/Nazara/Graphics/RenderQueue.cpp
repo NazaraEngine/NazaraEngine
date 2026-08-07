@@ -52,7 +52,7 @@ namespace Nz
 		}
 		else
 		{
-			RenderElementIndices indices = it->second;
+			RenderElementIndices& indices = it->second;
 
 			if (indices.count == elementCount)
 			{
@@ -71,7 +71,7 @@ namespace Nz
 
 				for (auto&& [renderable, elementIndices] : m_renderElementsIndices)
 				{
-					if (elementIndices.first >= indices.first)
+					if (elementIndices.first > indices.first)
 						elementIndices.first -= indices.count;
 				}
 
@@ -81,8 +81,7 @@ namespace Nz
 					return;
 				}
 
-				indices = RenderElementIndices{ m_firstAddedElementIndex, elementCount };
-				m_renderElementsIndices[renderableIndex] = indices;
+				indices = RenderElementIndices{ m_firstAddedElementIndex - indices.count, elementCount };
 			}
 
 			m_shouldRebuildRenderQueue = true;
