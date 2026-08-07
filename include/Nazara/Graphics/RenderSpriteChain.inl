@@ -16,7 +16,7 @@ namespace Nz
 	m_materialFlags(materialFlags),
 	m_scissorBox(scissorBox)
 	{
-		NazaraAssert(spriteCount < MaxSpritePerChain);
+		NazaraAssert(spriteCount <= MaxSpritePerChain);
 	}
 
 	inline const MaterialProxy& RenderSpriteChain::GetMaterialProxy() const
