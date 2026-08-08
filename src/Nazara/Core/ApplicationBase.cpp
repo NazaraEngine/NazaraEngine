@@ -88,10 +88,18 @@ namespace Nz
 
 			updaterEntry.lastUpdate = m_currentTime;
 			updaterEntry.nextUpdate = std::max(updaterEntry.nextUpdate, m_currentTime);
+
+			if (!m_running)
+				return false;
 		}
 
 		for (auto& componentPtr : m_components)
+		{
 			componentPtr->Update(elapsedTime);
+
+			if (!m_running)
+				return false;
+		}
 
 		return m_running;
 	}
