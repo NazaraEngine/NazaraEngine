@@ -172,12 +172,6 @@ fn ComputeColor(input: VertOut) -> vec4[f32]
 	const if (HasUV && HasAlphaTexture)
 		color.w *= Material.alphaMap.Sample(input.uv).x;
 
-	const if (AlphaTest)
-	{
-		if (color.w < Material.settings.AlphaThreshold)
-			discard;
-	}
-
 	return color;
 }
 
@@ -300,6 +294,11 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 fn FragMain(input: VertOut) -> FragOut
 {
 	let color = ComputeColor(input);
+	const if (AlphaTest)
+	{
+		if (color.w < Material.settings.AlphaThreshold)
+			discard;
+	}
 
 	const if (ForwardPass)
 	{
@@ -327,13 +326,11 @@ fn FragMain(input: VertOut) -> FragOut
 
 // Shadow passes entries
 [entry(frag), cond(DepthPass && AlphaTest)]
-fn FragDepth(input: VertOut) -> FragOut
+fn FragDepth(input: VertOut)
 {
 	let color = ComputeColor(input);
-
-	let output: FragOut;
-	output.color = color;
-	return output;
+	if (color.w < Material.settings.AlphaThreshold)
+		discard;
 }
 
 [entry(frag), cond(DepthPass && !AlphaTest)]
