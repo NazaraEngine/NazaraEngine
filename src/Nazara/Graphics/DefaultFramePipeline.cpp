@@ -1017,7 +1017,7 @@ namespace Nz
 		{
 			auto* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
 
-			if (lightData->light->IsShadowCaster())
+			if (lightData->shadowData)
 				UnregisterShadowCaster(lightIndex, lightData);
 
 			switch (lightData->light->GetLightType())
