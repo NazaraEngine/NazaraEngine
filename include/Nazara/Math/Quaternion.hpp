@@ -71,6 +71,9 @@ namespace Nz
 
 			static RadianAngle<T> AngleBetween(const Quaternion& lhs, const Quaternion& rhs);
 			static constexpr bool ApproxEqual(const Quaternion& lhs, const Quaternion& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+			static constexpr Quaternion CombineRotations(const Quaternion& firstRotation, const Quaternion& secondRotation);
+			static constexpr Quaternion CombineRotations(const Quaternion& firstRotation, const Quaternion& secondRotation, const Quaternion& thirdRotation);
+			static constexpr Quaternion CombineRotations(const Quaternion& firstRotation, const Quaternion& secondRotation, const Quaternion& thirdRotation, const Quaternion& fourthRotation);
 			static constexpr Quaternion Identity();
 			static constexpr Quaternion Lerp(const Quaternion& from, const Quaternion& to, T interpolation);
 			static Quaternion LookAt(const Vector3<T>& forward, const Vector3<T>& up);

@@ -261,7 +261,7 @@ namespace Nz
 
 	inline Node& Node::Rotate(const Quaternionf& rotation, Invalidation invalidation)
 	{
-		m_rotation = rotation * m_rotation;
+		m_rotation = Quaternionf::CombineRotations(m_rotation, rotation);
 		m_rotation.Normalize();
 
 		Invalidate(invalidation);
@@ -272,7 +272,7 @@ namespace Nz
 	{
 		EnsureGlobalsUpdate();
 
-		m_rotation = m_rotation * m_globalRotation.GetConjugate() * rotation * m_globalRotation;
+		m_rotation = Quaternionf::CombineRotations(m_globalRotation, rotation, m_globalRotation.GetConjugate(), m_rotation);
 		m_rotation.Normalize();
 
 		Invalidate(invalidation);

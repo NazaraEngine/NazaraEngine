@@ -582,6 +582,24 @@ namespace Nz
 		return lhs.ApproxEqual(rhs, maxDifference);
 	}
 
+	template<typename T>
+	constexpr Quaternion<T> Quaternion<T>::CombineRotations(const Quaternion& firstRotation, const Quaternion& secondRotation)
+	{
+		return secondRotation * firstRotation;
+	}
+
+	template<typename T>
+	constexpr Quaternion<T> Quaternion<T>::CombineRotations(const Quaternion& firstRotation, const Quaternion& secondRotation, const Quaternion& thirdRotation)
+	{
+		return thirdRotation * secondRotation * firstRotation;
+	}
+
+	template<typename T>
+	constexpr Quaternion<T> Quaternion<T>::CombineRotations(const Quaternion& firstRotation, const Quaternion& secondRotation, const Quaternion& thirdRotation, const Quaternion& fourthRotation)
+	{
+		return fourthRotation * thirdRotation * secondRotation * firstRotation;
+	}
+
 	/*!
 	* \brief Shorthand for the quaternion (1, 0, 0, 0)
 	* \return A quaternion with components (1, 0, 0, 0)
