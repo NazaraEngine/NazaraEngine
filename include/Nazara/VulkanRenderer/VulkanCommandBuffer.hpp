@@ -11,7 +11,6 @@
 #include <Nazara/Renderer/GpuCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Export.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
-#include <vector>
 
 namespace Nz
 {

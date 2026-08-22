@@ -122,6 +122,8 @@ namespace Nz::Vk
 			inline void SetImageLayout(VkImage image, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 			inline void SetImageLayout(VkImage image, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout, const VkImageSubresourceRange& subresourceRange);
 
+			inline void UpdateDebugName(std::string_view name);
+
 			CommandBuffer& operator=(const CommandBuffer&) = delete;
 			CommandBuffer& operator=(CommandBuffer&& commandBuffer) noexcept;
 

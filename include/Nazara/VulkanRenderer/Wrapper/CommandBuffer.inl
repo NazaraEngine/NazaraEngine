@@ -634,6 +634,11 @@ namespace Nz::Vk
 		return ImageBarrier(srcStageMask, dstStageMask, 0, srcAccessMask, dstAccessMask, oldImageLayout, newImageLayout, image, subresourceRange);
 	}
 
+	inline void CommandBuffer::UpdateDebugName(std::string_view name)
+	{
+		m_pool->GetDevice()->SetDebugName(VK_OBJECT_TYPE_COMMAND_BUFFER, VulkanHandleToInteger(m_handle), name);
+	}
+
 	inline void CommandBuffer::SetViewport(const Rectf& viewport, float minDepth, float maxDepth)
 	{
 		VkViewport rect = {
