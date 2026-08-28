@@ -20,6 +20,7 @@ namespace Nz
 	m_zFar((projectionType == ProjectionType::Perspective) ? 1000.f : 1.f),
 	m_zNear((projectionType == ProjectionType::Perspective) ? 1.f : -1.f)
 	{
+		m_viewerInstance = std::make_unique<ViewerInstance>();
 		UpdateTarget(std::move(renderTarget));
 	}
 
@@ -40,12 +41,14 @@ namespace Nz
 	m_zFar(camera.m_zFar),
 	m_zNear(camera.m_zNear)
 	{
+		m_viewerInstance = std::make_unique<ViewerInstance>();
 		UpdateTarget(camera.m_renderTarget);
 	}
 
 	inline Camera::Camera(Camera&& camera) noexcept :
 	m_framePipelinePasses(std::move(camera.m_framePipelinePasses)),
 	m_debugDrawer(std::move(camera.m_debugDrawer)),
+	m_viewerInstance(std::move(camera.m_viewerInstance)),
 	m_clearColor(camera.m_clearColor),
 	m_fov(camera.m_fov),
 	m_renderOrder(camera.m_renderOrder),
@@ -61,6 +64,7 @@ namespace Nz
 	m_zFar(camera.m_zFar),
 	m_zNear(camera.m_zNear)
 	{
+		camera.m_viewerInstance = std::make_unique<ViewerInstance>();
 		UpdateTarget(std::move(camera.m_renderTarget));
 	}
 
@@ -183,6 +187,7 @@ namespace Nz
 	inline Camera& Camera::operator=(Camera&& camera) noexcept
 	{
 		m_framePipelinePasses = std::move(camera.m_framePipelinePasses);
+		m_viewerInstance = std::move(camera.m_viewerInstance);
 		m_clearColor = camera.m_clearColor;
 		m_fov = camera.m_fov;
 		m_renderOrder = camera.m_renderOrder;
@@ -200,6 +205,7 @@ namespace Nz
 
 		UpdateTarget(std::move(camera.m_renderTarget));
 		camera.UpdateTarget({});
+		camera.m_viewerInstance = std::make_unique<ViewerInstance>();
 
 		if (m_renderTarget)
 			UpdateViewport();
@@ -255,7 +261,7 @@ namespace Nz
 		{
 			m_aspectRatio = float(viewport.width) / float(viewport.height);
 			m_viewport = viewport;
-			m_viewerInstance.UpdateTargetSize(Vector2f(viewport.GetLengths()));
+			m_viewerInstance->UpdateTargetSize(Vector2f(viewport.GetLengths()));
 
 			UpdateProjectionMatrix();
 		}
@@ -280,17 +286,17 @@ namespace Nz
 		{
 			case ProjectionType::Orthographic:
 				if (m_size.x < 0.f || m_size.y < 0.f)
-					m_viewerInstance.UpdateProjectionMatrix(Matrix4f::Ortho(float(m_viewport.x), float(m_viewport.x + m_viewport.width), float(m_viewport.y), float(m_viewport.y + m_viewport.height), zNear, zFar));
+					m_viewerInstance->UpdateProjectionMatrix(Matrix4f::Ortho(float(m_viewport.x), float(m_viewport.x + m_viewport.width), float(m_viewport.y), float(m_viewport.y + m_viewport.height), zNear, zFar));
 				else
-					m_viewerInstance.UpdateProjectionMatrix(Matrix4f::Ortho(0.f, m_size.x, 0.f, m_size.y, zNear, zFar));
+					m_viewerInstance->UpdateProjectionMatrix(Matrix4f::Ortho(0.f, m_size.x, 0.f, m_size.y, zNear, zFar));
 				break;
 
 			case ProjectionType::Perspective:
-				m_viewerInstance.UpdateProjectionMatrix(Matrix4f::Perspective(m_fov, m_aspectRatio, zNear, zFar));
+				m_viewerInstance->UpdateProjectionMatrix(Matrix4f::Perspective(m_fov, m_aspectRatio, zNear, zFar));
 				break;
 		}
 
-		m_viewerInstance.UpdateNearFarPlanes(m_zNear, zFar, m_isReversedZEnabled);
+		m_viewerInstance->UpdateNearFarPlanes(m_zNear, zFar, m_isReversedZEnabled);
 	}
 
 	inline void Camera::UpdateViewport()
@@ -315,7 +321,7 @@ namespace Nz
 		// Convert it back to int
 		m_viewport = Recti(fViewport);
 
-		m_viewerInstance.UpdateTargetSize(fViewport.GetLengths());
+		m_viewerInstance->UpdateTargetSize(fViewport.GetLengths());
 
 		UpdateProjectionMatrix();
 	}

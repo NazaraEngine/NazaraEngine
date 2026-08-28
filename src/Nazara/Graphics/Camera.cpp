@@ -55,12 +55,12 @@ namespace Nz
 
 	ViewerInstance& Camera::GetViewerInstance()
 	{
-		return m_viewerInstance;
+		return *m_viewerInstance;
 	}
 
 	const ViewerInstance& Camera::GetViewerInstance() const
 	{
-		return m_viewerInstance;
+		return *m_viewerInstance;
 	}
 
 	const Recti& Camera::GetViewport() const

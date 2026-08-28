@@ -350,18 +350,19 @@ namespace Nz
 		return skeletonInstanceIndex;
 	}
 
-	std::size_t DefaultFramePipeline::RegisterViewer(PipelineViewer* viewerInstance, Int32 renderOrder)
+	std::size_t DefaultFramePipeline::RegisterViewer(PipelineViewer* viewer, Int32 renderOrder)
 	{
 		std::size_t viewerIndex;
 		auto& viewerData = *m_viewerPool.Allocate(viewerIndex);
 		viewerData.renderOrder = renderOrder;
-		viewerData.viewer = viewerInstance;
-		viewerData.onTransferRequired.Connect(viewerInstance->GetViewerInstance().OnTransferRequired, [this](TransferInterface* transferInterface)
+		viewerData.viewer = viewer;
+		viewerData.viewerInstance = &viewer->GetViewerInstance();
+		viewerData.onTransferRequired.Connect(viewerData.viewerInstance->OnTransferRequired, [this](TransferInterface* transferInterface)
 		{
 			m_transferSet.insert(transferInterface);
 		});
 
-		viewerData.onRenderMaskUpdated.Connect(viewerInstance->OnRenderMaskUpdated, [this, &viewerData](AbstractViewer* viewer, UInt32 newRenderMask)
+		viewerData.onRenderMaskUpdated.Connect(viewer->OnRenderMaskUpdated, [this, &viewerData](AbstractViewer* viewer, UInt32 newRenderMask)
 		{
 			for (std::size_t i : m_shadowCastingLights.IterBits())
 			{
@@ -387,21 +388,21 @@ namespace Nz
 		});
 
 		FramePipelinePass::PassData passData = {
-			viewerInstance,
+			viewer,
 			m_elementRegistry,
 			*this
 		};
 
-		viewerData.passes = viewerInstance->BuildPasses(passData);
+		viewerData.passes = viewer->BuildPasses(passData);
 
-		m_transferSet.insert(&viewerInstance->GetViewerInstance());
+		m_transferSet.insert(&viewer->GetViewerInstance());
 
-		viewerData.renderMask = viewerInstance->GetRenderMask();
+		viewerData.renderMask = viewer->GetRenderMask();
 		for (std::size_t i : m_shadowCastingLights.IterBits())
 		{
 			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
 			if (lightData->shadowData->IsPerViewer() && (viewerData.renderMask & lightData->renderMask) != 0)
-				lightData->shadowData->RegisterViewer(viewerInstance);
+				lightData->shadowData->RegisterViewer(viewer);
 		}
 
 		m_rebuildFrameGraph = true;
@@ -453,6 +454,7 @@ namespace Nz
 		}
 
 		frameGraphInvalidated |= m_bakedFrameGraph.Resize(gpuResources, viewerSizes);
+
 		if (frameGraphInvalidated)
 		{
 			for (ViewerData& viewerData : m_viewerPool)
@@ -460,22 +462,19 @@ namespace Nz
 				if (viewerData.blitShaderBinding)
 					gpuResources.PushForRelease(std::move(viewerData.blitShaderBinding));
 			}
+
+			InvalidateAllPasses();
 		}
 
 		if (m_invalidateSceneBindings)
 		{
-			m_shaderBindingCache.InvalidateSceneBindings(gpuResources);
-			// Force re-recording of all passes
-			if (m_shadowAtlasPipelinePass)
-				m_shadowAtlasPipelinePass->InvalidateCommandBuffers();
-
-			for (ViewerData* viewerData : m_orderedViewers)
+			m_shaderBindingCache.InvalidateSceneBindings([&](ShaderBindingPtr&& shaderBinding)
 			{
-				for (auto& passPtr : viewerData->passes)
-					passPtr->InvalidateCommandBuffers();
-			}
-
+				gpuResources.PushForRelease(std::move(shaderBinding));
+			});
 			m_invalidateSceneBindings = false;
+
+			InvalidateAllPasses();
 		}
 
 		// Find active lights (i.e. visible in any frustum)
@@ -596,6 +595,7 @@ namespace Nz
 	void DefaultFramePipeline::UnregisterSkeleton(std::size_t skeletonIndex)
 	{
 		auto& skeletonData = *m_skeletonInstancePool.RetrieveFromIndex(skeletonIndex);
+		skeletonData.onTransferRequired.Disconnect();
 		m_transferSet.erase(skeletonData.skeleton.get());
 
 		// Defer instance release
@@ -607,7 +607,13 @@ namespace Nz
 		auto& viewerData = *m_viewerPool.RetrieveFromIndex(viewerIndex);
 		viewerData.pendingDestruction = true;
 
-		m_transferSet.erase(&viewerData.viewer->GetViewerInstance());
+		m_shaderBindingCache.ClearViewerCache(*viewerData.viewerInstance, [this](ShaderBindingPtr&& shaderBinding)
+		{
+			m_deletedShaderBindings.push_back(std::move(shaderBinding));
+		});
+
+		viewerData.onTransferRequired.Disconnect();
+		m_transferSet.erase(viewerData.viewerInstance);
 
 		for (std::size_t i : m_shadowCastingLights.IterBits())
 		{
@@ -1011,8 +1017,25 @@ namespace Nz
 		return viewerUploadAttachment;
 	}
 
+	void DefaultFramePipeline::InvalidateAllPasses()
+	{
+		if (m_shadowAtlasPipelinePass)
+			m_shadowAtlasPipelinePass->InvalidateCommandBuffers();
+
+		for (ViewerData* viewerData : m_orderedViewers)
+		{
+			for (auto& passPtr : viewerData->passes)
+				passPtr->InvalidateCommandBuffers();
+		}
+	}
+
 	void DefaultFramePipeline::ProcesRemovedData(GpuResources& gpuResources)
 	{
+		for (ShaderBindingPtr& shaderBinding : m_deletedShaderBindings)
+			gpuResources.PushForRelease(std::move(shaderBinding));
+
+		m_deletedShaderBindings.clear();
+
 		for (std::size_t lightIndex : m_removedLightInstances.IterBits())
 		{
 			auto* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
@@ -1115,8 +1138,6 @@ namespace Nz
 		for (std::size_t viewerIndex : m_removedViewerInstances.IterBits())
 		{
 			auto& viewerData = *m_viewerPool.RetrieveFromIndex(viewerIndex);
-
-			m_shaderBindingCache.InvalidateViewerBindings(gpuResources, viewerData.viewer->GetViewerInstance());
 
 			gpuResources.PushForRelease(std::move(viewerData));
 			m_viewerPool.Free(viewerIndex);
@@ -1243,7 +1264,6 @@ namespace Nz
 		assert(renderableCount > 0);
 		if (--renderableCount == 0)
 			materialInstanceData.renderableUsage.erase(renderableIt);
-
 
 		assert(materialInstanceData.usedCount > 0);
 		if (--materialInstanceData.usedCount == 0)

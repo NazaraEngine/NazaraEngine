@@ -10,8 +10,8 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
-#include <Nazara/Renderer/GpuResources.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
+#include <concepts>
 #include <unordered_map>
 
 namespace Nz
@@ -24,13 +24,13 @@ namespace Nz
 			ShaderBindingCache(ShaderBindingCache&&) = delete;
 			~ShaderBindingCache() = default;
 
-			inline void ClearViewerCache(GpuResources& resources, const ViewerInstance& viewerInstance);
+			template<typename F> void ClearViewerCache(const ViewerInstance& viewerInstance, F&& invalidationFunctor);
 
 			template<typename F> ShaderBinding* GetSceneBinding(std::size_t setHash, F&& createFunctor);
 			template<typename F> ShaderBinding* GetViewerBinding(const ViewerInstance& viewerInstance, std::size_t setHash, F&& createFunctor);
 
-			inline void InvalidateSceneBindings(GpuResources& resources);
-			inline void InvalidateViewerBindings(GpuResources& resources, const ViewerInstance& viewerInstance);
+			template<typename F> void InvalidateSceneBindings(F&& invalidationFunctor);
+			template<typename F> void InvalidateViewerBindings(const ViewerInstance& viewerInstance, F&& invalidationFunctor);
 
 			ShaderBindingCache& operator=(const ShaderBindingCache&) = delete;
 			ShaderBindingCache& operator=(ShaderBindingCache&&) = delete;

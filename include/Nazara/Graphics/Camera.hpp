@@ -91,6 +91,7 @@ namespace Nz
 			std::shared_ptr<PipelinePassList> m_framePipelinePasses;
 			std::shared_ptr<const RenderTarget> m_renderTarget;
 			std::unique_ptr<DebugDrawer> m_debugDrawer;
+			std::unique_ptr<ViewerInstance> m_viewerInstance;
 			Color m_clearColor;
 			DegreeAnglef m_fov;
 			Int32 m_renderOrder;
@@ -98,7 +99,6 @@ namespace Nz
 			Rectf m_targetRegion;
 			Recti m_viewport;
 			Vector2f m_size;
-			ViewerInstance m_viewerInstance;
 			UInt32 m_renderMask;
 			bool m_isInfiniteFarEnabled;
 			bool m_isReversedZEnabled;

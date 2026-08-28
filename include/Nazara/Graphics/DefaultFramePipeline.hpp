@@ -107,6 +107,7 @@ namespace Nz
 			BakedFrameGraph BuildFrameGraph();
 
 			std::size_t InsertTransferPass(FrameGraph& frameGraph, std::function<void()> callback);
+			void InvalidateAllPasses();
 
 			void ProcesRemovedData(GpuResources& renderResources);
 
@@ -184,6 +185,7 @@ namespace Nz
 				std::vector<std::unique_ptr<FramePipelinePass>> passes;
 				FrameData frame;
 				PipelineViewer* viewer;
+				ViewerInstance* viewerInstance;
 				Int32 renderOrder = 0;
 				ShaderBindingPtr blitShaderBinding;
 				UInt32 renderMask;
@@ -204,6 +206,7 @@ namespace Nz
 			std::vector<std::size_t> m_pointShadowEntriesToIndices;
 			std::vector<std::size_t> m_spotLightEntriesToIndices;
 			std::vector<std::size_t> m_spotShadowEntriesToIndices;
+			std::vector<ShaderBindingPtr> m_deletedShaderBindings;
 			std::vector<ViewerData*> m_orderedViewers;
 			ankerl::unordered_dense::set<TransferInterface*> m_transferSet;
 			BakedFrameGraph m_bakedFrameGraph;
