@@ -56,8 +56,6 @@ namespace Nz
 
 	auto RichTextDrawer::AppendText(std::string_view str, bool forceNewBlock) -> BlockRef
 	{
-		NazaraAssertMsg(!str.empty(), "String cannot be empty");
-
 		std::size_t currentFontIndex = HandleFontAddition(m_currentFont);
 
 		auto DoPropertiesMatch = [&](const Block& block)
