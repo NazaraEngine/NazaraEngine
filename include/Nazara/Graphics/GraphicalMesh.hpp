@@ -33,7 +33,7 @@ namespace Nz
 
 			inline void Clear();
 
-			inline const Boxf& GetAABB() const;
+			inline const Boxf& GetAABB(std::size_t subMesh) const;
 			inline const std::shared_ptr<GpuBuffer>& GetIndexBuffer(std::size_t subMesh) const;
 			inline UInt32 GetIndexCount(std::size_t subMesh) const;
 			inline IndexType GetIndexType(std::size_t subMesh) const;
@@ -41,7 +41,6 @@ namespace Nz
 			inline const std::shared_ptr<const VertexDeclaration>& GetVertexDeclaration(std::size_t subMesh) const;
 			inline std::size_t GetSubMeshCount() const;
 
-			inline void UpdateAABB(const Boxf& aabb);
 			inline void UpdateSubMeshIndexCount(std::size_t subMeshIndex, UInt32 indexCount);
 
 			GraphicalMesh& operator=(const GraphicalMesh&) = delete;
@@ -52,6 +51,7 @@ namespace Nz
 				std::shared_ptr<GpuBuffer> indexBuffer;
 				std::shared_ptr<GpuBuffer> vertexBuffer;
 				std::shared_ptr<const VertexDeclaration> vertexDeclaration;
+				Boxf aabb;
 				IndexType indexType;
 				UInt32 indexCount;
 			};
@@ -65,7 +65,6 @@ namespace Nz
 
 		private:
 			std::vector<SubMesh> m_subMeshes;
-			Boxf m_aabb;
 	};
 }
 

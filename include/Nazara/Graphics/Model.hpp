@@ -81,6 +81,8 @@ namespace Nz
 			static std::shared_ptr<Model> LoadFromStream(Stream& stream, const ModelParams& params = ModelParams());
 
 		private:
+			void UpdateAABB();
+
 			struct SubMeshData
 			{
 				std::size_t indexCount = 0; //< if != 0 overrides GraphicalMesh index count

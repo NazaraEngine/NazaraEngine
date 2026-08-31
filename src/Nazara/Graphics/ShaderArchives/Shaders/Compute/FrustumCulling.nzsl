@@ -12,7 +12,7 @@ option WorkgroupSize: u32 = 256;
 struct IndirectDraw
 {
 	drawCommand: IndirectData.DrawIndexedIndirectCommand,
-	boundingSphere: vec4[f32], // (offset; radius)
+	aabb: IndirectData.AABB,
 }
 
 [layout(std430)]
@@ -29,24 +29,25 @@ external
 	viewerData: uniform[ViewerData],
 }
 
-fn PlaneSignedDist(plane: vec4[f32], pos: vec3[f32]) -> f32
+fn TestPlaneAgainstBox(plane: vec4[f32], center: vec3[f32], extent: vec3[f32]) -> bool
 {
-	return dot(plane.xyz, pos) + plane.w;
+	// https://fgiesen.wordpress.com/2010/10/17/view-frustum-culling/
+	return dot(center + extent * sign(plane.xyz), plane.xyz) >= -plane.w;
 }
 
-fn FrustumCull(boundingSphere: vec4[f32]) -> bool
+fn FrustumCull(center: vec3[f32], extent: vec3[f32]) -> bool
 {
 	let visible = true;
-	visible &&= PlaneSignedDist(viewerData.frustumPlanes[FrustumPlane.Bottom], boundingSphere.xyz) >= -boundingSphere.w;
-	visible &&= PlaneSignedDist(viewerData.frustumPlanes[FrustumPlane.Left], boundingSphere.xyz) >= -boundingSphere.w;
-	visible &&= PlaneSignedDist(viewerData.frustumPlanes[FrustumPlane.Right], boundingSphere.xyz) >= -boundingSphere.w;
-	visible &&= PlaneSignedDist(viewerData.frustumPlanes[FrustumPlane.Top], boundingSphere.xyz) >= -boundingSphere.w;
+	visible &&= TestPlaneAgainstBox(viewerData.frustumPlanes[FrustumPlane.Bottom], center, extent);
+	visible &&= TestPlaneAgainstBox(viewerData.frustumPlanes[FrustumPlane.Left], center, extent);
+	visible &&= TestPlaneAgainstBox(viewerData.frustumPlanes[FrustumPlane.Right], center, extent);
+	visible &&= TestPlaneAgainstBox(viewerData.frustumPlanes[FrustumPlane.Top], center, extent);
 
 	if (!isinf(viewerData.nearPlane))
-		visible &&= PlaneSignedDist(viewerData.frustumPlanes[FrustumPlane.Near], boundingSphere.xyz) >= -boundingSphere.w;
+		visible &&= TestPlaneAgainstBox(viewerData.frustumPlanes[FrustumPlane.Near], center, extent);
 
 	if (!isinf(viewerData.farPlane))
-		visible &&= PlaneSignedDist(viewerData.frustumPlanes[FrustumPlane.Far], boundingSphere.xyz) >= -boundingSphere.w;
+		visible &&= TestPlaneAgainstBox(viewerData.frustumPlanes[FrustumPlane.Far], center, extent);
 
 	return visible;
 }
@@ -55,6 +56,17 @@ struct Input
 {
 	[builtin(global_invocation_indices)] invocationIndices: vec3[u32]
 }
+
+const boundingBoxCorners = array(
+	vec3[f32](0.0, 0.0, 0.0),
+	vec3[f32](0.0, 0.0, 1.0),
+	vec3[f32](0.0, 1.0, 0.0),
+	vec3[f32](0.0, 1.0, 1.0),
+	vec3[f32](1.0, 0.0, 0.0),
+	vec3[f32](1.0, 0.0, 1.0),
+	vec3[f32](1.0, 1.0, 0.0),
+	vec3[f32](1.0, 1.0, 1.0)
+);
 
 [entry(comp), workgroup(WorkgroupSize, 1, 1)]
 fn main(input: Input)
@@ -67,12 +79,28 @@ fn main(input: Input)
 	let drawData = indirectBuffer.drawIndirects[commandIndex];
 	let instanceIndex = drawData.drawCommand.firstInstance;
 
-	let instancePosition = instanceBuffer.instances[instanceIndex].worldMatrix[3].xyz;
-	
-	let boundingSphere = drawData.boundingSphere;
-	boundingSphere.xyz += instancePosition;
+	let worldMatrix = instanceBuffer.instances[instanceIndex].worldMatrix;
 
-	let isVisible = FrustumCull(boundingSphere);
+	let aabbOrigin = vec3[f32](drawData.aabb.params[0], drawData.aabb.params[1], drawData.aabb.params[2]);
+	let aabbSize = vec3[f32](drawData.aabb.params[3], drawData.aabb.params[4], drawData.aabb.params[5]);
+
+	let aabbMins = (f32.Infinity).xxx;
+	let aabbMaxs = -aabbMins;
+
+	[unroll]
+	for cornerFactor in boundingBoxCorners
+	{
+		let localCornerPos = aabbOrigin + aabbSize * cornerFactor;
+		let worldCornerPos = worldMatrix * vec4[f32](localCornerPos, 1.0);
+
+		aabbMaxs = max(aabbMaxs, worldCornerPos.xyz);
+		aabbMins = min(aabbMins, worldCornerPos.xyz);
+	}
+
+	let center = 0.5 * (aabbMins + aabbMaxs);
+	let extent = 0.5 * (aabbMaxs - aabbMins);
+
+	let isVisible = FrustumCull(center, extent);
 
 	indirectBuffer.drawIndirects[commandIndex].drawCommand.instanceCount = select(isVisible, u32(1), u32(0));
 }

@@ -23,9 +23,10 @@ namespace Nz
 		OnInvalidated(this);
 	}
 
-	inline const Boxf& GraphicalMesh::GetAABB() const
+	inline const Boxf& GraphicalMesh::GetAABB(std::size_t subMesh) const
 	{
-		return m_aabb;
+		assert(subMesh < m_subMeshes.size());
+		return m_subMeshes[subMesh].aabb;
 	}
 
 	inline const std::shared_ptr<GpuBuffer>& GraphicalMesh::GetIndexBuffer(std::size_t subMesh) const
@@ -61,13 +62,6 @@ namespace Nz
 	inline std::size_t GraphicalMesh::GetSubMeshCount() const
 	{
 		return m_subMeshes.size();
-	}
-
-	inline void GraphicalMesh::UpdateAABB(const Boxf& aabb)
-	{
-		m_aabb = aabb;
-
-		OnInvalidated(this);
 	}
 
 	inline void GraphicalMesh::UpdateSubMeshIndexCount(std::size_t subMeshIndex, UInt32 indexCount)

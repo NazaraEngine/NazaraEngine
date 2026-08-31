@@ -60,7 +60,7 @@ namespace Nz
 		nzsl::FieldOffsets fieldOffsets;
 
 		std::size_t drawCommand;
-		std::size_t boundingSphere;
+		std::size_t aabb;
 
 		std::size_t totalSize;
 

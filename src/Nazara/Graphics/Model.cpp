@@ -38,11 +38,11 @@ namespace Nz
 
 		m_onInvalidated.Connect(m_graphicalMesh->OnInvalidated, [this](GraphicalMesh*)
 		{
-			UpdateAABB(m_graphicalMesh->GetAABB());
+			UpdateAABB();
 			OnElementInvalidated(this);
 		});
 
-		UpdateAABB(m_graphicalMesh->GetAABB());
+		UpdateAABB();
 	}
 
 	Model::Model(const Model& model, CopyToken) :
@@ -54,9 +54,9 @@ namespace Nz
 
 	void Model::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, UInt32 renderMask, ElementCallback elementCallback) const
 	{
-		for (std::size_t i = 0; i < m_submeshes.size(); ++i)
+		for (std::size_t submeshIndex = 0; submeshIndex < m_submeshes.size(); ++submeshIndex)
 		{
-			const auto& submeshData = m_submeshes[i];
+			const auto& submeshData = m_submeshes[submeshIndex];
 
 			elementCallback(submeshData.material->GetRenderQueueMask(), [&](std::size_t passIndex, std::vector<RenderElementOwner>& elements)
 			{
@@ -66,14 +66,14 @@ namespace Nz
 
 				MaterialPassFlags passFlags = submeshData.material->GetPassFlags(passIndex);
 
-				const auto& indexBuffer = m_graphicalMesh->GetIndexBuffer(i);
-				const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(i);
+				const auto& indexBuffer = m_graphicalMesh->GetIndexBuffer(submeshIndex);
+				const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(submeshIndex);
 				const auto& renderPipeline = materialPipeline->GetRenderPipeline(submeshData.vertexBufferData.data(), submeshData.vertexBufferData.size());
 
-				std::size_t indexCount = (submeshData.indexCount != 0) ? submeshData.indexCount : m_graphicalMesh->GetIndexCount(i);
-				IndexType indexType = m_graphicalMesh->GetIndexType(i);
+				std::size_t indexCount = (submeshData.indexCount != 0) ? submeshData.indexCount : m_graphicalMesh->GetIndexCount(submeshIndex);
+				IndexType indexType = m_graphicalMesh->GetIndexType(submeshIndex);
 
-				elements.emplace_back(registry.AllocateElement<RenderSubmesh>(GetRenderLayer(), submeshData.material, passFlags, renderPipeline, elementData.instanceIndex, elementData.skeletonInstance, indexCount, indexType, indexBuffer, vertexBuffer, *elementData.scissorBox, GetAABB().GetBoundingSphere(), renderMask));
+				elements.emplace_back(registry.AllocateElement<RenderSubmesh>(GetRenderLayer(), submeshData.material, passFlags, renderPipeline, elementData.instanceIndex, elementData.skeletonInstance, indexCount, indexType, indexBuffer, vertexBuffer, *elementData.scissorBox, m_graphicalMesh->GetAABB(submeshIndex), renderMask));
 			});
 		}
 	}
@@ -153,5 +153,19 @@ namespace Nz
 		NazaraAssertMsg(graphics, "Graphics module has not been initialized");
 
 		return graphics->GetModelLoader().LoadFromStream(stream, params);
+	}
+
+	void Model::UpdateAABB()
+	{
+		Boxf aabb = Boxf::Invalid();
+		for (std::size_t i = 0; i < m_graphicalMesh->GetSubMeshCount(); ++i)
+		{
+			if (i > 0)
+				aabb.ExtendTo(m_graphicalMesh->GetAABB(i));
+			else
+				aabb = m_graphicalMesh->GetAABB(i);
+		}
+
+		InstancedRenderable::UpdateAABB(aabb);
 	}
 }

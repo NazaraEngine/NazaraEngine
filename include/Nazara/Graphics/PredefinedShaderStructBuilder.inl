@@ -58,7 +58,7 @@ NAZARA_WARNING_CLANG_GCC_DISABLE("-Wmissing-field-initializers")
 	{
 		PredefinedIndirectDrawData entryData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
 		entryData.drawCommand = entryData.fieldOffsets.AddStruct(sizeof(DrawIndexedIndirectCommand), alignof(DrawIndexedIndirectCommand));
-		entryData.boundingSphere = entryData.fieldOffsets.AddField(nzsl::StructFieldType::Float4);
+		entryData.aabb = entryData.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float1, 6);
 
 		entryData.totalSize = entryData.fieldOffsets.GetAlignedSize();
 

@@ -37,6 +37,7 @@ namespace Nz
 			const SoftwareBuffer* vertexBufferContent = static_cast<const SoftwareBuffer*>(vertexBuffer->GetBuffer().get());
 
 			GraphicalMesh::SubMesh submeshData;
+			submeshData.aabb = subMesh.GetAABB();
 
 			const std::shared_ptr<const IndexBuffer>& indexBuffer = staticMesh.GetIndexBuffer();
 			if (indexBuffer)
@@ -62,8 +63,6 @@ namespace Nz
 
 			gfxMesh->AddSubMesh(std::move(submeshData));
 		}
-
-		gfxMesh->UpdateAABB(mesh.GetAABB());
 
 		return gfxMesh;
 	}

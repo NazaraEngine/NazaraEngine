@@ -73,8 +73,7 @@ namespace Nz
 			const RenderSubmesh& submesh = static_cast<const RenderSubmesh&>(*elements[i]);
 
 			UInt8* indirectBuffer = data.currentIndirectBufferPtr + data.indirectCommandIndex * PredefinedIndirectDrawOffsets.totalSize;
-			const Spheref& boundingSphere = submesh.GetBoundingSphere();
-			static_assert(sizeof(Spheref) == 4 * sizeof(float));
+			const Boxf& boundingBox = submesh.GetBoundingBox();
 
 			if (submesh.GetIndexBuffer() != nullptr)
 			{
@@ -98,7 +97,8 @@ namespace Nz
 				std::memcpy(indirectBuffer + PredefinedIndirectDrawOffsets.drawCommand, &drawIndirectCommand, sizeof(drawIndirectCommand));
 			}
 
-			std::memcpy(indirectBuffer + PredefinedIndirectDrawOffsets.boundingSphere, &boundingSphere, sizeof(boundingSphere));
+			static_assert(sizeof(boundingBox) == 6 * sizeof(float));
+			std::memcpy(indirectBuffer + PredefinedIndirectDrawOffsets.aabb, &boundingBox, sizeof(boundingBox));
 
 			data.indirectCommandIndex++;
 			data.totalElementCount++;

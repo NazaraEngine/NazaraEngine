@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline RenderSubmesh::RenderSubmesh(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<GpuRenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<GpuBuffer> indexBuffer, std::shared_ptr<GpuBuffer> vertexBuffer, const Recti& scissorBox, const Spheref& boundingSphere, UInt32 renderMask) :
+	inline RenderSubmesh::RenderSubmesh(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<GpuRenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<GpuBuffer> indexBuffer, std::shared_ptr<GpuBuffer> vertexBuffer, const Recti& scissorBox, const Boxf& boundingBox, UInt32 renderMask) :
 	RenderElement(BasicRenderElement::Submesh, instanceIndex, renderLayer, renderMask),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer)),
@@ -15,16 +15,16 @@ namespace Nz
 	m_renderPipeline(std::move(renderPipeline)),
 	m_indexCount(indexCount),
 	m_skeletonInstance(skeletonInstance),
+	m_boundingBox(boundingBox),
 	m_indexType(indexType),
 	m_materialFlags(materialFlags),
-	m_scissorBox(scissorBox),
-	m_boundingSphere(boundingSphere)
+	m_scissorBox(scissorBox)
 	{
 	}
 
-	inline const Spheref& RenderSubmesh::GetBoundingSphere() const
+	inline const Boxf& RenderSubmesh::GetBoundingBox() const
 	{
-		return m_boundingSphere;
+		return m_boundingBox;
 	}
 
 	inline const GpuBuffer* RenderSubmesh::GetIndexBuffer() const

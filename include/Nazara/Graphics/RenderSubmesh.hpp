@@ -26,10 +26,10 @@ namespace Nz
 	class RenderSubmesh : public RenderElement
 	{
 		public:
-			inline RenderSubmesh(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<GpuRenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<GpuBuffer> indexBuffer, std::shared_ptr<GpuBuffer> vertexBuffer, const Recti& scissorBox, const Spheref& boundingSphere, UInt32 renderMask);
+			inline RenderSubmesh(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<GpuRenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<GpuBuffer> indexBuffer, std::shared_ptr<GpuBuffer> vertexBuffer, const Recti& scissorBox, const Boxf& boundingBox, UInt32 renderMask);
 			~RenderSubmesh() = default;
 
-			inline const Spheref& GetBoundingSphere() const;
+			inline const Boxf& GetBoundingBox() const;
 			inline const GpuBuffer* GetIndexBuffer() const;
 			inline std::size_t GetIndexCount() const;
 			inline IndexType GetIndexType() const;
@@ -52,10 +52,10 @@ namespace Nz
 			std::shared_ptr<GpuRenderPipeline> m_renderPipeline;
 			std::size_t m_indexCount;
 			const SkeletonInstance* m_skeletonInstance;
+			Boxf m_boundingBox;
 			IndexType m_indexType;
 			MaterialPassFlags m_materialFlags;
 			Recti m_scissorBox;
-			Spheref m_boundingSphere;
 	};
 }
 
