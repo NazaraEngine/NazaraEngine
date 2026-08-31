@@ -294,6 +294,76 @@ namespace Nz
 		return std::make_shared<VulkanTexture>(std::static_pointer_cast<VulkanTexture>(shared_from_this()), viewInfo);
 	}
 
+	Image VulkanTexture::Download(TextureLayout textureLayout, UInt8 level)
+	{
+		Boxui wholeRegion(0, 0, 0, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth);
+
+		unsigned int baseLayer, layerCount;
+		ImageUtils::RegionToArray(m_textureViewInfo.type, wholeRegion, baseLayer, layerCount);
+
+		Image image;
+		auto resultLambda = [&](Image&& resultImage)
+		{
+			image = std::move(resultImage);
+		};
+
+		VulkanAsyncCommands asyncTransfer(m_device, QueueType::Graphics);
+		Download(asyncTransfer, resultLambda, textureLayout, level);
+
+		m_device.SubmitAsyncCommandsAndWait(asyncTransfer);
+
+		return image;
+	}
+
+	void VulkanTexture::Download(GpuAsyncCommands& asyncTransfer, Nz::FunctionRef<void(Image&& resultImage)> callback, TextureLayout textureLayout, UInt8 level)
+	{
+		std::size_t memorySize = PixelFormatInfo::ComputeSize(m_textureViewInfo.pixelFormat, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth);
+
+		auto uploadBuffer = std::make_shared<VulkanBuffer>(m_device, memorySize, BufferUsage::TransferDestination | BufferUsage::MemoryMapping);
+
+		asyncTransfer.AddCommands([&](GpuCommandBufferBuilder& builder)
+		{
+			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
+			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();
+
+			Boxui wholeRegion(0, 0, 0, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth);
+
+			unsigned int baseLayer, layerCount;
+			Boxui copyBox = ImageUtils::RegionToArray(m_textureViewInfo.type, wholeRegion, baseLayer, layerCount);
+
+			vkCommandBuffer.SetImageLayout(m_image, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, ToVulkan(textureLayout), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, BuildSubresourceRange(level, 1, baseLayer, layerCount));
+
+			VkImageSubresourceLayers subresourceLayers = BuildSubresourceLayers(level, 0, 1);
+
+			VkBufferImageCopy region = {
+				.bufferOffset = 0,
+				.bufferRowLength = 0,
+				.bufferImageHeight = 0,
+				.imageSubresource = subresourceLayers,
+				.imageOffset = {
+					SafeCast<Int32>(copyBox.x), SafeCast<Int32>(copyBox.y), SafeCast<Int32>(copyBox.z)
+				},
+				.imageExtent = {
+					copyBox.width, copyBox.height, copyBox.depth
+				}
+			};
+
+			vkCommandBuffer.CopyImageToBuffer(m_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, uploadBuffer->GetBuffer(), region);
+
+			vkCommandBuffer.SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, ToVulkan(textureLayout), BuildSubresourceRange(level, 1, baseLayer, layerCount));
+		});
+
+		Image resultImage(m_textureInfo.type, m_textureInfo.pixelFormat, ImageUtils::GetLevelSize(m_textureInfo.width, level), ImageUtils::GetLevelSize(m_textureInfo.height, level));
+		asyncTransfer.AddCompletionCallback([targetImage = std::move(resultImage), buffer = std::move(uploadBuffer), cb = std::move(callback)]() mutable
+		{
+			void* ptr = buffer->Map(0, Buffer::WholeSize);
+			std::memcpy(targetImage.GetPixels(0, 0), ptr, buffer->GetSize());
+			buffer->Unmap();
+
+			cb(std::move(targetImage));
+		});
+	}
+
 	GpuDevice* VulkanTexture::GetDevice()
 	{
 		return &m_device;
@@ -476,7 +546,6 @@ namespace Nz
 			// TODO have a better way to free buffer
 			delete buffer;
 		}); // Keep buffer alive
-
 		return true;
 	}
 

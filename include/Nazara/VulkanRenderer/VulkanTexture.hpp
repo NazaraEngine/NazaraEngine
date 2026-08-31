@@ -43,6 +43,9 @@ namespace Nz
 
 			std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) override;
 
+			Image Download(TextureLayout textureLayout, UInt8 level = 0) override;
+			void Download(GpuAsyncCommands& asyncTransfer, Nz::FunctionRef<void(Image&& resultImage)> callback, TextureLayout textureLayout, UInt8 level = 0) override;
+
 			GpuDevice* GetDevice() override;
 			const GpuDevice* GetDevice() const override;
 			inline PixelFormat GetFormat() const override;

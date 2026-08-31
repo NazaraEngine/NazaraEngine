@@ -69,6 +69,8 @@ namespace Nz::Vk
 			inline void CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, UInt32 regionCount, const VkBufferImageCopy* regions);
 			inline void CopyImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, const VkImageCopy& region);
 			inline void CopyImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, UInt32 regionCount, const VkImageCopy* regions);
+			inline void CopyImageToBuffer(VkImage srcImage, VkImageLayout srcImageLayout, VkBuffer dstBuffer, const VkBufferImageCopy& region);
+			inline void CopyImageToBuffer(VkImage srcImage, VkImageLayout srcImageLayout, VkBuffer dstBuffer, UInt32 regionCount, const VkBufferImageCopy* regions);
 
 			inline void Dispatch(UInt32 groupCountX, UInt32 groupCountY, UInt32 groupCountZ);
 

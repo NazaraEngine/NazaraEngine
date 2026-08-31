@@ -23,6 +23,7 @@
 #define GL_TEXTURE_CUBE_MAP_SEAMLESS       0x884F
 typedef void (GL_APIENTRYP PFNGLDRAWBUFFERPROC) (GLenum buf);
 typedef void (GL_APIENTRYP PFNGLPOLYGONMODEPROC) (GLenum face, GLenum mode);
+typedef void (GL_APIENTRYP PFNGLGETTEXIMAGEPROC) (GLenum target, GLint level, GLenum format, GLenum type, void* pixels);
 
 // Depth clamp (OpenGL 3.2)
 #define GL_DEPTH_CLAMP                     0x864F
