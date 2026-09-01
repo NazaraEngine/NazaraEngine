@@ -13,15 +13,15 @@ Nazara Engine is a cross-platform framework aimed at (but not limited to) real-t
 Features:
 - Supports Windows, Linux, macOS and the web (Android and iOS are coming).
 - 2D and 3D rendering using either Vulkan, OpenGL and OpenGL ES (depending on what's available on the target system).
-- Its own renderer-agnostic shader language (NZSL - Nazara Shading Language), a single modern language working with all renderer backends
+- Its own renderer-agnostic [shader language (NZSL - Nazara Shading Language)](https://github.com/NazaraEngine/ShaderLang), a single modern language working with all renderer backends.
 - Easy to customize graphics module providing basis for advanced techniques (such as deferred shading, HDR, PBR rendering and more).
 - A powerful and extensible frame graph system allowing you to easily define how your rendering works.
-- Builtin retained widgets (but ImGUI support is available through [NazaraImgui](https://github.com/SweetId/NazaraImgui).
-- Audio playback and streaming based on [OpenAL-Soft](https://www.openal-soft.org).
+- Builtin retained widgets (ImGUI support is available through an engine plugin).
+- Audio playback and streaming based on [miniaudio](https://miniaud.io).
 - 2D and 3D Physics integration (with [Chipmunk](https://chipmunk-physics.net) and [Jolt Physics](https://github.com/jrouwe/JoltPhysics)).
 - Optional ECS (Entity-Component-System) classes for helping with entity handling (based on the excellent [entt](https://github.com/skypjack/entt)).
-- A [ENet](https://github.com/lsalzman/enet)-based reliable UDP networking protocol, supporting IPv6 and encryption (check out [ENet6](https://github.com/SirLynix/enet6))
-- Support for plugins (with provided Assimp and FFMpeg plugins)
+- A [ENet](https://github.com/lsalzman/enet)-based reliable UDP networking protocol, supporting IPv6 and encryption (check out [ENet6](https://github.com/SirLynix/enet6)).
+- Support for plugins (with provided Assimp, ImGui and FFMpeg plugins).
 
 You can use it in any kind of commercial and non-commercial applications without any restriction ([MIT license](http://opensource.org/licenses/MIT)).
 
@@ -46,8 +46,8 @@ See [INSTALL.md](INSTALL.md) for build instructions.
 
 ## Links
 
+[Blusky](https://bsky.app/profile/sirlynix.be)  
 [Discord](https://discord.sirlynix.be/)  
-[X (Twitter)](https://twitter.com/SirLynix)  
 [Wiki](https://github.com/NazaraEngine/NazaraEngine/wiki)  
 
 ## Thanks to:
