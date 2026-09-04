@@ -185,13 +185,17 @@ int main(int argc, char* argv[])
 
 	auto deferredFrag = nzsl::ParseFromFile(shaderDir / "deferred_frag.nzsl");
 
+	const auto& renderQueueRegistry = Nz::Graphics::Instance()->GetRenderQueueRegistry();
+	
 	Nz::MaterialPass customForwardPass;
 	customForwardPass.states.depthBuffer = true;
+	customForwardPass.renderQueue = renderQueueRegistry.GetIndex("ForwardOpaque");
 	customForwardPass.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Fragment, deferredFrag));
 	customForwardPass.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Vertex, nzsl::ParseFromFile(shaderDir / "deferred_vert.nzsl")));
 	settings.AddPass("ForwardPass", customForwardPass);
 
 	Nz::MaterialPass customDepthPass = customForwardPass;
+	customDepthPass.renderQueue = renderQueueRegistry.GetIndex("DepthOpaque");
 	customDepthPass.options[Nz::CRC32("DepthPass")] = true;
 	settings.AddPass("DepthPass", customDepthPass);
 
@@ -252,11 +256,9 @@ int main(int argc, char* argv[])
 		worldMatrix.GetInverseTransform(Nz::AccessByOffset<Nz::Matrix4f*>(ptr, Nz::PredefinedInstanceOffsets.invWorldMatrixOffset));
 	};
 
-	Nz::UInt32 nextInstanceIndex = 0;
-
-	Nz::UInt32 modelInstance1 = nextInstanceIndex++;
-	Nz::UInt32 modelInstance2 = nextInstanceIndex++;
-	Nz::UInt32 planeInstance = nextInstanceIndex++;
+	Nz::UInt32 modelInstance1 = instanceBuffer.Push();
+	Nz::UInt32 modelInstance2 = instanceBuffer.Push();
+	Nz::UInt32 planeInstance = instanceBuffer.Push();
 
 	SetInstanceWorldMatrix(modelInstance1, Nz::Matrix4f::Translate(Nz::Vector3f::Left() + Nz::Vector3f::Up()));
 	SetInstanceWorldMatrix(modelInstance2, Nz::Matrix4f::Translate(Nz::Vector3f::Right() + Nz::Vector3f::Up()));
@@ -649,7 +651,7 @@ int main(int argc, char* argv[])
 
 	Nz::Vector3f flarePosition = { 0.f, 6.f, 100.f };
 
-	Nz::UInt32 flareInstance = nextInstanceIndex++;
+	Nz::UInt32 flareInstance = instanceBuffer.Push();
 	SetInstanceWorldMatrix(flareInstance, Nz::Matrix4f::Translate(flarePosition));
 
 	std::unique_ptr<Nz::ElementRendererData> submeshRendererData = submeshRenderer.InstanciateData();
