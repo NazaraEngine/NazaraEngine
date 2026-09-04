@@ -423,6 +423,8 @@ namespace Nz::GL
 				return false;
 			}
 
+			BindFramebuffer(FramebufferTarget::Read, m_fallbackFramebuffers->readFBO.GetObjectId());
+
 			Vector3ui textureSize = source.GetSize(level);
 			glReadPixels(0, 0, textureSize.x, textureSize.y, format->format, format->type, data);
 		}

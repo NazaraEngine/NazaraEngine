@@ -222,7 +222,21 @@ namespace Nz
 		ApplyBindings(*context, command.bindings);
 
 		GLenum primitiveMode = ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode);
-		if (command.baseVertex != 0)
+		if (command.firstInstance != 0 && command.baseVertex != 0)
+		{
+			if NAZARA_UNLIKELY(!context->glDrawElementsInstancedBaseVertexBaseInstance)
+				throw std::runtime_error("draw base instance is not supported on this device");
+
+			context->glDrawElementsInstancedBaseVertexBaseInstance(primitiveMode, command.indexCount, ToOpenGL(command.states.indexBufferType), origin, command.instanceCount, command.baseVertex, command.firstInstance);
+		}
+		else if (command.firstInstance != 0)
+		{
+			if NAZARA_UNLIKELY(!context->glDrawElementsInstancedBaseInstance)
+				throw std::runtime_error("draw base instance is not supported on this device");
+
+			context->glDrawElementsInstancedBaseInstance(primitiveMode, command.indexCount, ToOpenGL(command.states.indexBufferType), origin, command.instanceCount, command.firstInstance);
+		}
+		else if (command.baseVertex != 0)
 		{
 			if NAZARA_UNLIKELY(!context->glDrawElementsInstancedBaseVertex)
 				throw std::runtime_error("draw base vertex is not supported on this device");
