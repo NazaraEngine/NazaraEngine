@@ -1547,11 +1547,8 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		PixelFormatDescription::Bitmask b8(0xFF);
-		b8.Resize(128);
-
-		PixelFormatDescription::Bitmask b32(0xFFFFFFFF);
-		b32.Resize(128);
+		PixelFormatDescription::Bitmask b8(std::string_view("11111111" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000"));
+		PixelFormatDescription::Bitmask b32(std::string_view("11111111" "11111111" "11111111" "11111111" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000" "00000000"));
 
 		// Setup informations about every pixel format
 		s_pixelFormatInfos[PixelFormat::A8]         = PixelFormatDescription::Regular("A8",               PixelFormatContent::ColorRGBA,    0,                  0,                  0,                  0xFF,               PixelFormatDataType::UnsignedNormalized);
