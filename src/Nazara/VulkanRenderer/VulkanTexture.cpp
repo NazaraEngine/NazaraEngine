@@ -308,14 +308,14 @@ namespace Nz
 		};
 
 		VulkanAsyncCommands asyncTransfer(m_device, QueueType::Graphics);
-		Download(asyncTransfer, resultLambda, textureLayout, level);
+		Download(asyncTransfer, textureLayout, resultLambda, level);
 
 		m_device.SubmitAsyncCommandsAndWait(asyncTransfer);
 
 		return image;
 	}
 
-	void VulkanTexture::Download(GpuAsyncCommands& asyncTransfer, Nz::FunctionRef<void(Image&& resultImage)> callback, TextureLayout textureLayout, UInt8 level)
+	void VulkanTexture::Download(GpuAsyncCommands& asyncTransfer, TextureLayout textureLayout, std::function<void(Image&& resultImage)> callback, UInt8 level)
 	{
 		std::size_t memorySize = PixelFormatInfo::ComputeSize(m_textureViewInfo.pixelFormat, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth);
 
@@ -354,7 +354,7 @@ namespace Nz
 		});
 
 		Image resultImage(m_textureInfo.type, m_textureInfo.pixelFormat, ImageUtils::GetLevelSize(m_textureInfo.width, level), ImageUtils::GetLevelSize(m_textureInfo.height, level));
-		asyncTransfer.AddCompletionCallback([targetImage = std::move(resultImage), buffer = std::move(uploadBuffer), cb = std::move(callback)]() mutable
+		asyncTransfer.AddCompletionCallback([cb = std::move(callback), targetImage = std::move(resultImage), buffer = std::move(uploadBuffer)]() mutable
 		{
 			void* ptr = buffer->Map(0, Buffer::WholeSize);
 			std::memcpy(targetImage.GetPixels(0, 0), ptr, buffer->GetSize());

@@ -64,7 +64,7 @@ namespace Nz
 			virtual std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) = 0;
 
 			virtual Image Download(TextureLayout textureLayout, UInt8 level = 0) = 0;
-			virtual void Download(GpuAsyncCommands& asyncTransfer, Nz::FunctionRef<void(Image&& resultImage)> callback, TextureLayout textureLayout, UInt8 level = 0) = 0;
+			virtual void Download(GpuAsyncCommands& asyncTransfer, TextureLayout textureLayout, std::function<void(Image&& resultImage)> callback, UInt8 level = 0) = 0;
 
 			virtual GpuDevice* GetDevice() = 0;
 			virtual const GpuDevice* GetDevice() const = 0;

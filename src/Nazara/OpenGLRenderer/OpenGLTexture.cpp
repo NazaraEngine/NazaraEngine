@@ -140,7 +140,7 @@ namespace Nz
 		throw std::runtime_error("OpenGLTexture::Download is not yet implemented");
 	}
 
-	void OpenGLTexture::Download(GpuAsyncCommands& asyncTransfer, Nz::FunctionRef<void(Image&& resultImage)> callback, TextureLayout textureLayout, UInt8 level)
+	void OpenGLTexture::Download(GpuAsyncCommands& asyncTransfer, TextureLayout textureLayout, std::function<void(Image&& resultImage)> callback, UInt8 level)
 	{
 		throw std::runtime_error("OpenGLTexture::Download is not yet implemented");
 		// TODO
