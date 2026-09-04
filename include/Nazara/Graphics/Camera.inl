@@ -20,7 +20,7 @@ namespace Nz
 	m_zFar((projectionType == ProjectionType::Perspective) ? 1000.f : 1.f),
 	m_zNear((projectionType == ProjectionType::Perspective) ? 1.f : -1.f)
 	{
-		m_viewerInstance = std::make_unique<ViewerInstance>();
+		m_viewerInstance = std::make_shared<ViewerInstance>();
 		UpdateTarget(std::move(renderTarget));
 	}
 
@@ -41,31 +41,9 @@ namespace Nz
 	m_zFar(camera.m_zFar),
 	m_zNear(camera.m_zNear)
 	{
-		m_viewerInstance = std::make_unique<ViewerInstance>();
+		m_viewerInstance = std::make_shared<ViewerInstance>();
+		m_viewerInstance->CopyValues(*camera.m_viewerInstance);
 		UpdateTarget(camera.m_renderTarget);
-	}
-
-	inline Camera::Camera(Camera&& camera) noexcept :
-	m_framePipelinePasses(std::move(camera.m_framePipelinePasses)),
-	m_debugDrawer(std::move(camera.m_debugDrawer)),
-	m_viewerInstance(std::move(camera.m_viewerInstance)),
-	m_clearColor(camera.m_clearColor),
-	m_fov(camera.m_fov),
-	m_renderOrder(camera.m_renderOrder),
-	m_projectionType(camera.m_projectionType),
-	m_targetRegion(camera.m_targetRegion),
-	m_viewport(camera.m_viewport),
-	m_size(camera.m_size),
-	m_renderMask(camera.m_renderMask),
-	m_isInfiniteFarEnabled(camera.m_isInfiniteFarEnabled),
-	m_isReversedZEnabled(camera.m_isReversedZEnabled),
-	m_aspectRatio(camera.m_aspectRatio),
-	m_clearDepth(camera.m_clearDepth),
-	m_zFar(camera.m_zFar),
-	m_zNear(camera.m_zNear)
-	{
-		camera.m_viewerInstance = std::make_unique<ViewerInstance>();
-		UpdateTarget(std::move(camera.m_renderTarget));
 	}
 
 	inline void Camera::EnableInfiniteZFar(bool enable)
@@ -174,38 +152,9 @@ namespace Nz
 		m_zFar = camera.m_zFar;
 		m_zNear = camera.m_zNear;
 
+		m_viewerInstance->CopyValues(*camera.m_viewerInstance);
+
 		UpdateTarget(camera.m_renderTarget);
-
-		if (m_renderTarget)
-			UpdateViewport();
-		else
-			UpdateViewport(m_viewport);
-
-		return *this;
-	}
-
-	inline Camera& Camera::operator=(Camera&& camera) noexcept
-	{
-		m_framePipelinePasses = std::move(camera.m_framePipelinePasses);
-		m_viewerInstance = std::move(camera.m_viewerInstance);
-		m_clearColor = camera.m_clearColor;
-		m_fov = camera.m_fov;
-		m_renderOrder = camera.m_renderOrder;
-		m_projectionType = camera.m_projectionType;
-		m_targetRegion = camera.m_targetRegion;
-		m_viewport = camera.m_viewport;
-		m_size = camera.m_size;
-		m_renderMask = camera.m_renderMask;
-		m_isInfiniteFarEnabled = camera.m_isInfiniteFarEnabled;
-		m_isReversedZEnabled = camera.m_isReversedZEnabled;
-		m_aspectRatio = camera.m_aspectRatio;
-		m_clearDepth = camera.m_clearDepth;
-		m_zFar = camera.m_zFar;
-		m_zNear = camera.m_zNear;
-
-		UpdateTarget(std::move(camera.m_renderTarget));
-		camera.UpdateTarget({});
-		camera.m_viewerInstance = std::make_unique<ViewerInstance>();
 
 		if (m_renderTarget)
 			UpdateViewport();

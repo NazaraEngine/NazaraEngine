@@ -193,7 +193,7 @@ namespace Nz
 								},
 								{
 									2,
-									ShaderBinding::UniformBufferBinding::WholeBuffer(*shadowViewer.GetViewerInstance().GetViewerBuffer())
+									ShaderBinding::UniformBufferBinding::WholeBuffer(*shadowViewer.GetViewerInstance()->GetViewerBuffer())
 								}
 							});
 

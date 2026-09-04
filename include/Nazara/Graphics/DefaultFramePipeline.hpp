@@ -184,8 +184,8 @@ namespace Nz
 				std::size_t finalColorAttachment;
 				std::vector<std::unique_ptr<FramePipelinePass>> passes;
 				FrameData frame;
+				ViewerInstancePtr viewerInstance;
 				PipelineViewer* viewer;
-				ViewerInstance* viewerInstance;
 				Int32 renderOrder = 0;
 				ShaderBindingPtr blitShaderBinding;
 				UInt32 renderMask;

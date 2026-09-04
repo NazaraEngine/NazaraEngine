@@ -6,6 +6,22 @@
 
 namespace Nz
 {
+	inline void ViewerInstance::CopyValues(const ViewerInstance& source)
+	{
+		m_invProjectionMatrix = source.m_invProjectionMatrix;
+		m_invViewProjMatrix = source.m_invViewProjMatrix;
+		m_invViewMatrix = source.m_invViewMatrix;
+		m_projectionMatrix = source.m_projectionMatrix;
+		m_viewProjMatrix = source.m_viewProjMatrix;
+		m_viewMatrix = source.m_viewMatrix;
+		m_targetSize = source.m_targetSize;
+		m_eyePosition = source.m_eyePosition;
+		m_dataInvalidated = source.m_dataInvalidated;
+		m_isZReversed = source.m_isZReversed;
+		m_farPlane = source.m_farPlane;
+		m_nearPlane = source.m_nearPlane;
+	}
+
 	inline const Vector3f& ViewerInstance::GetEyePosition() const
 	{
 		return m_eyePosition;

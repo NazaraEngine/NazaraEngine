@@ -16,7 +16,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API ShadowViewer final : public AbstractViewer
 	{
 		public:
-			ShadowViewer() = default;
+			ShadowViewer();
 			ShadowViewer(const ShadowViewer&) = delete;
 			ShadowViewer(ShadowViewer&&) = delete;
 			~ShadowViewer() = default;
@@ -26,7 +26,7 @@ namespace Nz
 			DebugDrawer* GetDebugDrawer() override;
 			UInt32 GetRenderMask() const override;
 			const RenderTarget& GetRenderTarget() const override;
-			ViewerInstance& GetViewerInstance() override;
+			const ViewerInstancePtr& GetViewerInstance() override;
 			const ViewerInstance& GetViewerInstance() const override;
 			const Recti& GetViewport() const override;
 			float GetZFar() const override;
@@ -42,8 +42,8 @@ namespace Nz
 
 		private:
 			Recti m_viewport;
-			ViewerInstance m_viewerInstance;
 			UInt32 m_renderMask;
+			ViewerInstancePtr m_viewerInstance;
 	};
 }
 

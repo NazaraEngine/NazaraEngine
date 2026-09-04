@@ -44,7 +44,7 @@ namespace Nz
 	{
 		ForEachCascade([this](CascadeData& cascade)
 		{
-			m_pipeline.DequeueTransfer(&cascade.viewer.GetViewerInstance());
+			m_pipeline.DequeueTransfer(cascade.viewer.GetViewerInstance().get());
 		});
 	}
 
@@ -145,13 +145,13 @@ namespace Nz
 					0.5f, 0.5f, 0.0f, 1.0f
 				);
 
-				ViewerInstance& cascadeViewerInstance = cascade.viewer.GetViewerInstance();
-				cascade.viewProjMatrix = cascadeViewerInstance.GetViewProjMatrix() * biasMatrix;
+				const ViewerInstancePtr& cascadeViewerInstance = cascade.viewer.GetViewerInstance();
+				cascade.viewProjMatrix = cascadeViewerInstance->GetViewProjMatrix() * biasMatrix;
 
-				m_pipeline.QueueTransfer(&cascadeViewerInstance);
+				m_pipeline.QueueTransfer(cascadeViewerInstance.get());
 
 				// Prepare depth pass
-				Frustumf lightFrustum = Frustumf::Extract(cascadeViewerInstance.GetViewProjMatrix());
+				Frustumf lightFrustum = Frustumf::Extract(cascadeViewerInstance->GetViewProjMatrix());
 				lightFrustum.SetInfiniteNearPlane();
 				//m_pipeline.GetDebugDrawer().DrawFrustum(lightFrustum, cascadeColors[cascadeIndex]);
 			}
@@ -160,7 +160,7 @@ namespace Nz
 
 	void DirectionalLightShadowData::ComputeLightView(CascadeData& cascade, const Frustumf& cascadeFrustum, float cascadeDist)
 	{
-		ViewerInstance& shadowViewer = cascade.viewer.GetViewerInstance();
+		const ViewerInstancePtr& shadowViewer = cascade.viewer.GetViewerInstance();
 
 		EnumArray<BoxCorner, Vector3f> frustumCorners = cascadeFrustum.ComputeCorners();
 
@@ -218,27 +218,27 @@ namespace Nz
 
 		Matrix4f lightProj = Matrix4f::Ortho(left, right, top, bottom, zNear, zFar);
 
-		shadowViewer.UpdateProjViewMatrices(lightProj, lightView);
-		shadowViewer.UpdateEyePosition(frustumCenter);
-		shadowViewer.UpdateNearFarPlanes(Infinity(), zFar);
+		shadowViewer->UpdateProjViewMatrices(lightProj, lightView);
+		shadowViewer->UpdateEyePosition(frustumCenter);
+		shadowViewer->UpdateNearFarPlanes(Infinity(), zFar);
 	}
 
 	void DirectionalLightShadowData::StabilizeShadows(CascadeData& cascade)
 	{
-		ViewerInstance& shadowViewer = cascade.viewer.GetViewerInstance();
+		const ViewerInstancePtr& shadowViewer = cascade.viewer.GetViewerInstance();
 
 		// Stabilize cascade shadows by keeping the center to a texel boundary
 		// see Michal Valient's article "Stable Cascaded Shadow Maps"
-		Vector4f shadowOrigin = shadowViewer.GetViewProjMatrix() * Vector4f(0.f, 0.f, 0.f, 1.f);
+		Vector4f shadowOrigin = shadowViewer->GetViewProjMatrix() * Vector4f(0.f, 0.f, 0.f, 1.f);
 		shadowOrigin *= m_invTexelScale;
 
 		Vector2f roundedOrigin = { std::round(shadowOrigin.x), std::round(shadowOrigin.y) };
 		Vector2f roundOffset = roundedOrigin - Vector2f(shadowOrigin);
 		roundOffset *= m_texelScale;
 
-		Matrix4f lightProj = shadowViewer.GetProjectionMatrix();
+		Matrix4f lightProj = shadowViewer->GetProjectionMatrix();
 		lightProj.ApplyTranslation(Vector3f(roundOffset.x, roundOffset.y, 0.f));
-		shadowViewer.UpdateProjectionMatrix(lightProj);
+		shadowViewer->UpdateProjectionMatrix(lightProj);
 	}
 
 	void DirectionalLightShadowData::RegisterToAtlas(ShadowAtlas& atlas)

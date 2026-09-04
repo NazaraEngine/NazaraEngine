@@ -226,7 +226,7 @@ namespace Nz
 		{
 			env.renderResources.PushForRelease(std::move(m_commonShaderBinding));
 
-			const auto& viewerBuffer = m_viewer->GetViewerInstance().GetViewerBuffer();
+			const auto& viewerBuffer = m_viewer->GetViewerInstance()->GetViewerBuffer();
 
 			StackVector<ShaderBinding::Binding> bindings = NazaraStackVector(ShaderBinding::Binding, inputCount + 1);
 			bindings.push_back({

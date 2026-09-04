@@ -24,20 +24,20 @@ namespace Nz
 
 		constexpr float zNear = 0.01f;
 
-		ViewerInstance& viewerInstance = m_viewer.GetViewerInstance();
-		viewerInstance.UpdateEyePosition(m_light.GetPosition());
-		viewerInstance.UpdateProjectionMatrix(Matrix4f::Perspective(m_light.GetOuterAngle() * 2.f, 1.f, zNear, m_light.GetRadius()));
-		viewerInstance.UpdateNearFarPlanes(zNear, m_light.GetRadius());
-		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(m_light.GetPosition(), m_light.GetRotation()));
-		m_pipeline.QueueTransfer(&viewerInstance);
+		const ViewerInstancePtr& viewerInstance = m_viewer.GetViewerInstance();
+		viewerInstance->UpdateEyePosition(m_light.GetPosition());
+		viewerInstance->UpdateProjectionMatrix(Matrix4f::Perspective(m_light.GetOuterAngle() * 2.f, 1.f, zNear, m_light.GetRadius()));
+		viewerInstance->UpdateNearFarPlanes(zNear, m_light.GetRadius());
+		viewerInstance->UpdateViewMatrix(Nz::Matrix4f::TransformInverse(m_light.GetPosition(), m_light.GetRotation()));
+		m_pipeline.QueueTransfer(viewerInstance.get());
 
 		m_onLightDataInvalidated.Connect(m_light.OnLightDataInvalidated, [this]([[maybe_unused]] Light* light)
 		{
 			assert(&m_light == light);
 
-			ViewerInstance& viewerInstance = m_viewer.GetViewerInstance();
-			viewerInstance.UpdateProjectionMatrix(Matrix4f::Perspective(m_light.GetOuterAngle() * 2.f, 1.f, zNear, m_light.GetRadius()));
-			viewerInstance.UpdateNearFarPlanes(zNear, m_light.GetRadius());
+			const ViewerInstancePtr& viewerInstance = m_viewer.GetViewerInstance();
+			viewerInstance->UpdateProjectionMatrix(Matrix4f::Perspective(m_light.GetOuterAngle() * 2.f, 1.f, zNear, m_light.GetRadius()));
+			viewerInstance->UpdateNearFarPlanes(zNear, m_light.GetRadius());
 		});
 
 		m_onLightShadowMapSettingChange.Connect(m_light.OnLightShadowMapSettingChange, [this](Light* /*light*/, PixelFormat /*newPixelFormat*/, UInt32 newSize)
@@ -49,18 +49,18 @@ namespace Nz
 		{
 			assert(&m_light == light);
 
-			ViewerInstance& viewerInstance = m_viewer.GetViewerInstance();
-			viewerInstance.UpdateEyePosition(m_light.GetPosition());
-			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(m_light.GetPosition(), m_light.GetRotation()));
+			const ViewerInstancePtr& viewerInstance = m_viewer.GetViewerInstance();
+			viewerInstance->UpdateEyePosition(m_light.GetPosition());
+			viewerInstance->UpdateViewMatrix(Nz::Matrix4f::TransformInverse(m_light.GetPosition(), m_light.GetRotation()));
 
-			m_pipeline.QueueTransfer(&viewerInstance);
+			m_pipeline.QueueTransfer(viewerInstance.get());
 		});
 	}
 
 	SpotLightShadowData::~SpotLightShadowData()
 	{
-		ViewerInstance& viewerInstance = m_viewer.GetViewerInstance();
-		m_pipeline.DequeueTransfer(&viewerInstance);
+		const ViewerInstancePtr& viewerInstance = m_viewer.GetViewerInstance();
+		m_pipeline.DequeueTransfer(viewerInstance.get());
 	}
 
 	void SpotLightShadowData::ForEachView(FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback)

@@ -71,10 +71,10 @@ int main()
 	camera.UpdateClearColor(Nz::Color::Gray());
 	camera.UpdateClearDepth(0.f);
 
-	Nz::ViewerInstance& viewerInstance = camera.GetViewerInstance();
-	viewerInstance.UpdateTargetSize(Nz::Vector2f(window.GetSize()));
-	viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, Nz::Infinity()), Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1));
-	viewerInstance.UpdateNearFarPlanes(0.1f, 1000.f, true);
+	const Nz::ViewerInstancePtr& viewerInstance = camera.GetViewerInstance();
+	viewerInstance->UpdateTargetSize(Nz::Vector2f(window.GetSize()));
+	viewerInstance->UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, Nz::Infinity()), Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1));
+	viewerInstance->UpdateNearFarPlanes(0.1f, 1000.f, true);
 
 	Nz::Recti scissorBox(Nz::Vector2i::Zero(), Nz::Vector2i(window.GetSize()));
 
@@ -155,8 +155,8 @@ int main()
 			case Nz::WindowEventType::Resized:
 			{
 				Nz::Vector2ui newWindowSize = window.GetSize();
-				viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(newWindowSize.x) / newWindowSize.y, 0.1f, 1000.f));
-				viewerInstance.UpdateTargetSize(Nz::Vector2f(newWindowSize));
+				viewerInstance->UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(newWindowSize.x) / newWindowSize.y, 0.1f, 1000.f));
+				viewerInstance->UpdateTargetSize(Nz::Vector2f(newWindowSize));
 				break;
 			}
 
@@ -216,8 +216,8 @@ int main()
 			debugDrawer->DrawBox(aabb, Nz::Color::Green());
 		}*/
 
-		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camAngles));
-		viewerInstance.UpdateEyePosition(viewerPos);
+		viewerInstance->UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camAngles));
+		viewerInstance->UpdateEyePosition(viewerPos);
 
 		framePipeline.Render(frame);
 

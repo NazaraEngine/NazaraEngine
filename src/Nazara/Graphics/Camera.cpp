@@ -53,9 +53,9 @@ namespace Nz
 		return* m_renderTarget;
 	}
 
-	ViewerInstance& Camera::GetViewerInstance()
+	const ViewerInstancePtr& Camera::GetViewerInstance()
 	{
-		return *m_viewerInstance;
+		return m_viewerInstance;
 	}
 
 	const ViewerInstance& Camera::GetViewerInstance() const

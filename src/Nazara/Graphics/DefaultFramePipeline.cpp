@@ -356,7 +356,7 @@ namespace Nz
 		auto& viewerData = *m_viewerPool.Allocate(viewerIndex);
 		viewerData.renderOrder = renderOrder;
 		viewerData.viewer = viewer;
-		viewerData.viewerInstance = &viewer->GetViewerInstance();
+		viewerData.viewerInstance = viewer->GetViewerInstance();
 		viewerData.onTransferRequired.Connect(viewerData.viewerInstance->OnTransferRequired, [this](TransferInterface* transferInterface)
 		{
 			m_transferSet.insert(transferInterface);
@@ -395,7 +395,7 @@ namespace Nz
 
 		viewerData.passes = viewer->BuildPasses(passData);
 
-		m_transferSet.insert(&viewer->GetViewerInstance());
+		m_transferSet.insert(viewer->GetViewerInstance().get());
 
 		viewerData.renderMask = viewer->GetRenderMask();
 		for (std::size_t i : m_shadowCastingLights.IterBits())
@@ -482,7 +482,7 @@ namespace Nz
 		for (ViewerData* viewerData : m_orderedViewers)
 		{
 			// Extract frustum from viewproj matrix
-			const Matrix4f& viewProjMatrix = viewerData->viewer->GetViewerInstance().GetViewProjMatrix();
+			const Matrix4f& viewProjMatrix = viewerData->viewer->GetViewerInstance()->GetViewProjMatrix();
 			viewerData->frame.frustum = Frustumf::Extract(viewProjMatrix, viewerData->viewer->IsZReversed());
 
 			viewerData->frame.visibleLights.Clear();
@@ -613,7 +613,7 @@ namespace Nz
 		});
 
 		viewerData.onTransferRequired.Disconnect();
-		m_transferSet.erase(viewerData.viewerInstance);
+		m_transferSet.erase(viewerData.viewerInstance.get());
 
 		for (std::size_t i : m_shadowCastingLights.IterBits())
 		{
@@ -823,7 +823,7 @@ namespace Nz
 					}
 
 					// Sort render queues depending on viewer position
-					Vector3f camPos = viewer->GetViewerInstance().GetEyePosition();
+					Vector3f camPos = viewer->GetViewerInstance()->GetEyePosition();
 					for (auto& renderQueuePtr : m_renderQueues)
 					{
 						if (renderQueuePtr && renderQueuePtr->GetFlags() & RenderQueueFlag::SortByDistance)

@@ -97,13 +97,13 @@ namespace Nz
 			viewer.UpdateRenderMask(0xFFFFFFFF);
 			viewer.UpdateViewport(Recti(0, 0, SafeCast<int>(shadowMapSize), SafeCast<int>(shadowMapSize)));
 
-			ViewerInstance& viewerInstance = viewer.GetViewerInstance();
-			viewerInstance.UpdateEyePosition(m_light.GetPosition());
-			viewerInstance.UpdateNearFarPlanes(zNear, m_light.GetRadius());
-			viewerInstance.UpdateProjectionMatrix(projectionMatrix);
-			viewerInstance.UpdateViewMatrix(BuildViewMatrix(m_light.GetPosition(), i));
+			const ViewerInstancePtr& viewerInstance = viewer.GetViewerInstance();
+			viewerInstance->UpdateEyePosition(m_light.GetPosition());
+			viewerInstance->UpdateNearFarPlanes(zNear, m_light.GetRadius());
+			viewerInstance->UpdateProjectionMatrix(projectionMatrix);
+			viewerInstance->UpdateViewMatrix(BuildViewMatrix(m_light.GetPosition(), i));
 
-			m_pipeline.QueueTransfer(&viewerInstance);
+			m_pipeline.QueueTransfer(viewerInstance.get());
 		}
 
 		m_onLightDataInvalidated.Connect(m_light.OnLightDataInvalidated, [this]([[maybe_unused]] Light* light)
@@ -116,11 +116,11 @@ namespace Nz
 			{
 				DirectionData& direction = m_directions[i];
 
-				ViewerInstance& viewerInstance = direction.viewer.GetViewerInstance();
-				viewerInstance.UpdateProjectionMatrix(projectionMatrix);
-				viewerInstance.UpdateNearFarPlanes(zNear, m_light.GetRadius());
+				const ViewerInstancePtr& viewerInstance = direction.viewer.GetViewerInstance();
+				viewerInstance->UpdateProjectionMatrix(projectionMatrix);
+				viewerInstance->UpdateNearFarPlanes(zNear, m_light.GetRadius());
 
-				m_pipeline.QueueTransfer(&viewerInstance);
+				m_pipeline.QueueTransfer(viewerInstance.get());
 			}
 		});
 
@@ -138,11 +138,11 @@ namespace Nz
 			{
 				DirectionData& direction = m_directions[i];
 
-				ViewerInstance& viewerInstance = direction.viewer.GetViewerInstance();
-				viewerInstance.UpdateEyePosition(m_light.GetPosition());
-				viewerInstance.UpdateViewMatrix(BuildViewMatrix(m_light.GetPosition(), i));
+				const ViewerInstancePtr& viewerInstance = direction.viewer.GetViewerInstance();
+				viewerInstance->UpdateEyePosition(m_light.GetPosition());
+				viewerInstance->UpdateViewMatrix(BuildViewMatrix(m_light.GetPosition(), i));
 
-				m_pipeline.QueueTransfer(&viewerInstance);
+				m_pipeline.QueueTransfer(viewerInstance.get());
 			}
 		});
 	}
@@ -152,8 +152,8 @@ namespace Nz
 		// Remove shadow viewers from the transfer set since they are about to be destroyed
 		for (std::size_t i = 0; i < m_directions.size(); ++i)
 		{
-			ViewerInstance& viewerInstance = m_directions[i].viewer.GetViewerInstance();
-			m_pipeline.DequeueTransfer(&viewerInstance);
+			const ViewerInstancePtr& viewerInstance = m_directions[i].viewer.GetViewerInstance();
+			m_pipeline.DequeueTransfer(viewerInstance.get());
 		}
 	}
 

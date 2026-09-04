@@ -27,7 +27,7 @@ namespace Nz
 			inline Camera(std::shared_ptr<const RenderTarget> renderTarget, std::shared_ptr<PipelinePassList> pipelinePasses, ProjectionType projectionType = ProjectionType::Perspective);
 			Camera(std::shared_ptr<const RenderTarget> renderTarget, ProjectionType projectionType = ProjectionType::Perspective);
 			inline Camera(const Camera& camera);
-			inline Camera(Camera&& camera) noexcept;
+			Camera(Camera&& camera) = delete;
 			~Camera() = default;
 
 			DebugDrawer* AccessDebugDrawer();
@@ -47,7 +47,7 @@ namespace Nz
 			const RenderTarget& GetRenderTarget() const override;
 			inline const Vector2f& GetSize() const;
 			inline const Rectf& GetTargetRegion() const;
-			ViewerInstance& GetViewerInstance() override;
+			const ViewerInstancePtr& GetViewerInstance() override;
 			const ViewerInstance& GetViewerInstance() const override;
 			const Recti& GetViewport() const override;
 			float GetZFar() const override;
@@ -74,7 +74,7 @@ namespace Nz
 			inline void UpdateZNear(float zNear);
 
 			inline Camera& operator=(const Camera& camera);
-			inline Camera& operator=(Camera&& camera) noexcept;
+			Camera& operator=(Camera&& camera) = delete;
 
 			NazaraSignal(OnCameraRenderOrderUpdated, Camera* /*camera*/, Int32 /*newRenderOrder*/);
 
@@ -91,7 +91,6 @@ namespace Nz
 			std::shared_ptr<PipelinePassList> m_framePipelinePasses;
 			std::shared_ptr<const RenderTarget> m_renderTarget;
 			std::unique_ptr<DebugDrawer> m_debugDrawer;
-			std::unique_ptr<ViewerInstance> m_viewerInstance;
 			Color m_clearColor;
 			DegreeAnglef m_fov;
 			Int32 m_renderOrder;
@@ -99,6 +98,7 @@ namespace Nz
 			Rectf m_targetRegion;
 			Recti m_viewport;
 			Vector2f m_size;
+			ViewerInstancePtr m_viewerInstance;
 			UInt32 m_renderMask;
 			bool m_isInfiniteFarEnabled;
 			bool m_isReversedZEnabled;

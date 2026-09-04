@@ -130,7 +130,7 @@ namespace Nz
 						},
 						{
 							2,
-							Nz::ShaderBinding::UniformBufferBinding::WholeBuffer(*m_viewer->GetViewerInstance().GetViewerBuffer())
+							Nz::ShaderBinding::UniformBufferBinding::WholeBuffer(*m_viewer->GetViewerInstance()->GetViewerBuffer())
 						}
 					});
 

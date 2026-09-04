@@ -241,7 +241,7 @@ int main(int argc, char* argv[])
 	viewer.UpdateNearFarPlanes(0.1f, 1000.f);
 	viewer.UpdateFOV(70.f);
 
-	Nz::ViewerInstance& viewerInstance = viewer.GetViewerInstance();
+	const Nz::ViewerInstancePtr& viewerInstance = viewer.GetViewerInstance();
 
 	Nz::GpuDynamicArray instanceBuffer(*device, Nz::PredefinedInstanceOffsets.totalSize);
 
@@ -604,8 +604,8 @@ int main(int argc, char* argv[])
 		{
 			0,
 			Nz::ShaderBinding::UniformBufferBinding {
-				viewerInstance.GetViewerBuffer().get(),
-				0, viewerInstance.GetViewerBuffer()->GetSize()
+				viewerInstance->GetViewerBuffer().get(),
+				0, viewerInstance->GetViewerBuffer()->GetSize()
 			}
 		},
 		{
@@ -1208,7 +1208,7 @@ int main(int argc, char* argv[])
 			case Nz::WindowEventType::Resized:
 			{
 				Nz::Vector2ui newSize = window.GetSize();
-				viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(newSize.x) / newSize.y, 0.1f, 1000.f));
+				viewerInstance->UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(newSize.x) / newSize.y, 0.1f, 1000.f));
 				break;
 			}
 
@@ -1249,7 +1249,7 @@ int main(int argc, char* argv[])
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RControl))
 				viewerPos += Nz::Vector3f::Down() * cameraSpeed;
 
-			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camQuat));
+			viewerInstance->UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camQuat));
 		}
 
 		Nz::RenderFrame frame = windowSwapchain.AcquireFrame();
@@ -1272,8 +1272,8 @@ int main(int argc, char* argv[])
 				{
 					0,
 					Nz::ShaderBinding::UniformBufferBinding {
-						viewerInstance.GetViewerBuffer().get(),
-						0, viewerInstance.GetViewerBuffer()->GetSize()
+						viewerInstance->GetViewerBuffer().get(),
+						0, viewerInstance->GetViewerBuffer()->GetSize()
 					}
 				},
 				{
@@ -1325,8 +1325,8 @@ int main(int argc, char* argv[])
 				{
 					0,
 					Nz::ShaderBinding::UniformBufferBinding {
-						viewerInstance.GetViewerBuffer().get(),
-						0, viewerInstance.GetViewerBuffer()->GetSize()
+						viewerInstance->GetViewerBuffer().get(),
+						0, viewerInstance->GetViewerBuffer()->GetSize()
 					}
 				},
 				{
@@ -1350,8 +1350,8 @@ int main(int argc, char* argv[])
 						{
 							0,
 							Nz::ShaderBinding::UniformBufferBinding {
-								viewerInstance.GetViewerBuffer().get(),
-								0, viewerInstance.GetViewerBuffer()->GetSize()
+								viewerInstance->GetViewerBuffer().get(),
+								0, viewerInstance->GetViewerBuffer()->GetSize()
 							}
 						},
 						{
@@ -1378,8 +1378,8 @@ int main(int argc, char* argv[])
 					{
 						0,
 						Nz::ShaderBinding::UniformBufferBinding {
-							viewerInstance.GetViewerBuffer().get(),
-							0, viewerInstance.GetViewerBuffer()->GetSize()
+							viewerInstance->GetViewerBuffer().get(),
+							0, viewerInstance->GetViewerBuffer()->GetSize()
 						}
 					},
 					/*{
@@ -1432,8 +1432,8 @@ int main(int argc, char* argv[])
 				{
 					0,
 					Nz::ShaderBinding::UniformBufferBinding {
-						viewerInstance.GetViewerBuffer().get(),
-						0, viewerInstance.GetViewerBuffer()->GetSize()
+						viewerInstance->GetViewerBuffer().get(),
+						0, viewerInstance->GetViewerBuffer()->GetSize()
 					}
 				},
 				{
@@ -1459,8 +1459,8 @@ int main(int argc, char* argv[])
 				{
 					0,
 					Nz::ShaderBinding::UniformBufferBinding {
-						viewerInstance.GetViewerBuffer().get(),
-						0, viewerInstance.GetViewerBuffer()->GetSize()
+						viewerInstance->GetViewerBuffer().get(),
+						0, viewerInstance->GetViewerBuffer()->GetSize()
 					}
 				},
 				{
@@ -1479,8 +1479,8 @@ int main(int argc, char* argv[])
 				{
 					0,
 					Nz::ShaderBinding::UniformBufferBinding {
-						viewerInstance.GetViewerBuffer().get(),
-						0, viewerInstance.GetViewerBuffer()->GetSize()
+						viewerInstance->GetViewerBuffer().get(),
+						0, viewerInstance->GetViewerBuffer()->GetSize()
 					}
 				},
 				/*{
@@ -1528,7 +1528,7 @@ int main(int argc, char* argv[])
 
 				instanceBuffer.OnTransfer(frame, builder);
 
-				viewerInstance.OnTransfer(frame, builder);
+				viewerInstance->OnTransfer(frame, builder);
 
 				// Update light buffer
 				if (!spotLights.empty() && (lightUpdate || lightAnimation))
@@ -1564,8 +1564,8 @@ int main(int argc, char* argv[])
 				// Update light scattering buffer
 				{
 					Nz::Vector4f pos(viewerPos + flarePosition, 1.f);
-					pos = viewerInstance.GetViewMatrix() * pos;
-					pos = viewerInstance.GetProjectionMatrix() * pos;
+					pos = viewerInstance->GetViewMatrix() * pos;
+					pos = viewerInstance->GetProjectionMatrix() * pos;
 					pos /= pos.w;
 
 					Nz::Vector2f& lightPosition = Nz::AccessByOffset<Nz::Vector2f&>(godRaysData.data(), gr_lightPositionOffset);

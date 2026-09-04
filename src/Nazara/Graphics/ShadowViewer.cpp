@@ -6,6 +6,11 @@
 
 namespace Nz
 {
+	ShadowViewer::ShadowViewer()
+	{
+		m_viewerInstance = std::make_shared<ViewerInstance>();
+	}
+
 	const Color& ShadowViewer::GetClearColor() const
 	{
 		throw std::runtime_error("no clear color");
@@ -31,14 +36,14 @@ namespace Nz
 		throw std::runtime_error("no render target");
 	}
 
-	ViewerInstance& ShadowViewer::GetViewerInstance()
+	const ViewerInstancePtr& ShadowViewer::GetViewerInstance()
 	{
 		return m_viewerInstance;
 	}
 
 	const ViewerInstance& ShadowViewer::GetViewerInstance() const
 	{
-		return m_viewerInstance;
+		return *m_viewerInstance;
 	}
 
 	const Recti& ShadowViewer::GetViewport() const
@@ -48,12 +53,12 @@ namespace Nz
 
 	float ShadowViewer::GetZFar() const
 	{
-		return m_viewerInstance.GetFarPlane();
+		return m_viewerInstance->GetFarPlane();
 	}
 
 	float ShadowViewer::GetZNear() const
 	{
-		return m_viewerInstance.GetNearPlane();
+		return m_viewerInstance->GetNearPlane();
 	}
 
 	bool ShadowViewer::IsZReversed() const

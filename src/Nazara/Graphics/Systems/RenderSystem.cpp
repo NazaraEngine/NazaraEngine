@@ -445,9 +445,9 @@ namespace Nz
 
 			Vector3f cameraPosition = entityNode.GetGlobalPosition();
 
-			ViewerInstance& viewerInstance = entityCamera.GetViewerInstance();
-			viewerInstance.UpdateEyePosition(cameraPosition);
-			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(cameraPosition, entityNode.GetGlobalRotation()), Nz::Matrix4f::Transform(cameraPosition, entityNode.GetGlobalRotation()));
+			const ViewerInstancePtr& viewerInstance = entityCamera.GetViewerInstance();
+			viewerInstance->UpdateEyePosition(cameraPosition);
+			viewerInstance->UpdateViewMatrix(Nz::Matrix4f::TransformInverse(cameraPosition, entityNode.GetGlobalRotation()), Nz::Matrix4f::Transform(cameraPosition, entityNode.GetGlobalRotation()));
 		}
 		m_invalidatedCameraNode.clear();
 

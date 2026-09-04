@@ -16,11 +16,14 @@
 
 namespace Nz
 {
+	class GpuBuffer;
 	class GpuCommandBufferBuilder;
+	class GpuUploadPool;
 	class Material;
 	class MaterialSettings;
-	class GpuBuffer;
-	class GpuUploadPool;
+	class ViewerInstance;
+
+	using ViewerInstancePtr = std::shared_ptr<ViewerInstance>;
 
 	class NAZARA_GRAPHICS_API ViewerInstance : public TransferInterface
 	{
@@ -29,6 +32,8 @@ namespace Nz
 			ViewerInstance(const ViewerInstance&) = delete;
 			ViewerInstance(ViewerInstance&&) noexcept = default;
 			~ViewerInstance() = default;
+
+			inline void CopyValues(const ViewerInstance& source);
 
 			inline const Vector3f& GetEyePosition() const;
 			inline float GetFarPlane() const;

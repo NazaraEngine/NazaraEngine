@@ -17,7 +17,7 @@ namespace Nz
 		if (!debugDrawer)
 			return;
 
-		debugDrawer->SetViewerData(m_viewer->GetViewerInstance().GetViewProjMatrix());
+		debugDrawer->SetViewerData(m_viewer->GetViewerInstance()->GetViewProjMatrix());
 		debugDrawer->Prepare(frameData.renderResources);
 
 		frameData.renderResources.Execute([&](GpuCommandBufferBuilder& builder)
