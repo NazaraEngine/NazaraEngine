@@ -1313,7 +1313,7 @@ namespace Nz
 		return LoadFaceFromImage(face, *image);
 	}
 
-	bool Image::SaveToFile(const std::filesystem::path& filePath, const ImageParams& params)
+	bool Image::SaveToFile(const std::filesystem::path& filePath, const ImageParams& params) const
 	{
 		Core* core = Core::Instance();
 		NazaraAssertMsg(core, "Core module has not been initialized");
@@ -1321,7 +1321,7 @@ namespace Nz
 		return core->GetImageSaver().SaveToFile(*this, filePath, params);
 	}
 
-	bool Image::SaveToStream(Stream& stream, std::string_view format, const ImageParams& params)
+	bool Image::SaveToStream(Stream& stream, std::string_view format, const ImageParams& params) const
 	{
 		Core* core = Core::Instance();
 		NazaraAssertMsg(core, "Core module has not been initialized");

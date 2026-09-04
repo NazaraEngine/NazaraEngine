@@ -113,8 +113,8 @@ namespace Nz
 			bool LoadFaceFromStream(CubemapFace face, Stream& stream, const ImageParams& params = ImageParams());
 
 			// Save
-			bool SaveToFile(const std::filesystem::path& filePath, const ImageParams& params = ImageParams());
-			bool SaveToStream(Stream& stream, std::string_view format, const ImageParams& params = ImageParams());
+			bool SaveToFile(const std::filesystem::path& filePath, const ImageParams& params = ImageParams()) const;
+			bool SaveToStream(Stream& stream, std::string_view format, const ImageParams& params = ImageParams()) const;
 
 			//TODO: SaveArray, SaveCubemap, SaveFace
 
