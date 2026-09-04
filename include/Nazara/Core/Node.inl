@@ -561,6 +561,9 @@ namespace Nz
 
 	inline Node& Node::operator=(Node&& node) noexcept
 	{
+		if (&node == this)
+			return *this;
+
 		if (m_parent)
 			SetParent(nullptr);
 

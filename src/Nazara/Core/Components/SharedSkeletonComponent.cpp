@@ -43,6 +43,9 @@ namespace Nz
 
 	SharedSkeletonComponent& SharedSkeletonComponent::operator=(SharedSkeletonComponent&& sharedSkeletalComponent) noexcept
 	{
+		if (&sharedSkeletalComponent == this)
+			return *this;
+
 		SkeletonComponentBase::operator=(std::move(sharedSkeletalComponent));
 
 		m_attachedSkeleton = std::move(sharedSkeletalComponent.m_attachedSkeleton);
