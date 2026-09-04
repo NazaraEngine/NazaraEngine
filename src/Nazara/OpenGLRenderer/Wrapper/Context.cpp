@@ -62,7 +62,7 @@ namespace Nz::GL
 		};
 	}
 
-	struct Context::BlitFramebuffers
+	struct Context::FallbackFramebuffers
 	{
 		GL::Framebuffer drawFBO;
 		GL::Framebuffer readFBO;
@@ -310,68 +310,25 @@ namespace Nz::GL
 
 	bool Context::BlitTexture(const OpenGLTexture& source, const OpenGLTexture& destination, const Boxui& srcBox, const Boxui& dstBox, SamplerFilter filter) const
 	{
-		if (!m_blitFramebuffers && !InitializeBlitFramebuffers())
+		if (!m_fallbackFramebuffers && !InitializeFallbackFramebuffers())
 			return false;
 
 		// Bind framebuffers before configuring them (so they won't override each other)
-		BindFramebuffer(FramebufferTarget::Draw, m_blitFramebuffers->drawFBO.GetObjectId());
-		BindFramebuffer(FramebufferTarget::Read, m_blitFramebuffers->readFBO.GetObjectId());
-
-		auto BindTexture = [](GL::Framebuffer& framebuffer, const OpenGLTexture& texture)
-		{
-			if (texture.RequiresTextureViewEmulation())
-			{
-				const TextureViewInfo& texViewInfo = texture.GetTextureViewInfo();
-				if (texViewInfo.viewType != ImageType::E2D)
-					throw std::runtime_error("unrestricted texture views can only be used as 2D texture attachment");
-
-				const OpenGLTexture& parentTexture = *texture.GetParentTexture();
-
-				switch (parentTexture.GetType())
-				{
-					case ImageType::Cubemap:
-					{
-						constexpr std::array<GLenum, 6> faceTargets = { GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
-						assert(texViewInfo.baseArrayLayer < faceTargets.size());
-
-						GLenum texTarget = faceTargets[texViewInfo.baseArrayLayer];
-						framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, texTarget, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
-						break;
-					}
-
-					case ImageType::E1D:
-					case ImageType::E2D:
-						framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
-						break;
-
-					case ImageType::E1D_Array:
-					case ImageType::E2D_Array:
-					case ImageType::E3D:
-						framebuffer.TextureLayer(GL_COLOR_ATTACHMENT0, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel, texViewInfo.baseArrayLayer);
-						break;
-				}
-			}
-			else
-			{
-				if (texture.GetTexture().GetTarget() != TextureTarget::Target2D)
-					throw std::runtime_error("blit is not yet supported from/to other texture type than 2D textures");
-
-				framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.GetTexture().GetObjectId(), 0);
-			}
-		};
+		BindFramebuffer(FramebufferTarget::Draw, m_fallbackFramebuffers->drawFBO.GetObjectId());
+		BindFramebuffer(FramebufferTarget::Read, m_fallbackFramebuffers->readFBO.GetObjectId());
 
 		// Attach textures to color attachment
-		BindTexture(m_blitFramebuffers->readFBO, source);
-		BindTexture(m_blitFramebuffers->drawFBO, destination);
+		BindTexture(m_fallbackFramebuffers->readFBO, source);
+		BindTexture(m_fallbackFramebuffers->drawFBO, destination);
 
 		// Validate framebuffer completeness
-		if (GLenum checkResult = m_blitFramebuffers->drawFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
+		if (GLenum checkResult = m_fallbackFramebuffers->drawFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
 		{
 			NazaraError("blit draw FBO is incomplete: {0}", TranslateOpenGLError(checkResult));
 			return false;
 		}
 
-		if (GLenum checkResult = m_blitFramebuffers->readFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
+		if (GLenum checkResult = m_fallbackFramebuffers->readFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
 		{
 			NazaraError("blit read FBO is incomplete: {0}", TranslateOpenGLError(checkResult));
 			return false;
@@ -383,18 +340,18 @@ namespace Nz::GL
 
 	bool Context::BlitTextureToWindow(const OpenGLTexture& texture, const Boxui& srcBox, const Boxui& dstBox, SamplerFilter filter) const
 	{
-		if (!m_blitFramebuffers && !InitializeBlitFramebuffers())
+		if (!m_fallbackFramebuffers && !InitializeFallbackFramebuffers())
 			return false;
 
 		// Bind framebuffers before configuring them (so they won't override each other)
 		BindFramebuffer(FramebufferTarget::Draw, 0);
-		BindFramebuffer(FramebufferTarget::Read, m_blitFramebuffers->readFBO.GetObjectId());
+		BindFramebuffer(FramebufferTarget::Read, m_fallbackFramebuffers->readFBO.GetObjectId());
 
 		// Attach textures to color attachment
-		BindTextureToFramebuffer(m_blitFramebuffers->readFBO, texture);
+		BindTextureToFramebuffer(m_fallbackFramebuffers->readFBO, texture);
 
 		// Validate framebuffer completeness
-		if (GLenum checkResult = m_blitFramebuffers->readFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
+		if (GLenum checkResult = m_fallbackFramebuffers->readFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
 		{
 			NazaraError("blit read FBO is incomplete: {0}", TranslateOpenGLError(checkResult));
 			return false;
@@ -437,6 +394,40 @@ namespace Nz::GL
 			// If glCopyImageSubData is not available, fallback to framebuffer blit
 			return BlitTexture(source, destination, srcBox, Boxui(dstPos.x, dstPos.y, dstPos.z, srcBox.width, srcBox.height, srcBox.depth), SamplerFilter::Nearest);
 		}
+	}
+
+	bool Context::DownloadTexture(const OpenGLTexture& source, Nz::UInt8 level, void* data) const
+	{
+		const GL::Texture& texture = source.GetTexture();
+
+		auto format = DescribeTextureFormat(source.GetFormat());
+		assert(format);
+
+		if (glGetTexImage)
+		{
+			BindTexture(texture.GetTarget(), texture.GetObjectId());
+			glGetTexImage(ToOpenGL(texture.GetTarget()), level, format->format, format->type, data);
+		}
+		else
+		{
+			if (!m_fallbackFramebuffers && !InitializeFallbackFramebuffers())
+				return false;
+
+			// Attach textures to color attachment
+			BindTexture(m_fallbackFramebuffers->readFBO, source);
+
+			// Validate framebuffer completeness
+			if (GLenum checkResult = m_fallbackFramebuffers->readFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
+			{
+				NazaraError("download read FBO is incomplete: {0}", TranslateOpenGLError(checkResult));
+				return false;
+			}
+
+			Vector3ui textureSize = source.GetSize(level);
+			glReadPixels(0, 0, textureSize.x, textureSize.y, format->format, format->type, data);
+		}
+
+		return true;
 	}
 
 	bool Context::Initialize(const ContextParams& params)
@@ -1078,7 +1069,7 @@ namespace Nz::GL
 	{
 		OnContextDestruction(this);
 
-		m_blitFramebuffers.reset();
+		m_fallbackFramebuffers.reset();
 		m_vaoCache.Clear();
 	}
 
@@ -1189,6 +1180,49 @@ namespace Nz::GL
 			currentContext = nullptr;
 	}
 
+	void Context::BindTexture(GL::Framebuffer& framebuffer, const OpenGLTexture& texture) const
+	{
+		if (texture.RequiresTextureViewEmulation())
+		{
+			const TextureViewInfo& texViewInfo = texture.GetTextureViewInfo();
+			if (texViewInfo.viewType != ImageType::E2D)
+				throw std::runtime_error("unrestricted texture views can only be used as 2D texture attachment");
+
+			const OpenGLTexture& parentTexture = *texture.GetParentTexture();
+
+			switch (parentTexture.GetType())
+			{
+				case ImageType::Cubemap:
+				{
+					constexpr std::array<GLenum, 6> faceTargets = { GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
+					assert(texViewInfo.baseArrayLayer < faceTargets.size());
+
+					GLenum texTarget = faceTargets[texViewInfo.baseArrayLayer];
+					framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, texTarget, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
+					break;
+				}
+
+				case ImageType::E1D:
+				case ImageType::E2D:
+					framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
+					break;
+
+				case ImageType::E1D_Array:
+				case ImageType::E2D_Array:
+				case ImageType::E3D:
+					framebuffer.TextureLayer(GL_COLOR_ATTACHMENT0, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel, texViewInfo.baseArrayLayer);
+					break;
+			}
+		}
+		else
+		{
+			if (texture.GetTexture().GetTarget() != TextureTarget::Target2D)
+				throw std::runtime_error("blit is not yet supported from/to other texture type than 2D textures");
+
+			framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.GetTexture().GetObjectId(), 0);
+		}
+	};
+
 	void Context::HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const
 	{
 		auto SourceStr = [](GLenum source)
@@ -1259,16 +1293,16 @@ R"(OpenGL debug message (ID: {0:#x})
 )", id, fmt::ptr(this), SourceStr(source), TypeStr(type), SeverityStr(severity), std::string_view(message, length));
 	}
 
-	bool Context::InitializeBlitFramebuffers() const
+	bool Context::InitializeFallbackFramebuffers() const
 	{
-		m_blitFramebuffers = std::make_unique<BlitFramebuffers>();
-		if (!m_blitFramebuffers->drawFBO.Create(*this))
+		m_fallbackFramebuffers = std::make_unique<FallbackFramebuffers>();
+		if (!m_fallbackFramebuffers->drawFBO.Create(*this))
 		{
 			NazaraError("failed to initialize draw FBO");
 			return false;
 		}
 
-		if (!m_blitFramebuffers->readFBO.Create(*this))
+		if (!m_fallbackFramebuffers->readFBO.Create(*this))
 		{
 			NazaraError("failed to initialize read FBO");
 			return false;

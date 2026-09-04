@@ -154,6 +154,7 @@ namespace Nz::GL
 			bool ClearErrorStack() const;
 
 			bool CopyTexture(const OpenGLTexture& source, const OpenGLTexture& destination, const Boxui& srcBox, const Vector3ui& dstPos) const;
+			bool DownloadTexture(const OpenGLTexture& source, Nz::UInt8 level, void* data) const;
 
 			inline bool DidLastCallSucceed() const;
 
@@ -223,8 +224,9 @@ namespace Nz::GL
 			ContextParams m_params;
 
 		private:
+			void BindTexture(GL::Framebuffer& framebuffer, const OpenGLTexture& texture) const;
 			void HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const;
-			bool InitializeBlitFramebuffers() const;
+			bool InitializeFallbackFramebuffers() const;
 			static void BindTextureToFramebuffer(Framebuffer& framebuffer, const OpenGLTexture& texture);
 
 			enum class FunctionIndex
@@ -235,7 +237,7 @@ namespace Nz::GL
 				Count
 			};
 
-			struct BlitFramebuffers;
+			struct FallbackFramebuffers;
 
 			struct State
 			{
@@ -285,7 +287,7 @@ namespace Nz::GL
 
 			EnumArray<Extension, ExtensionStatus> m_extensionStatus;
 			std::array<GLFunction, UnderlyingCast(FunctionIndex::Count)> m_originalFunctionPointer;
-			mutable std::unique_ptr<BlitFramebuffers> m_blitFramebuffers;
+			mutable std::unique_ptr<FallbackFramebuffers> m_fallbackFramebuffers;
 			std::unordered_set<std::string, StringHash<>, std::equal_to<>> m_supportedExtensions;
 			OpenGLVaoCache m_vaoCache;
 			const OpenGLDevice* m_device;

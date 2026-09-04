@@ -134,34 +134,21 @@ namespace Nz
 		return std::make_shared<OpenGLTexture>(std::static_pointer_cast<OpenGLTexture>(shared_from_this()), viewInfo);
 	}
 
-	Image OpenGLTexture::Download(TextureLayout textureLayout, UInt8 level)
+	Image OpenGLTexture::Download(TextureLayout /*textureLayout*/, UInt8 level)
 	{
-		// TODO
-		throw std::runtime_error("OpenGLTexture::Download is not yet implemented");
-	}
-
-	void OpenGLTexture::Download(GpuAsyncCommands& asyncTransfer, TextureLayout textureLayout, std::function<void(Image&& resultImage)> callback, UInt8 level)
-	{
-		throw std::runtime_error("OpenGLTexture::Download is not yet implemented");
-		// TODO
-
-		auto format = DescribeTextureFormat(m_textureInfo.pixelFormat);
-		assert(format);
-
 		const GL::Context& context = m_texture.EnsureDeviceContext();
 
-		// TODO: Make use of PBO to really make this asynchronous
+		Image resultImage(m_textureInfo.type, m_textureInfo.pixelFormat, ImageUtils::GetLevelSize(m_textureInfo.width, level), ImageUtils::GetLevelSize(m_textureInfo.height, level));
+		context.DownloadTexture(*this, level, resultImage.GetPixels());
 
-		if (context.glGetTexImage)
-		{
-			// Direct download
-			context.BindTexture(m_texture.GetTarget(), m_texture.GetObjectId());
-			//context.glGetTexImage(ToOpenGL(m_texture.GetTarget()), level, format->format, format->type, );
-		}
-		else
-		{
-			// Fallback using framebuffer
-		}
+		return resultImage;
+	}
+
+	void OpenGLTexture::Download(GpuAsyncCommands& /*asyncTransfer*/, TextureLayout textureLayout, std::function<void(Image&& resultImage)> callback, UInt8 level)
+	{
+		// TODO: Make use of PBO to really make this asynchronous
+		Image resultImage = Download(textureLayout, level);
+		callback(std::move(resultImage));
 	}
 
 	bool OpenGLTexture::Update(const void* ptr, bool buildMipmaps, UInt32 srcWidth, UInt32 srcHeight)
