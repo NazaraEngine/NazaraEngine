@@ -698,7 +698,8 @@ int main(int argc, char* argv[])
 
 		positionTexture = graph.AddAttachment({
 			"Position",
-			Nz::PixelFormat::RGBA32F
+			Nz::PixelFormat::RGBA32F,
+			Nz::TextureUsage::TransferSource
 		});
 
 		depthBuffer1 = graph.AddAttachment({
@@ -1203,6 +1204,12 @@ int main(int argc, char* argv[])
 					bloomEnabled = !bloomEnabled;
 				else if (event.key.virtualKey == Nz::Keyboard::VKey::E)
 					SetInstanceWorldMatrix(modelInstance1, Nz::Matrix4f::Transform(viewerPos, camQuat));
+				else if (event.key.virtualKey == Nz::Keyboard::VKey::F2)
+				{
+					const auto& texture = bakedGraph.GetAttachmentTexture(positionTexture);
+					Nz::Image image = texture->Download(Nz::TextureLayout::ColorInput);
+					image.SaveToFile("screenshot.png");
+				}
 
 				break;
 			}
