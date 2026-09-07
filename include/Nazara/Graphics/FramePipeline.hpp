@@ -14,6 +14,7 @@
 #include <Nazara/Graphics/RenderElementOwner.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
+#include <Nazara/Graphics/ViewerInstance.hpp>
 #include <NazaraUtils/Constants.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <memory>
@@ -55,6 +56,8 @@ namespace Nz
 			virtual const std::shared_ptr<Texture>& GetShadowAtlasTexture() const = 0;
 			virtual const std::shared_ptr<GpuBuffer>& GetSpotLightBuffer() const = 0;
 			virtual const std::shared_ptr<GpuBuffer>& GetSpotShadowMappingBuffer() const = 0;
+
+			virtual void NotifySecondaryViewerDestruction(ViewerInstance& viewerInstance) = 0;
 
 			virtual void QueueTransfer(TransferInterface* transfer) = 0;
 

@@ -158,6 +158,14 @@ namespace Nz
 		return m_spotShadowAtlasEntries.GetBuffer();
 	}
 
+	void DefaultFramePipeline::NotifySecondaryViewerDestruction(ViewerInstance& viewerInstance)
+	{
+		m_transferSet.erase(&viewerInstance);
+		m_shaderBindingCache.ClearViewerCache(viewerInstance, [this](ShaderBindingPtr&& shaderBinding)
+		{
+			m_deletedShaderBindings.push_back(std::move(shaderBinding));
+		});
+	}
 
 	void DefaultFramePipeline::QueueTransfer(TransferInterface* transfer)
 	{
@@ -1121,7 +1129,6 @@ namespace Nz
 				}
 			}
 
-			gpuResources.PushForRelease(std::move(lightData));
 			m_lightPool.Free(lightIndex);
 		}
 		m_removedLightInstances.Clear();

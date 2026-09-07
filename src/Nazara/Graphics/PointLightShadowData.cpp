@@ -153,7 +153,7 @@ namespace Nz
 		for (std::size_t i = 0; i < m_directions.size(); ++i)
 		{
 			const ViewerInstancePtr& viewerInstance = m_directions[i].viewer.GetViewerInstance();
-			m_pipeline.DequeueTransfer(viewerInstance.get());
+			m_pipeline.NotifySecondaryViewerDestruction(*viewerInstance);
 		}
 	}
 

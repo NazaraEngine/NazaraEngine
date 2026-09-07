@@ -44,7 +44,7 @@ namespace Nz
 	{
 		ForEachCascade([this](CascadeData& cascade)
 		{
-			m_pipeline.DequeueTransfer(cascade.viewer.GetViewerInstance().get());
+			m_pipeline.NotifySecondaryViewerDestruction(*cascade.viewer.GetViewerInstance());
 		});
 	}
 
@@ -270,6 +270,9 @@ namespace Nz
 	{
 		auto it = m_viewerData.find(viewer);
 		assert(it != m_viewerData.end());
+
+		for (CascadeData& cascade : it->second->cascades)
+			m_pipeline.NotifySecondaryViewerDestruction(*cascade.viewer.GetViewerInstance());
 
 		m_destructionQueue.push_back(std::move(it->second));
 		m_viewerData.erase(it);

@@ -60,7 +60,7 @@ namespace Nz
 	SpotLightShadowData::~SpotLightShadowData()
 	{
 		const ViewerInstancePtr& viewerInstance = m_viewer.GetViewerInstance();
-		m_pipeline.DequeueTransfer(viewerInstance.get());
+		m_pipeline.NotifySecondaryViewerDestruction(*viewerInstance);
 	}
 
 	void SpotLightShadowData::ForEachView(FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback)

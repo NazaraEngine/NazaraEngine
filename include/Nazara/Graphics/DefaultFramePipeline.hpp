@@ -62,6 +62,8 @@ namespace Nz
 			const std::shared_ptr<GpuBuffer>& GetSpotLightBuffer() const override;
 			const std::shared_ptr<GpuBuffer>& GetSpotShadowMappingBuffer() const override;
 
+			void NotifySecondaryViewerDestruction(ViewerInstance& viewerInstance) override;
+
 			void QueueTransfer(TransferInterface* transfer) override;
 
 			UInt32 RegisterInstance() override;
