@@ -401,8 +401,14 @@ Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimati
 /*                             Mesh loading                             */
 /************************************************************************/
 
+struct MaterialEntry
+{
+	Nz::UInt32 materialIndex;
+	Nz::ParameterList parameters;
+};
+
 using EmbeddedTextures = std::unordered_map<const aiTexture*, std::filesystem::path>;
-using MaterialData = std::unordered_map<unsigned int, std::pair<Nz::UInt32, Nz::ParameterList>>;
+using MaterialData = std::unordered_map<unsigned int /*aMatIndex*/, MaterialEntry>;
 
 std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originPath, const Nz::MeshParams& parameters, const aiScene* scene, const SceneInfo::Node& meshNode, const aiMesh* meshData, bool isSkeletalMesh, MaterialData& materialData, const std::unordered_map<const aiBone*, unsigned int>& boneToJointIndex, EmbeddedTextures& embeddedTextures)
 {
@@ -626,8 +632,6 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 	if (generateTangents)
 		subMesh->GenerateTangents();
 
-	subMesh->SetMaterialIndex(meshData->mMaterialIndex);
-
 	auto matIt = materialData.find(meshData->mMaterialIndex);
 	if (matIt == materialData.end())
 	{
@@ -844,8 +848,10 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 		if (float fValue; aiGetMaterialFloat(aiMat, "$mat.gltf.alphaCutoff", 0, 0, &fValue) == aiReturn_SUCCESS)
 			matData.SetParameter(Nz::MaterialData::AlphaTestThreshold, fValue);
 
-		matIt = materialData.insert(std::make_pair(meshData->mMaterialIndex, std::make_pair(Nz::UInt32(materialData.size()), std::move(matData)))).first;
+		matIt = materialData.emplace(meshData->mMaterialIndex, MaterialEntry{ Nz::UInt32(materialData.size()), std::move(matData) }).first;
 	}
+
+	subMesh->SetMaterialIndex(matIt->second.materialIndex);
 
 	return subMesh;
 }
@@ -945,7 +951,7 @@ Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::ResourceLoadingError> LoadMesh(Nz::Str
 
 	mesh->SetMaterialCount(std::max(Nz::UInt32(materialData.size()), Nz::UInt32(1)));
 	for (const auto& pair : materialData)
-		mesh->SetMaterialData(pair.second.first, pair.second.second);
+		mesh->SetMaterialData(pair.second.materialIndex, pair.second.parameters);
 
 	return mesh;
 }
