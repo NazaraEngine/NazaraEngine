@@ -67,6 +67,9 @@ namespace Nz
 	{
 		// Force viewer passes to unregister their materials
 		m_viewerPool.Clear();
+
+		// Force lights to unregister their secondary viewers
+		m_lightPool.Clear();
 	}
 
 	void DefaultFramePipeline::DequeueTransfer(TransferInterface* transfer)
