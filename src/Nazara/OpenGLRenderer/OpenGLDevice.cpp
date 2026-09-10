@@ -118,6 +118,10 @@ namespace Nz
 		// Limits
 		m_deviceInfo.limits.maxUniformBufferSize = m_referenceContext->GetInteger<UInt64>(GL_MAX_UNIFORM_BLOCK_SIZE);
 		m_deviceInfo.limits.minUniformBufferOffsetAlignment = RoundToPow2(m_referenceContext->GetInteger<UInt64>(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT));
+		m_deviceInfo.limits.maxTextureSize2D = m_referenceContext->GetInteger<UInt64>(GL_MAX_TEXTURE_SIZE);
+		m_deviceInfo.limits.maxTextureSize3D = m_referenceContext->GetInteger<UInt64>(GL_MAX_3D_TEXTURE_SIZE);
+		m_deviceInfo.limits.maxTextureSizeCube = m_referenceContext->GetInteger<UInt64>(GL_MAX_CUBE_MAP_TEXTURE_SIZE);
+		m_deviceInfo.limits.maxTextureSize1D = m_deviceInfo.limits.maxTextureSize2D;
 
 		if (m_deviceInfo.features.storageBuffers)
 		{

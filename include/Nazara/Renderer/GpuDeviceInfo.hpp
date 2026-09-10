@@ -40,6 +40,10 @@ namespace Nz
 		Vector3ui32 maxComputeWorkGroupCount;
 		Vector3ui32 maxComputeWorkGroupSize;
 		UInt64 maxStorageBufferSize;
+		UInt64 maxTextureSize1D;
+		UInt64 maxTextureSize2D;
+		UInt64 maxTextureSize3D;
+		UInt64 maxTextureSizeCube;
 		UInt64 maxUniformBufferSize;
 		UInt64 minStorageBufferOffsetAlignment;
 		UInt64 minUniformBufferOffsetAlignment;

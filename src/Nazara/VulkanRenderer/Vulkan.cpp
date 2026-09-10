@@ -76,6 +76,10 @@ namespace Nz
 		deviceInfo.limits.maxComputeWorkGroupSize = { physDevice.properties.limits.maxComputeWorkGroupSize[0], physDevice.properties.limits.maxComputeWorkGroupSize[1], physDevice.properties.limits.maxComputeWorkGroupSize[2] };
 		deviceInfo.limits.maxComputeWorkGroupInvocations = physDevice.properties.limits.maxComputeWorkGroupInvocations;
 		deviceInfo.limits.maxStorageBufferSize = physDevice.properties.limits.maxStorageBufferRange;
+		deviceInfo.limits.maxTextureSize1D = physDevice.properties.limits.maxImageDimension1D;
+		deviceInfo.limits.maxTextureSize2D = physDevice.properties.limits.maxImageDimension2D;
+		deviceInfo.limits.maxTextureSize3D = physDevice.properties.limits.maxImageDimension3D;
+		deviceInfo.limits.maxTextureSizeCube = physDevice.properties.limits.maxImageDimensionCube;
 		deviceInfo.limits.maxUniformBufferSize = physDevice.properties.limits.maxUniformBufferRange;
 		deviceInfo.limits.minStorageBufferOffsetAlignment = RoundToPow2(physDevice.properties.limits.minStorageBufferOffsetAlignment);
 		deviceInfo.limits.minUniformBufferOffsetAlignment = RoundToPow2(physDevice.properties.limits.minUniformBufferOffsetAlignment);

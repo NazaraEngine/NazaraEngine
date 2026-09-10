@@ -233,7 +233,6 @@ namespace NzImGui
 		std::shared_ptr<Nz::GpuDevice> device;
 		std::shared_ptr<Nz::GpuRenderPipeline> renderPipeline;
 		std::shared_ptr<Nz::GpuPipelineLayout> renderPipelineLayout;
-		std::shared_ptr<Nz::Texture> fontTexture;
 		std::shared_ptr<Nz::TextureSampler> defaultTextureSampler;
 		std::shared_ptr<Nz::VertexDeclaration> vertexDeclaration;
 		std::shared_ptr<ImGuiPool> pool;
@@ -274,6 +273,11 @@ namespace NzImGui
 			}
 
 		private:
+			struct TextureEntry
+			{
+				std::shared_ptr<Nz::Texture> texture;
+			};
+
 			void Draw(ImGuiContext* context, Nz::GpuCommandBufferBuilder& commandBufferBuilder) override
 			{
 				ImGui::SetCurrentContext(context);
@@ -340,7 +344,7 @@ namespace NzImGui
 							commandBufferBuilder.SetScissor(Nz::Recti(Nz::Rectf::FromExtends({ clipMin.x, clipMin.y }, { clipMax.x, clipMax.y })));
 
 							// Bind descriptor set
-							Nz::Texture* texture = Nz::SafeCast<Nz::Texture*>(command.GetTexID());
+							Nz::Texture* texture = Nz::IntegerToPointer<Nz::Texture*>(command.GetTexID());
 							if (auto it = rendererBackend->shaderBindings.find(texture); it != rendererBackend->shaderBindings.end())
 								commandBufferBuilder.BindRenderShaderBinding(0, *it->second.bindings);
 							else
@@ -401,10 +405,19 @@ namespace NzImGui
 				io.DeltaTime = updateTime.AsSeconds();
 			}
 
-			void Prepare(ImGuiContext* context, Nz::GpuResources& renderResources) override
+			void Prepare(ImGuiContext* /*context*/, Nz::GpuResources& renderResources) override
 			{
 				ImDrawData* drawData = ImGui::GetDrawData();
-				if (!drawData || drawData->CmdListsCount == 0)
+				if (!drawData)
+					return;
+
+				for (ImTextureData* tex : ImGui::GetPlatformIO().Textures)
+				{
+					if (tex->Status != ImTextureStatus_OK)
+						UpdateTexture(renderResources, tex);
+				}
+
+				if (drawData->CmdListsCount == 0)
 					return;
 
 				std::size_t totalIndexCount = 0;
@@ -415,8 +428,9 @@ namespace NzImGui
 					totalVertexCount += commandList->VtxBuffer.size();
 				}
 
-				auto& indexAllocation = renderResources.GetUploadPool().Allocate(totalIndexCount * sizeof(ImDrawIdx));
-				auto& vertexAllocation = renderResources.GetUploadPool().Allocate(totalVertexCount * sizeof(ImDrawVert));
+				Nz::GpuUploadPool& uploadPool = renderResources.GetUploadPool();
+				auto& indexAllocation = uploadPool.Allocate(totalIndexCount * sizeof(ImDrawIdx));
+				auto& vertexAllocation = uploadPool.Allocate(totalVertexCount * sizeof(ImDrawVert));
 
 				ImDrawIdx* indexCopyPtr = static_cast<ImDrawIdx*>(indexAllocation.mappedPtr);
 				ImDrawVert* vertexCopyPtr = static_cast<ImDrawVert*>(vertexAllocation.mappedPtr);
@@ -433,7 +447,7 @@ namespace NzImGui
 				ImGuiIO& io = ImGui::GetIO();
 				ImGuiRendererBackend* rendererBackend = static_cast<ImGuiRendererBackend*>(io.BackendRendererUserData);
 
-				// now that we have macro buffers, allocate them on gpu
+				// now that we have macro buffers, allocate them on GPU
 				if (rendererBackend->indexBuffer)
 				{
 					renderResources.PushReleaseCallback([pool = rendererBackend->pool, indexBuffer = std::move(rendererBackend->indexBuffer)]() mutable
@@ -528,47 +542,6 @@ namespace NzImGui
 				};
 
 				SetupInputs(io, backend, window.GetEventHandler());
-			}
-
-			void SetupFontTexture(ImGuiIO& io, ImGuiRendererBackend* rendererBackend)
-			{
-				Nz::TextureInfo textureInfo;
-				textureInfo.type = Nz::ImageType::E2D;
-
-				unsigned char* pixels;
-				int width, height;
-				if (rendererBackend->device->IsTextureFormatSupported(Nz::PixelFormat::A8, Nz::TextureUsage::ShaderSampling))
-				{
-					textureInfo.pixelFormat = Nz::PixelFormat::A8;
-					io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
-				}
-				else
-				{
-					textureInfo.pixelFormat = Nz::PixelFormat::RGBA8;
-					io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-				}
-
-				textureInfo.width = width;
-				textureInfo.height = height;
-				rendererBackend->fontTexture = rendererBackend->device->InstantiateTexture(textureInfo);
-				rendererBackend->fontTexture->Update(pixels, true);
-
-				rendererBackend->defaultTextureSampler = rendererBackend->device->InstantiateTextureSampler({});
-
-				Nz::ShaderBindingPtr noTextureBinding = rendererBackend->renderPipelineLayout->AllocateShaderBinding(0);
-				noTextureBinding->Update({
-					{
-						0,
-						Nz::ShaderBinding::SampledTextureBinding {
-							rendererBackend->fontTexture.get(),
-							rendererBackend->defaultTextureSampler.get()
-						}
-					}
-				});
-
-				rendererBackend->shaderBindings.emplace(nullptr, std::move(noTextureBinding));
-
-				io.Fonts->SetTexID(nullptr);
 			}
 
 			void SetupInputs(ImGuiIO& io, ImGuiPlatformBackend* platformBackend, Nz::WindowEventHandler& eventHandler)
@@ -685,8 +658,15 @@ namespace NzImGui
 				backend->pool = std::make_shared<ImGuiPool>();
 				backend->windowSwapchain = &windowSwapchain;
 				backend->device = backend->windowSwapchain->GetGpuDevice();
+
+				io.BackendFlags |= ImGuiBackendFlags_RendererHasTextures;
 				if (backend->device->GetEnabledFeatures().drawBaseVertex)
 					io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
+
+				ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
+				platform_io.Renderer_TextureMaxWidth = platform_io.Renderer_TextureMaxHeight = backend->device->GetDeviceInfo().limits.maxTextureSize2D;
+
+				backend->defaultTextureSampler = backend->device->InstantiateTextureSampler({});
 
 				backend->vertexDeclaration = std::make_shared<Nz::VertexDeclaration>(Nz::VertexInputRate::Vertex, sizeof(ImDrawVert), std::initializer_list<Nz::VertexDeclaration::Component>{
 					{
@@ -710,7 +690,6 @@ namespace NzImGui
 				});
 
 				SetupPipeline(backend);
-				SetupFontTexture(io, backend);
 			}
 
 			void ShutdownContext(ImGuiContext* context) override
@@ -727,8 +706,79 @@ namespace NzImGui
 				ImGui::SetCurrentContext(context);
 
 				ImGuiIO& io = ImGui::GetIO();
+
+				for (ImTextureData* tex : ImGui::GetPlatformIO().Textures)
+				{
+					if (tex->RefCount == 1)
+					{
+						if (TextureEntry* textureEntry = static_cast<TextureEntry*>(tex->BackendUserData))
+						{
+							IM_DELETE(textureEntry);
+							tex->SetStatus(ImTextureStatus_Destroyed);
+							tex->BackendUserData = nullptr;
+						}
+					}
+				}
+
 				IM_DELETE(static_cast<ImGuiRendererBackend*>(io.BackendRendererUserData));
 				io.BackendRendererUserData = nullptr;
+			}
+			
+			void UpdateTexture(Nz::GpuResources& renderResources, ImTextureData* tex)
+			{
+				ImGuiIO& io = ImGui::GetIO();
+				ImGuiRendererBackend* rendererBackend = static_cast<ImGuiRendererBackend*>(io.BackendRendererUserData);
+
+				TextureEntry* textureEntry = nullptr;
+				switch (tex->Status)
+				{
+					case ImTextureStatus_Destroyed:
+					case ImTextureStatus_OK:
+						break;
+
+					case ImTextureStatus_WantCreate:
+					{
+						Nz::TextureInfo textureInfo;
+						textureInfo.type = Nz::ImageType::E2D;
+						textureInfo.pixelFormat = Nz::PixelFormat::RGBA8;
+						textureInfo.width = tex->Width;
+						textureInfo.height = tex->Height;
+						textureInfo.levelCount = 1;
+						textureInfo.usageFlags = Nz::TextureUsage::ShaderSampling | Nz::TextureUsage::TransferDestination;
+
+						std::shared_ptr<Nz::Texture> texture = rendererBackend->device->InstantiateTexture(textureInfo);
+						texture->Update(tex->GetPixels());
+
+						tex->SetTexID(Nz::PointerToInteger<ImTextureID>(texture.get()));
+						tex->BackendUserData = IM_NEW(TextureEntry) { std::move(texture) };
+						tex->SetStatus(ImTextureStatus_OK);
+						break;
+					}
+
+					case ImTextureStatus_WantDestroy:
+					{
+						TextureEntry* textureEntry = static_cast<TextureEntry*>(tex->BackendUserData);
+
+						renderResources.PushForRelease(std::move(textureEntry->texture));
+						IM_DELETE(textureEntry);
+
+						tex->BackendUserData = nullptr;
+						tex->SetTexID(0);
+						tex->SetStatus(ImTextureStatus_Destroyed);
+						break;
+					}
+
+					case ImTextureStatus_WantUpdates:
+					{
+						TextureEntry* textureEntry = static_cast<TextureEntry*>(tex->BackendUserData);
+
+						for (ImTextureRect& r : tex->Updates)
+							textureEntry->texture->Update(tex->GetPixelsAt(r.x, r.y), Nz::Boxui(r.x, r.y, 0, r.w, r.h, 1), tex->Width);
+
+						tex->SetStatus(ImTextureStatus_OK);
+						break;
+					}
+				}
 			}
 	};
 }

@@ -1,7 +1,7 @@
 option("imgui", { description = "Build Dear ImGui plugin", default = true, category = "Plugins" })
 
 if has_config("imgui") and has_config("renderer") and has_config("textrenderer") then
-	add_requires("imgui v1.91.1-docking", { configs = { debug = is_mode("debug") }})
+	add_requires("imgui v1.92.6-docking", { configs = { debug = is_mode("debug") }})
 
 	target("PluginImGui")
 		set_group("Plugins")
