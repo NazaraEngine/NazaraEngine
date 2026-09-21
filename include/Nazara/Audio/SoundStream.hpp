@@ -28,7 +28,7 @@ namespace Nz
 
 	using SoundStreamLoader = ResourceLoader<SoundStream, SoundStreamParams>;
 
-	class NAZARA_AUDIO_API SoundStream : public Resource, public SoundDataSource
+	class NAZARA_AUDIO_API SoundStream : public SoundDataSource, public Resource
 	{
 		public:
 			using Params = SoundStreamParams;

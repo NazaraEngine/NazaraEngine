@@ -39,7 +39,7 @@ namespace Nz
 	using SoundBufferLoader = ResourceLoader<SoundBuffer, SoundBufferParams>;
 	using SoundBufferManager = ResourceManager<SoundBuffer, SoundBufferParams>;
 
-	class NAZARA_AUDIO_API SoundBuffer final : public Resource, public SoundDataSource
+	class NAZARA_AUDIO_API SoundBuffer final : public SoundDataSource, public Resource
 	{
 		friend Sound;
 
