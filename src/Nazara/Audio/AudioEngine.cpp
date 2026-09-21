@@ -192,7 +192,7 @@ namespace Nz
 
 	void AudioEngine::SetListenerPosition(UInt32 listenerIndex, const Vector3f& position)
 	{
-		ma_engine_listener_set_direction(&m_impl->engine, listenerIndex, position.x, position.y, position.z);
+		ma_engine_listener_set_position(&m_impl->engine, listenerIndex, position.x, position.y, position.z);
 	}
 
 	void AudioEngine::SetListenerRotation(UInt32 listenerIndex, const Quaternionf& rotation)
