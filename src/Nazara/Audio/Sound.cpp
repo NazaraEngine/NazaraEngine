@@ -86,11 +86,6 @@ namespace Nz
 		return FromMiniaudio(ma_sound_get_direction(m_sound));
 	}
 
-	Time Sound::GetDuration() const
-	{
-		return m_sourceReader->GetSource()->GetDuration();
-	}
-
 	float Sound::GetDirectionalAttenuationFactor() const
 	{
 		return ma_sound_get_directional_attenuation_factor(m_sound);
@@ -99,6 +94,11 @@ namespace Nz
 	float Sound::GetDopplerFactor() const
 	{
 		return ma_sound_get_doppler_factor(m_sound);
+	}
+
+	Time Sound::GetDuration() const
+	{
+		return m_sourceReader->GetSource()->GetDuration();
 	}
 
 	AudioEngine& Sound::GetEngine()
@@ -331,6 +331,11 @@ namespace Nz
 		ma_sound_set_pitch(m_sound, pitch);
 	}
 
+	void Sound::SetPosition(const Vector3f& position)
+	{
+		ma_sound_set_position(m_sound, position.x, position.y, position.z);
+	}
+
 	void Sound::SetPositioning(SoundPositioning positioning)
 	{
 		ma_sound_set_positioning(m_sound, ToMiniaudio(positioning));
@@ -339,11 +344,6 @@ namespace Nz
 	void Sound::SetRolloff(float rollOff)
 	{
 		ma_sound_set_rolloff(m_sound, rollOff);
-	}
-
-	void Sound::SetPosition(const Vector3f& position)
-	{
-		ma_sound_set_position(m_sound, position.x, position.y, position.z);
 	}
 
 	void Sound::SetVelocity(const Vector3f& velocity)

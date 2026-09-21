@@ -86,9 +86,9 @@ namespace Nz
 			void SetPan(float pan) override;
 			void SetPanMode(SoundPanMode panMode) override;
 			void SetPitch(float pitch) override;
+			void SetPosition(const Vector3f& position) override;
 			void SetPositioning(SoundPositioning positioning) override;
 			void SetRolloff(float rollOff) override;
-			void SetPosition(const Vector3f& position) override;
 			void SetVelocity(const Vector3f& velocity) override;
 			void SetVolume(float volume) override;
 
