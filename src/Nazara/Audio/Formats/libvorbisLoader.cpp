@@ -177,7 +177,7 @@ namespace Nz
 
 		bool IsVorbisSupported(std::string_view extension)
 		{
-			constexpr auto s_supportedExtensions = frozen::make_unordered_set<frozen::string>({ ".oga", ".ogg", ".ogm", ".ogv", ".ogx", ".opus", ".spx" });
+			constexpr auto s_supportedExtensions = frozen::make_unordered_set<frozen::string>({ ".oga", ".ogg", ".ogm", ".ogv", ".ogx" });
 
 			return s_supportedExtensions.find(extension) != s_supportedExtensions.end();
 		}

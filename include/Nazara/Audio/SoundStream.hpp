@@ -14,7 +14,6 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/Time.hpp>
-#include <mutex>
 
 namespace Nz
 {
@@ -23,7 +22,6 @@ namespace Nz
 		bool IsValid() const;
 	};
 
-	class Mutex;
 	class SoundStream;
 
 	using SoundStreamLoader = ResourceLoader<SoundStream, SoundStreamParams>;

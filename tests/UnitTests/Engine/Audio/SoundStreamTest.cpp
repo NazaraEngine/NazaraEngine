@@ -61,6 +61,21 @@ SCENARIO("SoundStream", "[AUDIO][SoundStream]")
 			}
 		}
 
+		WHEN("We load a .opus file")
+		{
+			std::shared_ptr<Nz::SoundStream> soundStream = Nz::SoundStream::OpenFromFile(GetAssetDir() / "Audio/ehren-paper_lights-96.opus");
+			REQUIRE(soundStream);
+
+			THEN("We can ask the informations of the file")
+			{
+				CHECK(soundStream->GetDuration() == 228'106'666_us);
+				CHECK(soundStream->GetFormat() == Nz::AudioFormat::Signed16);
+				CHECK(soundStream->GetFrameCount() == 10949120);
+				CHECK(soundStream->GetSampleRate() == 48000);
+				CHECK(CompareChannels(soundStream->GetChannels(), { { Nz::AudioChannel::FrontLeft, Nz::AudioChannel::FrontRight } }));
+			}
+		}
+
 		WHEN("We load a .wav file")
 		{
 			std::shared_ptr<Nz::SoundStream> soundStream = Nz::SoundStream::OpenFromFile(GetAssetDir() / "Audio/explosion1.wav");

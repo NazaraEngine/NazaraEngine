@@ -61,6 +61,21 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 			}
 		}
 
+		WHEN("We load a .opus file")
+		{
+			std::shared_ptr<Nz::SoundBuffer> soundBuffer = Nz::SoundBuffer::LoadFromFile(GetAssetDir() / "Audio/ehren-paper_lights-96.opus");
+			REQUIRE(soundBuffer);
+
+			THEN("We can ask the informations of the file")
+			{
+				CHECK(soundBuffer->GetDuration() == 228'106'666_us);
+				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::Signed16);
+				CHECK(soundBuffer->GetFrameCount() == 10949120);
+				CHECK(soundBuffer->GetSampleRate() == 48000);
+				CHECK(CompareChannels(soundBuffer->GetChannels(), { { Nz::AudioChannel::FrontLeft, Nz::AudioChannel::FrontRight } }));
+			}
+		}
+
 		WHEN("We load a .wav file")
 		{
 			std::shared_ptr<Nz::SoundBuffer> soundBuffer = Nz::SoundBuffer::LoadFromFile(GetAssetDir() / "Audio/explosion1.wav");

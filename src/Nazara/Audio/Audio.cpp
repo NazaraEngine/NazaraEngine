@@ -9,6 +9,7 @@
 #include <Nazara/Audio/Formats/drmp3Loader.hpp>
 #include <Nazara/Audio/Formats/drwavLoader.hpp>
 #include <Nazara/Audio/Formats/libflacLoader.hpp>
+#include <Nazara/Audio/Formats/libopusLoader.hpp>
 #include <Nazara/Audio/Formats/libvorbisLoader.hpp>
 #include <Nazara/Core/CommandLineParameters.hpp>
 #include <Nazara/Core/EnvironmentVariables.hpp>
@@ -90,6 +91,8 @@ namespace Nz
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_drwav());
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libflac());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libflac());
+		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libopus());
+		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libopus());
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libvorbis());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libvorbis());
 

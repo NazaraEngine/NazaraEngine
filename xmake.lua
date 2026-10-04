@@ -60,7 +60,7 @@ local modules = {
 	Audio = {
 		Option = "audio",
 		Deps = {"NazaraCore"},
-		Packages = {"dr_mp3", "dr_wav", "frozen", "libflac", "libvorbis", "miniaudio"}
+		Packages = {"dr_mp3", "dr_wav", "frozen", "libflac", "libopus", "libopusfile", "libvorbis", "miniaudio"}
 	},
 	Core = {
 		Custom = function ()
@@ -300,7 +300,7 @@ end
 
 -- Module dependencies
 if has_config("audio") then
-	add_requires("dr_mp3 >=0.7", "dr_wav >=0.14", "libflac")
+	add_requires("dr_mp3 >=0.7", "dr_wav >=0.14", "libflac", "libopus", "libopusfile")
 	add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 	add_requires("miniaudio", { configs = { headeronly = false, encoding = false, flac = false, mp3 = false, wav = false, debug = is_mode("debug") }})
 end
