@@ -40,7 +40,7 @@ namespace Nz
 			LightingPipelinePass(LightingPipelinePass&&) = delete;
 			~LightingPipelinePass();
 
-			inline void InvalidateCommandBuffers();
+			inline void InvalidateCommandBuffers() override;
 			inline void InvalidateLights();
 
 			void Prepare(FrameData& frameData) override;
