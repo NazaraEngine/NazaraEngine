@@ -22,7 +22,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		std::size_t ReadWavCallback(void* pUserData, void* pBufferOut, size_t bytesToRead)
 		{
@@ -105,7 +105,7 @@ namespace Nz
 			}
 
 			if (parameters.format != format)
-				soundBuffer->ConvertFormat(parameters.format);
+				soundBuffer->ConvertToFormat(parameters.format);
 
 			return soundBuffer;
 		}
@@ -257,6 +257,8 @@ namespace Nz
 	{
 		SoundBufferLoader::Entry GetSoundBufferLoader_drwav()
 		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
 			SoundBufferLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsWavSupported;
 			loaderEntry.streamLoader = LoadWavSoundBuffer;
@@ -273,6 +275,8 @@ namespace Nz
 
 		SoundStreamLoader::Entry GetSoundStreamLoader_drwav()
 		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
 			SoundStreamLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsWavSupported;
 			loaderEntry.fileLoader = LoadWavSoundStreamFile;

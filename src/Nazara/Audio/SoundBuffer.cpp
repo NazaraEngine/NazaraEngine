@@ -52,7 +52,23 @@ namespace Nz
 			std::memcpy(&m_samples[0], samples, bufferSize);
 	}
 
-	void SoundBuffer::ConvertFormat(AudioFormat format, AudioDitherMode ditherMode)
+	SoundBuffer::SoundBuffer(AudioFormat format, std::span<const AudioChannel> channels, UInt64 frameCount, UInt32 sampleRate, std::unique_ptr<UInt8[]>&& samples) :
+	m_channels(channels.begin(), channels.end())
+	{
+		NazaraAssertMsg(!m_channels.empty(), "channel map cannot be empty");
+		NazaraAssertMsg(frameCount > 0, "frameCount must be different from zero");
+		NazaraAssertMsg(sampleRate > 0, "sampleRate must be different from zero");
+
+		m_duration = Time::Microseconds((1'000'000LL * frameCount / sampleRate));
+		m_format = format;
+		m_frameCount = frameCount;
+		m_sampleRate = sampleRate;
+
+		std::size_t bufferSize = frameCount * s_AudioFormatSize[format] * channels.size();
+		m_samples = std::move(samples);
+	}
+
+	void SoundBuffer::ConvertToFormat(AudioFormat format, AudioDitherMode ditherMode)
 	{
 		if (m_format == format)
 			return;
@@ -62,6 +78,14 @@ namespace Nz
 
 		m_samples = std::move(convertedSamples);
 		m_format = format;
+	}
+
+	SoundBuffer SoundBuffer::ConvertToFormatCopy(AudioFormat format, AudioDitherMode ditherMode) const
+	{
+		std::unique_ptr<UInt8[]> convertedSamples = std::make_unique_for_overwrite<UInt8[]>(m_frameCount * s_AudioFormatSize[format] * m_channels.size());
+		ConvertAudioFormat(m_format, m_samples.get(), format, convertedSamples.get(), m_frameCount, ditherMode);
+
+		return SoundBuffer(format, m_channels, m_frameCount, m_sampleRate, std::move(convertedSamples));
 	}
 
 	auto SoundBuffer::Read(UInt64 startingFrameIndex, void* frameOut, UInt64 frameCount) -> Result<ReadData, std::string>

@@ -16,6 +16,7 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <NazaraUtils/FixedVector.hpp>
 #include <memory>
@@ -38,6 +39,7 @@ namespace Nz
 	using SoundBufferLibrary = ObjectLibrary<SoundBuffer>;
 	using SoundBufferLoader = ResourceLoader<SoundBuffer, SoundBufferParams>;
 	using SoundBufferManager = ResourceManager<SoundBuffer, SoundBufferParams>;
+	using SoundBufferSaver = ResourceSaver<SoundBuffer, SoundBufferParams>;
 
 	class NAZARA_AUDIO_API SoundBuffer final : public SoundDataSource, public Resource
 	{
@@ -48,11 +50,13 @@ namespace Nz
 
 			SoundBuffer() = default;
 			SoundBuffer(AudioFormat format, std::span<const AudioChannel> channels, UInt64 frameCount, UInt32 sampleRate, const void* samples);
+			SoundBuffer(AudioFormat format, std::span<const AudioChannel> channels, UInt64 frameCount, UInt32 sampleRate, std::unique_ptr<UInt8[]>&& samples);
 			SoundBuffer(const SoundBuffer&) = delete;
-			SoundBuffer(SoundBuffer&&) = delete;
+			SoundBuffer(SoundBuffer&&) noexcept = default;
 			~SoundBuffer() = default;
 
-			void ConvertFormat(AudioFormat format, AudioDitherMode ditherMode = AudioDitherMode::None);
+			void ConvertToFormat(AudioFormat format, AudioDitherMode ditherMode = AudioDitherMode::None);
+			SoundBuffer ConvertToFormatCopy(AudioFormat format, AudioDitherMode ditherMode = AudioDitherMode::None) const;
 
 			inline std::span<const AudioChannel> GetChannels() const override;
 			inline Time GetDuration() const override;
@@ -66,7 +70,7 @@ namespace Nz
 			Result<ReadData, std::string> Read(UInt64 startingFrameIndex, void* frameOut, UInt64 frameCount) override;
 
 			SoundBuffer& operator=(const SoundBuffer&) = delete;
-			SoundBuffer& operator=(SoundBuffer&&) = delete;
+			SoundBuffer& operator=(SoundBuffer&&) noexcept = default;
 
 			static std::shared_ptr<SoundBuffer> LoadFromFile(const std::filesystem::path& filePath, const SoundBufferParams& params = SoundBufferParams());
 			static std::shared_ptr<SoundBuffer> LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params = SoundBufferParams());

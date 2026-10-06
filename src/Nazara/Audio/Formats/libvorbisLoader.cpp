@@ -23,7 +23,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		inline std::span<const AudioChannel> GetVorbisAudioChannelMap(UInt32 channelCount)
 		{
@@ -219,7 +219,7 @@ namespace Nz
 			}
 
 			if (parameters.format != format)
-				soundBuffer->ConvertFormat(parameters.format);
+				soundBuffer->ConvertToFormat(parameters.format);
 
 			return soundBuffer;
 		}
@@ -377,6 +377,8 @@ namespace Nz
 	{
 		SoundBufferLoader::Entry GetSoundBufferLoader_libvorbis()
 		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
 			SoundBufferLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsVorbisSupported;
 			loaderEntry.streamLoader = LoadVorbisSoundBuffer;
@@ -393,6 +395,8 @@ namespace Nz
 
 		SoundStreamLoader::Entry GetSoundStreamLoader_libvorbis()
 		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
 			SoundStreamLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsVorbisSupported;
 			loaderEntry.fileLoader = LoadVorbisSoundStreamFile;

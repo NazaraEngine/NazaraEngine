@@ -23,7 +23,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		std::size_t ReadMp3Callback(void* pUserData, void* pBufferOut, size_t bytesToRead)
 		{
@@ -105,7 +105,7 @@ namespace Nz
 			}
 
 			if (parameters.format != format)
-				soundBuffer->ConvertFormat(parameters.format);
+				soundBuffer->ConvertToFormat(parameters.format);
 
 			return soundBuffer;
 		}
@@ -257,6 +257,8 @@ namespace Nz
 	{
 		SoundBufferLoader::Entry GetSoundBufferLoader_drmp3()
 		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
 			SoundBufferLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsMp3Supported;
 			loaderEntry.streamLoader = LoadMp3SoundBuffer;
@@ -273,6 +275,8 @@ namespace Nz
 
 		SoundStreamLoader::Entry GetSoundStreamLoader_drmp3()
 		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
 			SoundStreamLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsMp3Supported;
 			loaderEntry.fileLoader = LoadMp3SoundStreamFile;

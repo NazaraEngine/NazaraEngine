@@ -20,7 +20,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		struct FlacUserdata
 		{
@@ -471,6 +471,8 @@ namespace Nz
 	{
 		SoundBufferLoader::Entry GetSoundBufferLoader_libflac()
 		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
 			SoundBufferLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsFlacSupported;
 			loaderEntry.streamLoader     = LoadFlacSoundBuffer;
@@ -487,6 +489,8 @@ namespace Nz
 
 		SoundStreamLoader::Entry GetSoundStreamLoader_libflac()
 		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
 			SoundStreamLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsFlacSupported;
 			loaderEntry.fileLoader       = LoadFlacSoundStreamFile;

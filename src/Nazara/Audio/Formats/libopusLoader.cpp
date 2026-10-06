@@ -21,7 +21,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		constexpr UInt32 OpusFileSampleRate = 48000;
 
@@ -255,7 +255,7 @@ namespace Nz
 			}
 
 			if (parameters.format != format)
-				soundBuffer->ConvertFormat(parameters.format);
+				soundBuffer->ConvertToFormat(parameters.format);
 
 			return soundBuffer;
 		}
@@ -407,6 +407,8 @@ namespace Nz
 	{
 		SoundBufferLoader::Entry GetSoundBufferLoader_libopus()
 		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
 			SoundBufferLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsOpusSupported;
 			loaderEntry.streamLoader = LoadOpusSoundBuffer;
@@ -423,6 +425,8 @@ namespace Nz
 
 		SoundStreamLoader::Entry GetSoundStreamLoader_libopus()
 		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
 			SoundStreamLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsOpusSupported;
 			loaderEntry.fileLoader = LoadOpusSoundStreamFile;
