@@ -44,6 +44,10 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 				CHECK(soundBuffer->GetSampleRate() == 32000);
 				CHECK(CompareChannels(soundBuffer->GetChannels(), { { Nz::AudioChannel::FrontLeft, Nz::AudioChannel::FrontRight } }));
 			}
+			AND_THEN("We save it to a .wav file")
+			{
+				CHECK(soundBuffer->SaveToFile(GetAssetDir() / "Audio/file_example_MP3_700KB.wav"));
+			}
 		}
 
 		WHEN("We load a .ogg file")
@@ -58,6 +62,10 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 				CHECK(soundBuffer->GetFrameCount() == 2780928);
 				CHECK(soundBuffer->GetSampleRate() == 44100);
 				CHECK(CompareChannels(soundBuffer->GetChannels(), { { Nz::AudioChannel::FrontLeft, Nz::AudioChannel::FrontRight } }));
+			}
+			AND_THEN("We save it to a .opus file")
+			{
+				CHECK(soundBuffer->SaveToFile(GetAssetDir() / "Audio/The_Brabanconne.opus"));
 			}
 		}
 

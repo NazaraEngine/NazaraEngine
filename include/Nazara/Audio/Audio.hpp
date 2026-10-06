@@ -40,6 +40,8 @@ namespace Nz
 
 			SoundBufferLoader& GetSoundBufferLoader();
 			const SoundBufferLoader& GetSoundBufferLoader() const;
+			SoundBufferSaver& GetSoundBufferSaver();
+			const SoundBufferSaver& GetSoundBufferSaver() const;
 			SoundStreamLoader& GetSoundStreamLoader();
 			const SoundStreamLoader& GetSoundStreamLoader() const;
 
@@ -62,6 +64,7 @@ namespace Nz
 
 		private:
 			SoundBufferLoader m_soundBufferLoader;
+			SoundBufferSaver m_soundBufferSaver;
 			SoundStreamLoader m_soundStreamLoader;
 			ma_context* m_maContext;
 

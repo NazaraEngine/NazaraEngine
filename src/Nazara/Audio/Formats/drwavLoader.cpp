@@ -39,7 +39,7 @@ namespace Nz
 					return stream->SetCursorPos(offset);
 
 				case DRWAV_SEEK_CUR:
-					return (stream->Read(nullptr, static_cast<std::size_t>(offset)) != 0);
+					return stream->SetCursorPos(SafeCaster(SafeCast<Int64>(stream->GetCursorPos()) + offset));
 
 				case DRWAV_SEEK_END:
 					return stream->SetCursorPos(stream->GetSize());
@@ -50,7 +50,6 @@ namespace Nz
 			}
 		}
 
-
 		drwav_bool32 TellWavCallback(void* pUserData, drwav_int64* pCursor)
 		{
 			Stream* stream = static_cast<Stream*>(pUserData);
@@ -58,9 +57,15 @@ namespace Nz
 			return true;
 		}
 
+		std::size_t WriteWavCallback(void* pUserData, const void* pData, size_t bytesToWrite)
+		{
+			Stream* stream = static_cast<Stream*>(pUserData);
+			return stream->Write(pData, bytesToWrite);
+		}
+
 		bool IsWavSupported(std::string_view extension)
 		{
-			return extension == ".riff" || extension == ".rf64" || extension == ".wav" || extension == ".w64";
+			return extension == ".riff" || extension == ".rf64" || extension == ".wav" || extension == ".wave" || extension == ".w64";
 		}
 
 		Result<std::shared_ptr<SoundBuffer>, ResourceLoadingError> LoadWavSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
@@ -108,6 +113,59 @@ namespace Nz
 				soundBuffer->ConvertToFormat(parameters.format);
 
 			return soundBuffer;
+		}
+
+		bool SaveWavSoundBuffer(const SoundBuffer& soundBuffer, std::string_view format, Stream& stream, const SoundBufferParams& parameters)
+		{
+			drwav_container container;
+			if (format == ".riff" || format == ".wav" || format == ".wave")
+				container = drwav_container_riff;
+			else if (format == ".w64")
+				container = drwav_container_w64;
+			else if (format == ".rf64")
+				container = drwav_container_rf64;
+			else
+				return false; //< unsuppported
+
+			SoundBuffer convertedSoundBuffer;
+			const SoundBuffer* targetSoundBuffer = &soundBuffer;
+			switch (soundBuffer.GetFormat())
+			{
+				case AudioFormat::Unknown:
+				{
+					NazaraError("invalid audio format");
+					return false;
+				}
+
+				case AudioFormat::Floating32:
+				case AudioFormat::Signed16:
+				case AudioFormat::Signed24:
+				case AudioFormat::Signed32:
+					break;
+
+				case AudioFormat::Unsigned8:
+					convertedSoundBuffer = soundBuffer.ConvertToFormatCopy(AudioFormat::Signed16);
+					targetSoundBuffer = &convertedSoundBuffer;
+					break;
+			}
+
+			drwav_data_format dataFormat = {
+				.container = container,
+				.format = targetSoundBuffer->GetFormat() == AudioFormat::Floating32 ? drwav_uint32(DR_WAVE_FORMAT_IEEE_FLOAT) : drwav_uint32(DR_WAVE_FORMAT_PCM),
+				.channels = SafeCaster(targetSoundBuffer->GetChannels().size()),
+				.sampleRate = targetSoundBuffer->GetSampleRate(),
+				.bitsPerSample = SafeCaster(s_AudioFormatSize[targetSoundBuffer->GetFormat()] * 8)
+			};
+
+			UInt64 frameCount = targetSoundBuffer->GetFrameCount();
+
+			drwav wav;
+			if (!drwav_init_write_sequential_pcm_frames(&wav, &dataFormat, frameCount, &WriteWavCallback, &stream, nullptr))
+				return false;
+
+			NAZARA_DEFER(drwav_uninit(&wav););
+
+			return drwav_write_pcm_frames(&wav, frameCount, targetSoundBuffer->GetSamples()) == frameCount;
 		}
 
 		class drwavStream : public SoundStream
@@ -291,6 +349,17 @@ namespace Nz
 			};
 
 			return loaderEntry;
+		}
+
+		SoundBufferSaver::Entry GetSoundBufferSaver_drwav()
+		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
+			SoundBufferSaver::Entry saverEntry;
+			saverEntry.formatSupport = IsWavSupported;
+			saverEntry.streamSaver = SaveWavSoundBuffer;
+
+			return saverEntry;
 		}
 	}
 }

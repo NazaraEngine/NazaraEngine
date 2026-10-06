@@ -101,6 +101,22 @@ namespace Nz
 		return Ok(ReadData{ frameCount, startingFrameIndex + frameCount });
 	}
 
+	bool SoundBuffer::SaveToFile(const std::filesystem::path& filePath, const SoundBufferParams& params) const
+	{
+		Audio* audio = Audio::Instance();
+		NazaraAssertMsg(audio, "Audio module has not been initialized");
+
+		return audio->GetSoundBufferSaver().SaveToFile(*this, filePath, params);
+	}
+
+	bool SoundBuffer::SaveToStream(Stream& stream, std::string_view format, const SoundBufferParams& params) const
+	{
+		Audio* audio = Audio::Instance();
+		NazaraAssertMsg(audio, "Audio module has not been initialized");
+
+		return audio->GetSoundBufferSaver().SaveToStream(*this, stream, format, params);
+	}
+
 	/*!
 	* \brief Loads the sound buffer from file
 	* \return true if loading is successful

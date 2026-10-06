@@ -69,6 +69,10 @@ namespace Nz
 
 			Result<ReadData, std::string> Read(UInt64 startingFrameIndex, void* frameOut, UInt64 frameCount) override;
 
+			// Save
+			bool SaveToFile(const std::filesystem::path& filePath, const SoundBufferParams& params = SoundBufferParams()) const;
+			bool SaveToStream(Stream& stream, std::string_view format, const SoundBufferParams& params = SoundBufferParams()) const;
+
 			SoundBuffer& operator=(const SoundBuffer&) = delete;
 			SoundBuffer& operator=(SoundBuffer&&) noexcept = default;
 

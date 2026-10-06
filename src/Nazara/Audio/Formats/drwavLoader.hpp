@@ -14,6 +14,7 @@
 namespace Nz::Loaders
 {
 	SoundBufferLoader::Entry GetSoundBufferLoader_drwav();
+	SoundBufferSaver::Entry GetSoundBufferSaver_drwav();
 	SoundStreamLoader::Entry GetSoundStreamLoader_drwav();
 }
 
