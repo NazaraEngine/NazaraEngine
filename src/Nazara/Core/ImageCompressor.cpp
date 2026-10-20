@@ -5,6 +5,7 @@
 #include <Nazara/Core/ImageCompressor.hpp>
 #include <Nazara/Core/Image.hpp>
 #include <NazaraUtils/MathUtils.hpp>
+#include <bc_crunch.h>
 
 #define STB_DXT_IMPLEMENTATION
 #include <stb/stb_dxt.h>
@@ -194,5 +195,27 @@ namespace Nz::ImageCompressor
 	Image RG8ToBC5(const Image& sourceImage)
 	{
 		return CompressImage<PixelFormat::RG8, PixelFormat::BC5_Unorm, 4, 16>(sourceImage, RG8BlockToBC5);
+	}
+
+
+	static_assert(bc_format::bc1 == UnderlyingCast(BCFormat::BC1));
+	static_assert(bc_format::bc3 == UnderlyingCast(BCFormat::BC3));
+	static_assert(bc_format::bc4 == UnderlyingCast(BCFormat::BC4));
+	static_assert(bc_format::bc5 == UnderlyingCast(BCFormat::BC5));
+	static_assert(EnumValueCount_v<BCFormat> == 4);
+
+	BCCruncher::BCCruncher()
+	{
+		m_memory = std::make_unique<UInt8[]>(crunch_min_size());
+	}
+
+	std::size_t BCCruncher::Crunch(const void* input, UInt32 width, UInt32 height, BCFormat format, void* output, std::size_t length)
+	{
+		return bc_crunch(m_memory.get(), input, width, height, static_cast<bc_format>(UnderlyingCast(format)), output, length);
+	}
+
+	void BCCruncher::Decrunch(const void* input, std::size_t length, UInt32 width, UInt32 height, BCFormat format, void* output)
+	{
+		return bc_decrunch(input, length, width, height, static_cast<bc_format>(UnderlyingCast(format)), output);
 	}
 }

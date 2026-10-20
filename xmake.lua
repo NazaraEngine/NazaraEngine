@@ -106,7 +106,7 @@ local modules = {
 				remove_files("src/Nazara/Core/Posix/TimeImpl.cpp")
 			end
 		end,
-		Packages = { "concurrentqueue", "entt", "frozen", "ordered_map", "stb", "utfcpp" },
+		Packages = { "bc_crunch", "concurrentqueue", "entt", "frozen", "ordered_map", "stb", "utfcpp" },
 		PublicPackages = { "nazarautils" }
 	},
 	Graphics = {
@@ -282,6 +282,7 @@ set_policy("install.strip_packagelibs", false)
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 
 add_requires(
+	"bc_crunch",
 	"concurrentqueue",
 	"entt",
 	"fmt",
