@@ -28,6 +28,18 @@ namespace Nz::ImageCompressor
 				for (std::size_t y = 0; y < BlockSize; ++y)
 					std::memcpy(&output[y * BlockSize * 1], &input[y * sourcePitch], BlockSize * 1);
 			}
+			
+			template<UInt32 BlockSize>
+			static void ExtractClamped(const UInt8* input, std::size_t sourcePitch, std::size_t remainingWidth, std::size_t remainingHeight, std::span<UInt8, BlockSize * BlockSize * TargetBpp> output)
+			{
+				std::size_t valueCount = std::min<std::size_t>(remainingWidth, BlockSize);
+				for (std::size_t y = 0; y < BlockSize; ++y)
+				{
+					std::memcpy(&output[y * BlockSize * 1], input, valueCount * 1);
+					if (remainingHeight-- > 0)
+						input += sourcePitch;
+				}
+			}
 		};
 
 		template<>
@@ -41,6 +53,18 @@ namespace Nz::ImageCompressor
 				for (std::size_t y = 0; y < BlockSize; ++y)
 					std::memcpy(&output[y * BlockSize * 2], &input[y * sourcePitch], BlockSize * 2);
 			}
+
+			template<UInt32 BlockSize>
+			static void ExtractClamped(const UInt8* input, std::size_t sourcePitch, std::size_t remainingWidth, std::size_t remainingHeight, std::span<UInt8, BlockSize* BlockSize * TargetBpp> output)
+			{
+				std::size_t valueCount = std::min<std::size_t>(remainingWidth, BlockSize);
+				for (std::size_t y = 0; y < BlockSize; ++y)
+				{
+					std::memcpy(&output[y * BlockSize * 2], input, valueCount * 2);
+					if (remainingHeight-- > 0)
+						input += sourcePitch;
+				}
+			}
 		};
 
 		template<>
@@ -49,25 +73,50 @@ namespace Nz::ImageCompressor
 			static constexpr std::size_t TargetBpp = 4;
 
 			template<UInt32 BlockSize>
-			static void Extract(const UInt8* input, std::size_t sourcePitch, std::span<UInt8, BlockSize * BlockSize * 4> output)
+			static void Extract(const UInt8* input, std::size_t sourcePitch, std::span<UInt8, BlockSize * BlockSize * TargetBpp> output)
 			{
-				const UInt8* inputPtr = input;
 				UInt8* outputPtr = output.data();
 				for (std::size_t y = 0; y < BlockSize; ++y)
 				{
-					const UInt8* sourceRowPtr = inputPtr;
+					const UInt8* sourcePtr = input;
 					for (std::size_t x = 0; x < BlockSize; ++x)
 					{
-						outputPtr[0] = input[0];
-						outputPtr[1] = input[1];
-						outputPtr[2] = input[2];
+						outputPtr[0] = sourcePtr[0];
+						outputPtr[1] = sourcePtr[1];
+						outputPtr[2] = sourcePtr[2];
 						outputPtr[3] = 0xFF;
 
-						sourceRowPtr += 4;
+						sourcePtr += 3;
 						outputPtr += 4;
 					}
 
-					inputPtr += sourcePitch;
+					input += sourcePitch;
+				}
+			}
+
+			template<UInt32 BlockSize>
+			static void ExtractClamped(const UInt8* input, std::size_t sourcePitch, std::size_t remainingWidth, std::size_t remainingHeight, std::span<UInt8, BlockSize * BlockSize * TargetBpp> output)
+			{
+				UInt8* outputPtr = output.data();
+				for (std::size_t y = 0; y < BlockSize; ++y)
+				{
+					const UInt8* sourcePtr = input;
+					std::size_t rowRemainingWidth = remainingWidth;
+					for (std::size_t x = 0; x < BlockSize; ++x)
+					{
+						outputPtr[0] = sourcePtr[0];
+						outputPtr[1] = sourcePtr[1];
+						outputPtr[2] = sourcePtr[2];
+						outputPtr[3] = 0xFF;
+
+						if (rowRemainingWidth-- > 0)
+							sourcePtr += 3;
+
+						outputPtr += 4;
+					}
+
+					if (remainingHeight-- > 0)
+						input += sourcePitch;
 				}
 			}
 		};
@@ -82,6 +131,18 @@ namespace Nz::ImageCompressor
 			{
 				for (std::size_t y = 0; y < BlockSize; ++y)
 					std::memcpy(&output[y * BlockSize * 4], &input[y * sourcePitch], BlockSize * 4);
+			}
+
+			template<UInt32 BlockSize>
+			static void ExtractClamped(const UInt8* input, std::size_t sourcePitch, std::size_t remainingWidth, std::size_t remainingHeight, std::span<UInt8, BlockSize* BlockSize * TargetBpp> output)
+			{
+				std::size_t valueCount = std::min<std::size_t>(remainingWidth, BlockSize);
+				for (std::size_t y = 0; y < BlockSize; ++y)
+				{
+					std::memcpy(&output[y * BlockSize * 4], input, valueCount * 4);
+					if (remainingHeight-- > 0)
+						input += sourcePitch;
+				}
 			}
 		};
 	}
@@ -138,6 +199,9 @@ namespace Nz::ImageCompressor
 
 			UInt32 blockCountX = width / BlockSize;
 			UInt32 blockCountY = height / BlockSize;
+			UInt32 overflowX = width % BlockSize;
+			UInt32 overflowY = height % BlockSize;
+
 			std::size_t bpp = PixelFormatInfo::GetBytesPerPixel(sourceFormat);
 			std::size_t sourcePitch = sourceImage.GetWidth(level) * bpp;
 
@@ -148,24 +212,48 @@ namespace Nz::ImageCompressor
 				const UInt8* sourcePixels = sourceImage.GetConstPixels(0, 0, z, level);
 				UInt8* targetPixels = compressedImage.GetPixels(level) + bytesPerLayer * z;
 
+				constexpr std::size_t TargetBpp = BlockExtractor<SourceFormat>::TargetBpp;
+
 				std::size_t blockIndex = 0;
 				for (UInt32 blockY = 0; blockY < blockCountY; ++blockY)
 				{
 					const UInt8* lineStart = &sourcePixels[blockY * BlockSize * sourcePitch];
 					for (UInt32 blockX = 0; blockX < blockCountX; ++blockX)
 					{
-						constexpr std::size_t TargetBpp = BlockExtractor<SourceFormat>::TargetBpp;
-
 						std::array<UInt8, BlockSize * BlockSize * TargetBpp> blockData;
 						BlockExtractor<SourceFormat>::template Extract<BlockSize>(&lineStart[blockX * BlockSize * bpp], sourcePitch, blockData);
 						BlockCompressor(blockData, std::span<UInt8, CompressedBlockSize>(&targetPixels[blockIndex * CompressedBlockSize], CompressedBlockSize));
 						blockIndex++;
 					}
 
-					// TODO: Handle overflow blocks
+					if (overflowX > 0)
+					{
+						std::array<UInt8, BlockSize * BlockSize * TargetBpp> blockData;
+						BlockExtractor<SourceFormat>::template ExtractClamped<BlockSize>(&lineStart[blockCountX * BlockSize * bpp], sourcePitch, overflowX, BlockSize, blockData);
+						BlockCompressor(blockData, std::span<UInt8, CompressedBlockSize>(&targetPixels[blockIndex * CompressedBlockSize], CompressedBlockSize));
+						blockIndex++;
+					}
 				}
 
-				// TODO: Handle overflow blocks
+				if (overflowY > 0)
+				{
+					const UInt8* lineStart = &sourcePixels[blockCountY * BlockSize * sourcePitch];
+					for (UInt32 blockX = 0; blockX < blockCountX; ++blockX)
+					{
+						std::array<UInt8, BlockSize * BlockSize * TargetBpp> blockData;
+						BlockExtractor<SourceFormat>::template ExtractClamped<BlockSize>(&lineStart[blockX * BlockSize * bpp], sourcePitch, BlockSize, overflowY, blockData);
+						BlockCompressor(blockData, std::span<UInt8, CompressedBlockSize>(&targetPixels[blockIndex * CompressedBlockSize], CompressedBlockSize));
+						blockIndex++;
+					}
+
+					if (overflowX > 0)
+					{
+						std::array<UInt8, BlockSize* BlockSize* TargetBpp> blockData;
+						BlockExtractor<SourceFormat>::template ExtractClamped<BlockSize>(&lineStart[blockCountX * BlockSize * bpp], sourcePitch, overflowX, overflowY, blockData);
+						BlockCompressor(blockData, std::span<UInt8, CompressedBlockSize>(&targetPixels[blockIndex * CompressedBlockSize], CompressedBlockSize));
+						blockIndex++;
+					}
+				}
 			}
 		}
 
