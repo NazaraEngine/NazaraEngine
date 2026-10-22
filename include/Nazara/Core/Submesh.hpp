@@ -19,15 +19,15 @@ namespace Nz
 {
 	class Mesh;
 
-	class NAZARA_CORE_API SubMesh
+	class NAZARA_CORE_API Submesh
 	{
 		friend Mesh;
 
 		public:
-			SubMesh();
-			SubMesh(const SubMesh&) = delete;
-			SubMesh(SubMesh&&) = delete;
-			virtual ~SubMesh();
+			Submesh();
+			Submesh(const Submesh&) = delete;
+			Submesh(Submesh&&) = delete;
+			virtual ~Submesh();
 
 			void GenerateNormals();
 			void GenerateNormalsAndTangents();
@@ -46,11 +46,11 @@ namespace Nz
 			void SetMaterialIndex(std::size_t matIndex);
 			void SetPrimitiveMode(PrimitiveMode mode);
 
-			SubMesh& operator=(const SubMesh&) = delete;
-			SubMesh& operator=(SubMesh&&) = delete;
+			Submesh& operator=(const Submesh&) = delete;
+			Submesh& operator=(Submesh&&) = delete;
 
 			// Signals:
-			NazaraSignal(OnSubMeshInvalidateAABB, const SubMesh* /*subMesh*/);
+			NazaraSignal(OnSubmeshInvalidateAABB, const Submesh* /*submesh*/);
 
 		protected:
 			PrimitiveMode m_primitiveMode;

@@ -137,9 +137,9 @@ int main(int argc, char* argv[])
 			materials[i] = Nz::MaterialInstance::GetDefault(Nz::MaterialType::Basic);
 	}
 
-	for (std::size_t i = 0; i < characterMesh->GetSubMeshCount(); ++i)
+	for (std::size_t i = 0; i < characterMesh->GetSubmeshCount(); ++i)
 	{
-		std::size_t matIndex = characterMesh->GetSubMesh(i)->GetMaterialIndex();
+		std::size_t matIndex = characterMesh->GetSubmesh(i)->GetMaterialIndex();
 		if (materials[matIndex])
 			bobModel->SetMaterial(i, materials[matIndex]);
 	}

@@ -18,7 +18,7 @@
 #include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Core/Skeleton.hpp>
 #include <Nazara/Core/SoftwareBuffer.hpp>
-#include <Nazara/Core/SubMesh.hpp>
+#include <Nazara/Core/Submesh.hpp>
 #include <Nazara/Core/VertexDeclaration.hpp>
 #include <Nazara/Core/VertexStruct.hpp>
 #include <Nazara/Math/Box.hpp>
@@ -81,7 +81,7 @@ namespace Nz
 	struct Primitive;
 	class PrimitiveList;
 	class StaticMesh;
-	class SubMesh;
+	class Submesh;
 
 	using MeshVertex = VertexStruct_XYZ_Normal_UV_Tangent;
 	using SkeletalMeshVertex = VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
@@ -103,11 +103,11 @@ namespace Nz
 			Mesh(Mesh&&) = delete;
 			~Mesh() = default;
 
-			void AddSubMesh(std::shared_ptr<SubMesh> subMesh);
-			void AddSubMesh(std::string identifier, std::shared_ptr<SubMesh> subMesh);
+			void AddSubmesh(std::shared_ptr<Submesh> submesh);
+			void AddSubmesh(std::string identifier, std::shared_ptr<Submesh> submesh);
 
-			std::shared_ptr<SubMesh> BuildSubMesh(const Primitive& primitive, const MeshParams& params = MeshParams());
-			void BuildSubMeshes(const PrimitiveList& primitiveList, const MeshParams& params = MeshParams());
+			std::shared_ptr<Submesh> BuildSubmesh(const Primitive& primitive, const MeshParams& params = MeshParams());
+			void BuildSubmeshes(const PrimitiveList& primitiveList, const MeshParams& params = MeshParams());
 
 			bool CreateSkeletal(std::size_t jointCount);
 			bool CreateStatic();
@@ -126,15 +126,15 @@ namespace Nz
 			std::size_t GetMaterialCount() const;
 			Skeleton* GetSkeleton();
 			const Skeleton* GetSkeleton() const;
-			const std::shared_ptr<SubMesh>& GetSubMesh(std::string_view identifier) const;
-			const std::shared_ptr<SubMesh>& GetSubMesh(std::size_t index) const;
-			std::size_t GetSubMeshCount() const;
-			std::size_t GetSubMeshIndex(std::string_view identifier) const;
+			const std::shared_ptr<Submesh>& GetSubmesh(std::string_view identifier) const;
+			const std::shared_ptr<Submesh>& GetSubmesh(std::size_t index) const;
+			std::size_t GetSubmeshCount() const;
+			std::size_t GetSubmeshIndex(std::string_view identifier) const;
 			UInt32 GetTriangleCount() const;
 			UInt32 GetVertexCount() const;
 
-			bool HasSubMesh(std::string_view identifier) const;
-			bool HasSubMesh(std::size_t index = 0) const;
+			bool HasSubmesh(std::string_view identifier) const;
+			bool HasSubmesh(std::size_t index = 0) const;
 
 			void InvalidateAABB() const;
 
@@ -143,8 +143,8 @@ namespace Nz
 
 			void Recenter();
 
-			void RemoveSubMesh(std::string_view identifier);
-			void RemoveSubMesh(std::size_t index);
+			void RemoveSubmesh(std::string_view identifier);
+			void RemoveSubmesh(std::size_t index);
 
 			bool SaveToFile(const std::filesystem::path& filePath, const MeshParams& params = MeshParams());
 			bool SaveToStream(Stream& stream, std::string_view format, const MeshParams& params = MeshParams());
@@ -170,17 +170,17 @@ namespace Nz
 			NazaraSignal(OnMeshInvalidateAABB, const Mesh* /*mesh*/);
 
 		private:
-			struct SubMeshData
+			struct SubmeshData
 			{
-				std::shared_ptr<SubMesh> subMesh;
+				std::shared_ptr<Submesh> submesh;
 
-				NazaraSlot(SubMesh, OnSubMeshInvalidateAABB, onSubMeshInvalidated);
+				NazaraSlot(Submesh, OnSubmeshInvalidateAABB, onSubmeshInvalidated);
 			};
 
 			std::size_t m_jointCount; // Only used by skeletal meshes
-			std::unordered_map<std::string, std::size_t, StringHash<>, std::equal_to<>> m_subMeshMap;
+			std::unordered_map<std::string, std::size_t, StringHash<>, std::equal_to<>> m_submeshMap;
 			std::vector<ParameterList> m_materialData;
-			std::vector<SubMeshData> m_subMeshes;
+			std::vector<SubmeshData> m_submeshes;
 			AnimationType m_animationType;
 			mutable Boxf m_aabb;
 			Skeleton m_skeleton; // Only used by skeletal meshes

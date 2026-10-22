@@ -150,12 +150,12 @@ int main()
 			case Nz::WindowEventType::KeyPressed:
 				if (event.key.virtualKey == Nz::Keyboard::VKey::A)
 				{
-					for (std::size_t i = 0; i < spaceshipModel->GetSubMeshCount(); ++i)
+					for (std::size_t i = 0; i < spaceshipModel->GetSubmeshCount(); ++i)
 						spaceshipModel->SetMaterial(i, materialInstance);
 				}
 				else if (event.key.virtualKey == Nz::Keyboard::VKey::B)
 				{
-					for (std::size_t i = 0; i < spaceshipModel->GetSubMeshCount(); ++i)
+					for (std::size_t i = 0; i < spaceshipModel->GetSubmeshCount(); ++i)
 						spaceshipModel->SetMaterial(i, materialInstance2);
 				}
 

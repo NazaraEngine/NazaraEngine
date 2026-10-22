@@ -15,7 +15,7 @@ SCENARIO("Meshes", "[Core][Mesh]")
 			REQUIRE(spaceship);
 
 			CHECK(!spaceship->IsAnimable());
-			CHECK(spaceship->GetSubMeshCount() == 2);
+			CHECK(spaceship->GetSubmeshCount() == 2);
 			CHECK(spaceship->GetMaterialCount() == 2);
 			CHECK(spaceship->GetTriangleCount() == 6814);
 			CHECK(spaceship->GetVertexCount() == 8713);
@@ -27,7 +27,7 @@ SCENARIO("Meshes", "[Core][Mesh]")
 			REQUIRE(spacestation);
 
 			CHECK(!spacestation->IsAnimable());
-			CHECK(spacestation->GetSubMeshCount() == 1);
+			CHECK(spacestation->GetSubmeshCount() == 1);
 			CHECK(spacestation->GetMaterialCount() == 1);
 			CHECK(spacestation->GetTriangleCount() == 422);
 			CHECK(spacestation->GetVertexCount() == 516);
@@ -42,7 +42,7 @@ SCENARIO("Meshes", "[Core][Mesh]")
 			CHECK(drfreak);
 
 			CHECK(!drfreak->IsAnimable()); //< non-skeletal animations are not supported
-			CHECK(drfreak->GetSubMeshCount() == 1);
+			CHECK(drfreak->GetSubmeshCount() == 1);
 			CHECK(drfreak->GetMaterialCount() == 1);
 			CHECK(drfreak->GetTriangleCount() == 593);
 			CHECK(drfreak->GetVertexCount() == 496);

@@ -13,13 +13,13 @@
 
 namespace Nz
 {
-	class SubMesh;
+	class Submesh;
 
 	class NAZARA_CORE_API TriangleIterator
 	{
 		public:
 			TriangleIterator(PrimitiveMode primitiveMode, IndexBuffer& indexBuffer);
-			TriangleIterator(SubMesh& subMesh);
+			TriangleIterator(Submesh& submesh);
 			~TriangleIterator() = default;
 
 			bool Advance();

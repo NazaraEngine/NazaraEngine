@@ -7,27 +7,27 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/SkeletalMesh.hpp>
 #include <Nazara/Core/StaticMesh.hpp>
-#include <Nazara/Core/SubMesh.hpp>
+#include <Nazara/Core/Submesh.hpp>
 
 namespace Nz
 {
-	VertexMapper::VertexMapper(SubMesh& subMesh)
+	VertexMapper::VertexMapper(Submesh& submesh)
 	{
 		ErrorFlags flags(ErrorMode::ThrowException);
 
 		std::shared_ptr<VertexBuffer> buffer = nullptr;
-		switch (subMesh.GetAnimationType())
+		switch (submesh.GetAnimationType())
 		{
 			case AnimationType::Skeletal:
 			{
-				SkeletalMesh& skeletalMesh = static_cast<SkeletalMesh&>(subMesh);
+				SkeletalMesh& skeletalMesh = static_cast<SkeletalMesh&>(submesh);
 				buffer = skeletalMesh.GetVertexBuffer();
 				break;
 			}
 
 			case AnimationType::Static:
 			{
-				StaticMesh& staticMesh = static_cast<StaticMesh&>(subMesh);
+				StaticMesh& staticMesh = static_cast<StaticMesh&>(submesh);
 				buffer = staticMesh.GetVertexBuffer();
 				break;
 			}
@@ -35,7 +35,7 @@ namespace Nz
 
 		if (!buffer)
 		{
-			NazaraInternalError("animation type not handled ({0:#x})", UnderlyingCast(subMesh.GetAnimationType()));
+			NazaraInternalError("animation type not handled ({0:#x})", UnderlyingCast(submesh.GetAnimationType()));
 		}
 
 		m_mapper.Map(*buffer, 0, buffer->GetVertexCount());

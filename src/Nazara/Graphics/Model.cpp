@@ -20,14 +20,14 @@ namespace Nz
 	Model::Model(std::shared_ptr<GraphicalMesh> graphicalMesh) :
 	m_graphicalMesh(std::move(graphicalMesh))
 	{
-		m_submeshes.reserve(m_graphicalMesh->GetSubMeshCount());
-		for (std::size_t i = 0; i < m_graphicalMesh->GetSubMeshCount(); ++i)
+		m_submeshes.reserve(m_graphicalMesh->GetSubmeshCount());
+		for (std::size_t i = 0; i < m_graphicalMesh->GetSubmeshCount(); ++i)
 		{
-			auto& subMeshData = m_submeshes.emplace_back();
-			subMeshData.material = MaterialInstance::GetDefault(MaterialType::Basic);
+			auto& submeshData = m_submeshes.emplace_back();
+			submeshData.material = MaterialInstance::GetDefault(MaterialType::Basic);
 			if (const auto& vertexDeclaration = m_graphicalMesh->GetVertexDeclaration(i))
 			{
-				subMeshData.vertexBufferData = {
+				submeshData.vertexBufferData = {
 					{
 						0,
 						vertexDeclaration
@@ -83,21 +83,21 @@ namespace Nz
 		return std::make_shared<Model>(*this, CopyToken{});
 	}
 
-	const std::shared_ptr<GpuBuffer>& Model::GetIndexBuffer(std::size_t subMeshIndex) const
+	const std::shared_ptr<GpuBuffer>& Model::GetIndexBuffer(std::size_t submeshIndex) const
 	{
-		return m_graphicalMesh->GetIndexBuffer(subMeshIndex);
+		return m_graphicalMesh->GetIndexBuffer(submeshIndex);
 	}
 
-	std::size_t Model::GetIndexCount(std::size_t subMeshIndex) const
+	std::size_t Model::GetIndexCount(std::size_t submeshIndex) const
 	{
-		return m_graphicalMesh->GetIndexCount(subMeshIndex);
+		return m_graphicalMesh->GetIndexCount(submeshIndex);
 	}
 
-	const std::shared_ptr<MaterialInstance>& Model::GetMaterial(std::size_t subMeshIndex) const
+	const std::shared_ptr<MaterialInstance>& Model::GetMaterial(std::size_t submeshIndex) const
 	{
-		NazaraAssertMsg(subMeshIndex < m_submeshes.size(), "material index out of range (%zu >= %zu)", subMeshIndex, m_submeshes.size());
-		const auto& subMeshData = m_submeshes[subMeshIndex];
-		return subMeshData.material;
+		NazaraAssertMsg(submeshIndex < m_submeshes.size(), "material index out of range (%zu >= %zu)", submeshIndex, m_submeshes.size());
+		const auto& submeshData = m_submeshes[submeshIndex];
+		return submeshData.material;
 	}
 
 	std::size_t Model::GetMaterialCount() const
@@ -105,16 +105,16 @@ namespace Nz
 		return m_submeshes.size();
 	}
 
-	const RenderPipelineInfo::VertexInputVector& Model::GetVertexBufferData(std::size_t subMeshIndex) const
+	const RenderPipelineInfo::VertexInputVector& Model::GetVertexBufferData(std::size_t submeshIndex) const
 	{
-		NazaraAssertMsg(subMeshIndex < m_submeshes.size(), "submesh index out of range (%zu >= %zu)", subMeshIndex, m_submeshes.size());
-		const auto& subMeshData = m_submeshes[subMeshIndex];
-		return subMeshData.vertexBufferData;
+		NazaraAssertMsg(submeshIndex < m_submeshes.size(), "submesh index out of range (%zu >= %zu)", submeshIndex, m_submeshes.size());
+		const auto& submeshData = m_submeshes[submeshIndex];
+		return submeshData.vertexBufferData;
 	}
 
-	const std::shared_ptr<GpuBuffer>& Model::GetVertexBuffer(std::size_t subMeshIndex) const
+	const std::shared_ptr<GpuBuffer>& Model::GetVertexBuffer(std::size_t submeshIndex) const
 	{
-		return m_graphicalMesh->GetVertexBuffer(subMeshIndex);
+		return m_graphicalMesh->GetVertexBuffer(submeshIndex);
 	}
 
 	std::shared_ptr<Model> Model::BuildFromMesh(const Mesh& mesh)
@@ -125,8 +125,8 @@ namespace Nz
 		for (std::size_t i = 0; i < materials.size(); ++i)
 			materials[i] = MaterialInstance::Build(mesh.GetMaterialData(i));
 
-		for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
-			model->SetMaterial(i, materials[mesh.GetSubMesh(i)->GetMaterialIndex()]);
+		for (std::size_t i = 0; i < model->GetSubmeshCount(); ++i)
+			model->SetMaterial(i, materials[mesh.GetSubmesh(i)->GetMaterialIndex()]);
 
 		return model;
 	}
@@ -158,7 +158,7 @@ namespace Nz
 	void Model::UpdateAABB()
 	{
 		Boxf aabb = Boxf::Invalid();
-		for (std::size_t i = 0; i < m_graphicalMesh->GetSubMeshCount(); ++i)
+		for (std::size_t i = 0; i < m_graphicalMesh->GetSubmeshCount(); ++i)
 		{
 			if (i > 0)
 				aabb.ExtendTo(m_graphicalMesh->GetAABB(i));

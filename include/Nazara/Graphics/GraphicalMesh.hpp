@@ -22,31 +22,31 @@ namespace Nz
 	class NAZARA_GRAPHICS_API GraphicalMesh
 	{
 		public:
-			struct SubMesh;
+			struct Submesh;
 
 			GraphicalMesh() = default;
 			GraphicalMesh(const GraphicalMesh&) = delete;
 			GraphicalMesh(GraphicalMesh&&) noexcept = default;
 			~GraphicalMesh() = default;
 
-			inline std::size_t AddSubMesh(SubMesh subMesh);
+			inline std::size_t AddSubmesh(Submesh submesh);
 
 			inline void Clear();
 
-			inline const Boxf& GetAABB(std::size_t subMesh) const;
-			inline const std::shared_ptr<GpuBuffer>& GetIndexBuffer(std::size_t subMesh) const;
-			inline UInt32 GetIndexCount(std::size_t subMesh) const;
-			inline IndexType GetIndexType(std::size_t subMesh) const;
-			inline const std::shared_ptr<GpuBuffer>& GetVertexBuffer(std::size_t subMesh) const;
-			inline const std::shared_ptr<const VertexDeclaration>& GetVertexDeclaration(std::size_t subMesh) const;
-			inline std::size_t GetSubMeshCount() const;
+			inline const Boxf& GetAABB(std::size_t submeshIndex) const;
+			inline const std::shared_ptr<GpuBuffer>& GetIndexBuffer(std::size_t submeshIndex) const;
+			inline UInt32 GetIndexCount(std::size_t submeshIndex) const;
+			inline IndexType GetIndexType(std::size_t submeshIndex) const;
+			inline const std::shared_ptr<GpuBuffer>& GetVertexBuffer(std::size_t submeshIndex) const;
+			inline const std::shared_ptr<const VertexDeclaration>& GetVertexDeclaration(std::size_t submeshIndex) const;
+			inline std::size_t GetSubmeshCount() const;
 
-			inline void UpdateSubMeshIndexCount(std::size_t subMeshIndex, UInt32 indexCount);
+			inline void UpdateSubmeshIndexCount(std::size_t submeshIndex, UInt32 indexCount);
 
 			GraphicalMesh& operator=(const GraphicalMesh&) = delete;
 			GraphicalMesh& operator=(GraphicalMesh&&) = delete;
 
-			struct SubMesh
+			struct Submesh
 			{
 				std::shared_ptr<GpuBuffer> indexBuffer;
 				std::shared_ptr<GpuBuffer> vertexBuffer;
@@ -64,7 +64,7 @@ namespace Nz
 			NazaraSignal(OnInvalidated, GraphicalMesh* /*gfxMesh*/);
 
 		private:
-			std::vector<SubMesh> m_subMeshes;
+			std::vector<Submesh> m_submeshes;
 	};
 }
 

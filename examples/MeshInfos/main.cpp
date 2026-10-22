@@ -77,7 +77,7 @@ int main()
 			// Inutile de faire un case default (GetAnimationType renverra toujours une valeur correcte)
 		}
 
-		std::cout << "It has a total of " << mesh->GetVertexCount() << " vertices for " << mesh->GetSubMeshCount() << " submesh(es)." << std::endl;
+		std::cout << "It has a total of " << mesh->GetVertexCount() << " vertices for " << mesh->GetSubmeshCount() << " submesh(es)." << std::endl;
 
 		if (mesh->IsAnimable())
 		{

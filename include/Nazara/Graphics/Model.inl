@@ -6,7 +6,7 @@
 
 namespace Nz
 {
-	inline std::size_t Model::GetSubMeshCount() const
+	inline std::size_t Model::GetSubmeshCount() const
 	{
 		return m_submeshes.size();
 	}

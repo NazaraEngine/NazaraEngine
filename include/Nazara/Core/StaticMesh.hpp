@@ -8,11 +8,11 @@
 #define NAZARA_CORE_STATICMESH_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/SubMesh.hpp>
+#include <Nazara/Core/Submesh.hpp>
 
 namespace Nz
 {
-	class NAZARA_CORE_API StaticMesh final : public SubMesh
+	class NAZARA_CORE_API StaticMesh final : public Submesh
 	{
 		public:
 			StaticMesh(std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer);

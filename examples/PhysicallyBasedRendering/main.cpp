@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<Nz::Mesh> sphereMesh = std::make_shared<Nz::Mesh>();
 	sphereMesh->CreateStatic();
-	sphereMesh->BuildSubMesh(Nz::Primitive::UVSphere(1.f, 50, 50));
+	sphereMesh->BuildSubmesh(Nz::Primitive::UVSphere(1.f, 50, 50));
 	sphereMesh->SetMaterialCount(1);
 	sphereMesh->GenerateNormalsAndTangents();
 
@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 	materialInstance->SetTextureProperty(normalMapProperty, normalMap);
 
 	Nz::Model model(std::move(gfxMesh));
-	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
+	for (std::size_t i = 0; i < model.GetSubmeshCount(); ++i)
 		model.SetMaterial(i, materialInstance);
 
 	Nz::Vector2ui windowSize = window.GetSize();

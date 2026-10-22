@@ -54,7 +54,7 @@ namespace Nz
 	{
 		m_aabb = aabb;
 
-		OnSubMeshInvalidateAABB(this);
+		OnSubmeshInvalidateAABB(this);
 	}
 
 	void SkeletalMesh::SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)

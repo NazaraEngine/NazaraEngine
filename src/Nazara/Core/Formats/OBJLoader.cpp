@@ -321,19 +321,19 @@ namespace Nz
 
 				vertexMapper.Unmap();
 
-				std::shared_ptr<StaticMesh> subMesh = std::make_shared<StaticMesh>(std::move(vertexBuffer), indexBuffer);
-				subMesh->GenerateAABB();
-				subMesh->SetMaterialIndex(meshes[i].material);
+				std::shared_ptr<StaticMesh> submesh = std::make_shared<StaticMesh>(std::move(vertexBuffer), indexBuffer);
+				submesh->GenerateAABB();
+				submesh->SetMaterialIndex(meshes[i].material);
 
 				// Ce que nous pouvons générer dépend des données à disposition (par exemple les tangentes nécessitent des coordonnées de texture)
 				if (hasNormals && hasTexCoords)
-					subMesh->GenerateTangents();
+					submesh->GenerateTangents();
 				else if (hasTexCoords)
-					subMesh->GenerateNormalsAndTangents();
+					submesh->GenerateNormalsAndTangents();
 				else if (normalPtr)
-					subMesh->GenerateNormals();
+					submesh->GenerateNormals();
 
-				mesh->AddSubMesh(meshes[i].name + '_' + materials[meshes[i].material], subMesh);
+				mesh->AddSubmesh(meshes[i].name + '_' + materials[meshes[i].material], submesh);
 			}
 			mesh->SetMaterialCount(parser.GetMaterialCount());
 

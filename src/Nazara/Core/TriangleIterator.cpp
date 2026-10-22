@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/TriangleIterator.hpp>
-#include <Nazara/Core/SubMesh.hpp>
+#include <Nazara/Core/Submesh.hpp>
 
 namespace Nz
 {
@@ -19,9 +19,9 @@ namespace Nz
 		m_indexCount = m_indexMapper.GetIndexCount();
 	}
 
-	TriangleIterator::TriangleIterator(SubMesh& subMesh) :
-	m_primitiveMode(subMesh.GetPrimitiveMode()),
-	m_indexMapper(subMesh)
+	TriangleIterator::TriangleIterator(Submesh& submesh) :
+	m_primitiveMode(submesh.GetPrimitiveMode()),
+	m_indexMapper(submesh)
 	{
 		m_currentIndex = 3;
 		m_triangleIndices[0] = m_indexMapper.Get(0);

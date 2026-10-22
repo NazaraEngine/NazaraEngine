@@ -5,7 +5,7 @@
 #include <Nazara/Core/IndexMapper.hpp>
 #include <Nazara/Core/IndexBuffer.hpp>
 #include <Nazara/Core/IndexIterator.hpp>
-#include <Nazara/Core/SubMesh.hpp>
+#include <Nazara/Core/Submesh.hpp>
 
 namespace Nz
 {
@@ -86,8 +86,8 @@ namespace Nz
 		}
 	}
 
-	IndexMapper::IndexMapper(SubMesh& subMesh) :
-	IndexMapper(*subMesh.GetIndexBuffer(), (subMesh.GetIndexBuffer()) ? 0 : subMesh.GetVertexCount())
+	IndexMapper::IndexMapper(Submesh& submesh) :
+	IndexMapper(*submesh.GetIndexBuffer(), (submesh.GetIndexBuffer()) ? 0 : submesh.GetVertexCount())
 	{
 	}
 

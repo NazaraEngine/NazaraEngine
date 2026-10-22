@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
 		});
 
 		auto colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh);
-		for (std::size_t i = 0; i < colliderModel->GetSubMeshCount(); ++i)
+		for (std::size_t i = 0; i < colliderModel->GetSubmeshCount(); ++i)
 			colliderModel->SetMaterial(i, colliderMat);
 
 		auto& playerGfx = playerEntity.emplace<Nz::GraphicsComponent>();
@@ -166,9 +166,9 @@ int main(int argc, char* argv[])
 			materials[i] = Nz::MaterialInstance::GetDefault(Nz::MaterialType::Basic);
 	}
 
-	for (std::size_t i = 0; i < bobMesh->GetSubMeshCount(); ++i)
+	for (std::size_t i = 0; i < bobMesh->GetSubmeshCount(); ++i)
 	{
-		std::size_t matIndex = bobMesh->GetSubMesh(i)->GetMaterialIndex();
+		std::size_t matIndex = bobMesh->GetSubmesh(i)->GetMaterialIndex();
 		if (materials[matIndex])
 			bobModel->SetMaterial(i, materials[matIndex]);
 	}
@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
 		{
 			std::shared_ptr<Nz::Mesh> sphereMesh = std::make_shared<Nz::Mesh>();
 			sphereMesh->CreateStatic();
-			sphereMesh->BuildSubMesh(Nz::Primitive::UVSphere(1.f, 50, 50));
+			sphereMesh->BuildSubmesh(Nz::Primitive::UVSphere(1.f, 50, 50));
 			sphereMesh->SetMaterialCount(1);
 
 			std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*sphereMesh);
@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
 			sphereMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/Rusty/rustediron2_basecolor.png", { .sRGB = true }));
 
 			std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(std::move(gfxMesh));
-			for (std::size_t i = 0; i < sphereModel->GetSubMeshCount(); ++i)
+			for (std::size_t i = 0; i < sphereModel->GetSubmeshCount(); ++i)
 				sphereModel->SetMaterial(i, sphereMat);
 
 			auto& sphereNode = sphereEntity.emplace<Nz::NodeComponent>();
@@ -400,7 +400,7 @@ int main(int argc, char* argv[])
 			std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
 
 			colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh);
-			for (std::size_t i = 0; i < colliderModel->GetSubMeshCount(); ++i)
+			for (std::size_t i = 0; i < colliderModel->GetSubmeshCount(); ++i)
 				colliderModel->SetMaterial(i, colliderMat);
 
 			planeGfx.AttachRenderable(std::move(colliderModel));
@@ -455,12 +455,12 @@ int main(int argc, char* argv[])
 			return __LINE__;
 		}
 
-		tvMesh->RemoveSubMesh(1); // looks like this submesh has issues loading
+		tvMesh->RemoveSubmesh(1); // looks like this submesh has issues loading
 
 		// Screen UVs are upside down (model made for OpenGL?)
 		{
 			// Reverse them
-			Nz::VertexMapper vertexMapper(*tvMesh->GetSubMesh(1));
+			Nz::VertexMapper vertexMapper(*tvMesh->GetSubmesh(1));
 			Nz::SparsePtr<Nz::Vector2f> uv = vertexMapper.GetComponentPtr<Nz::Vector2f>(Nz::VertexComponent::TexCoord);
 			for (Nz::UInt32 i = 0; i < vertexMapper.GetVertexCount(); ++i)
 				uv[i].y = 1.f - uv[i].y;

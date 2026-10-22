@@ -407,7 +407,7 @@ namespace Nz
 		{
 			Mesh mesh;
 			mesh.CreateStatic();
-			mesh.BuildSubMesh(Primitive::IcoSphere(1.f), meshPrimitiveParams);
+			mesh.BuildSubmesh(Primitive::IcoSphere(1.f), meshPrimitiveParams);
 			mesh.SetMaterialCount(1);
 
 			m_pointLightMesh = GraphicalMesh::BuildFromMesh(mesh);
@@ -417,7 +417,7 @@ namespace Nz
 		{
 			Mesh mesh;
 			mesh.CreateStatic();
-			mesh.BuildSubMesh(Primitive::Cone(1.f, 1.f, 16, Matrix4f::Rotate(EulerAnglesf(90.f, 0.f, 0.f))), meshPrimitiveParams);
+			mesh.BuildSubmesh(Primitive::Cone(1.f, 1.f, 16, Matrix4f::Rotate(EulerAnglesf(90.f, 0.f, 0.f))), meshPrimitiveParams);
 			mesh.SetMaterialCount(1);
 
 			m_spotLightMesh = GraphicalMesh::BuildFromMesh(mesh);

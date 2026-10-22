@@ -410,7 +410,7 @@ struct MaterialEntry
 using EmbeddedTextures = std::unordered_map<const aiTexture*, std::filesystem::path>;
 using MaterialData = std::unordered_map<unsigned int /*aMatIndex*/, MaterialEntry>;
 
-std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originPath, const Nz::MeshParams& parameters, const aiScene* scene, const SceneInfo::Node& meshNode, const aiMesh* meshData, bool isSkeletalMesh, MaterialData& materialData, const std::unordered_map<const aiBone*, unsigned int>& boneToJointIndex, EmbeddedTextures& embeddedTextures)
+std::shared_ptr<Nz::Submesh> ProcessSubmesh(const std::filesystem::path& originPath, const Nz::MeshParams& parameters, const aiScene* scene, const SceneInfo::Node& meshNode, const aiMesh* meshData, bool isSkeletalMesh, MaterialData& materialData, const std::unordered_map<const aiBone*, unsigned int>& boneToJointIndex, EmbeddedTextures& embeddedTextures)
 {
 	unsigned int indexCount = meshData->mNumFaces * 3;
 	unsigned int vertexCount = meshData->mNumVertices;
@@ -613,24 +613,24 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 	vertexMapper.Unmap();
 
 	// Submesh
-	std::shared_ptr<Nz::SubMesh> subMesh;
+	std::shared_ptr<Nz::Submesh> submesh;
 	if (isSkeletalMesh)
 	{
 		std::shared_ptr<Nz::SkeletalMesh> skeletalMesh = std::make_shared<Nz::SkeletalMesh>(std::move(vertexBuffer), std::move(indexBuffer));
 		skeletalMesh->SetAABB(aabb);
 
-		subMesh = std::move(skeletalMesh);
+		submesh = std::move(skeletalMesh);
 	}
 	else
 	{
 		std::shared_ptr<Nz::StaticMesh> staticMesh = std::make_shared<Nz::StaticMesh>(std::move(vertexBuffer), std::move(indexBuffer));
 		staticMesh->SetAABB(aabb);
 
-		subMesh = std::move(staticMesh);
+		submesh = std::move(staticMesh);
 	}
 
 	if (generateTangents)
-		subMesh->GenerateTangents();
+		submesh->GenerateTangents();
 
 	auto matIt = materialData.find(meshData->mMaterialIndex);
 	if (matIt == materialData.end())
@@ -851,9 +851,9 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 		matIt = materialData.emplace(meshData->mMaterialIndex, MaterialEntry{ Nz::UInt32(materialData.size()), std::move(matData) }).first;
 	}
 
-	subMesh->SetMaterialIndex(matIt->second.materialIndex);
+	submesh->SetMaterialIndex(matIt->second.materialIndex);
 
-	return subMesh;
+	return submesh;
 }
 
 Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::ResourceLoadingError> LoadMesh(Nz::Stream& stream, const Nz::MeshParams& parameters)
@@ -937,13 +937,13 @@ Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::ResourceLoadingError> LoadMesh(Nz::Str
 			ProcessJoints(parameters, transformMatrix, invTransformMatrix, skeletalMesh, mesh->GetSkeleton(), sceneInfo.nodes[sceneInfo.skeletonRootIndex].node, jointIndex, sceneInfo.assimpBoneToJointIndex, seenNodes);
 
 		for (auto& skeletalMesh : sceneInfo.skeletalMeshes)
-			mesh->AddSubMesh(ProcessSubMesh(stream.GetDirectory(), parameters, scene, sceneInfo.nodes[skeletalMesh.nodeIndex], skeletalMesh.mesh, true, materialData, sceneInfo.assimpBoneToJointIndex, embeddedTextures));
+			mesh->AddSubmesh(ProcessSubmesh(stream.GetDirectory(), parameters, scene, sceneInfo.nodes[skeletalMesh.nodeIndex], skeletalMesh.mesh, true, materialData, sceneInfo.assimpBoneToJointIndex, embeddedTextures));
 	}
 	else
 	{
 		mesh->CreateStatic();
 		for (auto& staticMesh : sceneInfo.staticMeshes)
-			mesh->AddSubMesh(ProcessSubMesh(stream.GetDirectory(), parameters, scene, sceneInfo.nodes[staticMesh.nodeIndex], staticMesh.mesh, false, materialData, {}, embeddedTextures));
+			mesh->AddSubmesh(ProcessSubmesh(stream.GetDirectory(), parameters, scene, sceneInfo.nodes[staticMesh.nodeIndex], staticMesh.mesh, false, materialData, {}, embeddedTextures));
 
 		if (parameters.center)
 			mesh->Recenter();

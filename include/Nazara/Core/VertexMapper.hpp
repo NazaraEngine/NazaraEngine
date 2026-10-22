@@ -15,12 +15,12 @@
 
 namespace Nz
 {
-	class SubMesh;
+	class Submesh;
 
 	class NAZARA_CORE_API VertexMapper
 	{
 		public:
-			VertexMapper(SubMesh& subMesh);
+			VertexMapper(Submesh& submesh);
 			VertexMapper(VertexBuffer& vertexBuffer);
 			~VertexMapper();
 

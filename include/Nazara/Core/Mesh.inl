@@ -18,7 +18,7 @@ namespace Nz
 	{
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		mesh->CreateStatic();
-		mesh->AddSubMesh(std::move(staticMesh));
+		mesh->AddSubmesh(std::move(staticMesh));
 
 		return mesh;
 	}
@@ -27,7 +27,7 @@ namespace Nz
 	{
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		mesh->CreateStatic();
-		mesh->BuildSubMesh(primitive, params);
+		mesh->BuildSubmesh(primitive, params);
 
 		return mesh;
 	}
@@ -36,7 +36,7 @@ namespace Nz
 	{
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		mesh->CreateStatic();
-		mesh->BuildSubMeshes(primitiveList, params);
+		mesh->BuildSubmeshes(primitiveList, params);
 
 		return mesh;
 	}

@@ -14,13 +14,13 @@
 namespace Nz
 {
 	class IndexIterator;
-	class SubMesh;
+	class Submesh;
 
 	class NAZARA_CORE_API IndexMapper
 	{
 		public:
 			IndexMapper(IndexBuffer& indexBuffer, UInt32 indexCount = 0);
-			IndexMapper(SubMesh& subMesh);
+			IndexMapper(Submesh& submesh);
 			~IndexMapper() = default;
 
 			UInt32 Get(std::size_t i) const;

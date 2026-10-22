@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Core/SubMesh.hpp>
+#include <Nazara/Core/Submesh.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/TriangleIterator.hpp>
@@ -10,15 +10,15 @@
 
 namespace Nz
 {
-	SubMesh::SubMesh() :
+	Submesh::Submesh() :
 	m_primitiveMode(PrimitiveMode::TriangleList),
 	m_matIndex(0)
 	{
 	}
 
-	SubMesh::~SubMesh() = default;
+	Submesh::~Submesh() = default;
 
-	void SubMesh::GenerateNormals()
+	void Submesh::GenerateNormals()
 	{
 		VertexMapper mapper(*this);
 		UInt32 vertexCount = mapper.GetVertexCount();
@@ -51,7 +51,7 @@ namespace Nz
 			normals[i].Normalize();
 	}
 
-	void SubMesh::GenerateNormalsAndTangents()
+	void Submesh::GenerateNormalsAndTangents()
 	{
 		VertexMapper mapper(*this);
 		UInt32 vertexCount = mapper.GetVertexCount();
@@ -116,7 +116,7 @@ namespace Nz
 		}
 	}
 
-	void SubMesh::GenerateTangents()
+	void Submesh::GenerateTangents()
 	{
 		VertexMapper mapper(*this);
 
@@ -167,12 +167,12 @@ namespace Nz
 		while (iterator.Advance());
 	}
 
-	PrimitiveMode SubMesh::GetPrimitiveMode() const
+	PrimitiveMode Submesh::GetPrimitiveMode() const
 	{
 		return m_primitiveMode;
 	}
 
-	UInt32 SubMesh::GetTriangleCount() const
+	UInt32 Submesh::GetTriangleCount() const
 	{
 		const std::shared_ptr<const IndexBuffer>& indexBuffer = GetIndexBuffer();
 		UInt32 indexCount;
@@ -202,17 +202,17 @@ namespace Nz
 		return 0;
 	}
 
-	std::size_t SubMesh::GetMaterialIndex() const
+	std::size_t Submesh::GetMaterialIndex() const
 	{
 		return m_matIndex;
 	}
 
-	void SubMesh::SetPrimitiveMode(PrimitiveMode mode)
+	void Submesh::SetPrimitiveMode(PrimitiveMode mode)
 	{
 		m_primitiveMode = mode;
 	}
 
-	void SubMesh::SetMaterialIndex(std::size_t matIndex)
+	void Submesh::SetMaterialIndex(std::size_t matIndex)
 	{
 		m_matIndex = matIndex;
 	}

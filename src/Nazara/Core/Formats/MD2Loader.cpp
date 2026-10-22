@@ -162,7 +162,7 @@ namespace Nz
 #endif
 
 			std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, header.num_vertices, parameters.vertexBufferFlags, parameters.bufferFactory);
-			std::shared_ptr<StaticMesh> subMesh = std::make_shared<StaticMesh>(vertexBuffer, indexBuffer);
+			std::shared_ptr<StaticMesh> submesh = std::make_shared<StaticMesh>(vertexBuffer, indexBuffer);
 
 			// Extracting vertices
 			stream.SetCursorPos(header.offset_frames);
@@ -248,15 +248,15 @@ namespace Nz
 
 			vertexMapper.Unmap();
 
-			subMesh->SetIndexBuffer(std::move(indexBuffer));
-			subMesh->SetMaterialIndex(0);
+			submesh->SetIndexBuffer(std::move(indexBuffer));
+			submesh->SetMaterialIndex(0);
 
-			subMesh->GenerateAABB();
+			submesh->GenerateAABB();
 
 			if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent::Tangent))
-				subMesh->GenerateTangents();
+				submesh->GenerateTangents();
 
-			mesh->AddSubMesh(subMesh);
+			mesh->AddSubmesh(submesh);
 
 			if (parameters.center)
 				mesh->Recenter();

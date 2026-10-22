@@ -113,8 +113,8 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<Nz::Mesh> planeMesh = std::make_shared<Nz::Mesh>();
 	planeMesh->CreateStatic();
-	planeMesh->BuildSubMesh(Nz::Primitive::Plane(Nz::Vector2f(25.f, 25.f), Nz::Vector2ui(0u), Nz::Matrix4f::Identity(), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), meshPrimitiveParams);
-	//planeMesh->BuildSubMesh(Nz::Primitive::Cone(1.f, 1.f, 16, Nz::Matrix4f::Rotate(Nz::EulerAnglesf(90.f, 0.f, 0.f))), planeParams);
+	planeMesh->BuildSubmesh(Nz::Primitive::Plane(Nz::Vector2f(25.f, 25.f), Nz::Vector2ui(0u), Nz::Matrix4f::Identity(), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), meshPrimitiveParams);
+	//planeMesh->BuildSubmesh(Nz::Primitive::Cone(1.f, 1.f, 16, Nz::Matrix4f::Rotate(Nz::EulerAnglesf(90.f, 0.f, 0.f))), planeParams);
 	planeMesh->SetMaterialCount(1);
 
 	std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = Nz::GraphicalMesh::BuildFromMesh(*planeMesh);
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<Nz::Mesh> cubeMesh = std::make_shared<Nz::Mesh>();
 	cubeMesh->CreateStatic();
-	cubeMesh->BuildSubMesh(Nz::Primitive::Box(Nz::Vector3f::Unit(), Nz::Vector3ui(0), Nz::Matrix4f::Scale({ 1.f, -1.f, 1.f })), meshPrimitiveParams);
+	cubeMesh->BuildSubmesh(Nz::Primitive::Box(Nz::Vector3f::Unit(), Nz::Vector3ui(0), Nz::Matrix4f::Scale({ 1.f, -1.f, 1.f })), meshPrimitiveParams);
 	cubeMesh->SetMaterialCount(1);
 
 	std::shared_ptr<Nz::GraphicalMesh> cubeMeshGfx = Nz::GraphicalMesh::BuildFromMesh(*cubeMesh);
@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
 	// Cone mesh
 	std::shared_ptr<Nz::Mesh> coneMesh = std::make_shared<Nz::Mesh>();
 	coneMesh->CreateStatic();
-	coneMesh->BuildSubMesh(Nz::Primitive::Cone(1.f, 1.f, 16, Nz::Matrix4f::Rotate(Nz::EulerAnglesf(90.f, 0.f, 0.f))), meshPrimitiveParams);
+	coneMesh->BuildSubmesh(Nz::Primitive::Cone(1.f, 1.f, 16, Nz::Matrix4f::Rotate(Nz::EulerAnglesf(90.f, 0.f, 0.f))), meshPrimitiveParams);
 	coneMesh->SetMaterialCount(1);
 
 	std::shared_ptr<Nz::GraphicalMesh> coneMeshGfx = Nz::GraphicalMesh::BuildFromMesh(*coneMesh);
@@ -232,11 +232,11 @@ int main(int argc, char* argv[])
 	planeMat->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "dev_grey.png", { .sRGB = true }), planeSampler);
 
 	Nz::Model spaceshipModel(std::move(gfxMesh));
-	for (std::size_t i = 0; i < spaceshipModel.GetSubMeshCount(); ++i)
+	for (std::size_t i = 0; i < spaceshipModel.GetSubmeshCount(); ++i)
 		spaceshipModel.SetMaterial(i, spaceshipMat);
 
 	Nz::Model planeModel(std::move(planeMeshGfx));
-	for (std::size_t i = 0; i < planeModel.GetSubMeshCount(); ++i)
+	for (std::size_t i = 0; i < planeModel.GetSubmeshCount(); ++i)
 		planeModel.SetMaterial(i, planeMat);
 
 	Nz::Vector2ui windowSize = window.GetSize();

@@ -26,18 +26,18 @@ namespace Nz
 
 		std::shared_ptr<GraphicalMesh> gfxMesh = std::make_shared<GraphicalMesh>();
 
-		for (std::size_t i = 0; i < mesh.GetSubMeshCount(); ++i)
+		for (std::size_t i = 0; i < mesh.GetSubmeshCount(); ++i)
 		{
-			const Nz::SubMesh& subMesh = *mesh.GetSubMesh(i);
+			const Nz::Submesh& submesh = *mesh.GetSubmesh(i);
 
-			const StaticMesh& staticMesh = static_cast<const StaticMesh&>(subMesh);
+			const StaticMesh& staticMesh = static_cast<const StaticMesh&>(submesh);
 
 			const std::shared_ptr<VertexBuffer>& vertexBuffer = staticMesh.GetVertexBuffer();
 			assert(vertexBuffer->GetBuffer()->GetStorage() == DataStorage::Software);
 			const SoftwareBuffer* vertexBufferContent = static_cast<const SoftwareBuffer*>(vertexBuffer->GetBuffer().get());
 
-			GraphicalMesh::SubMesh submeshData;
-			submeshData.aabb = subMesh.GetAABB();
+			GraphicalMesh::Submesh submeshData;
+			submeshData.aabb = submesh.GetAABB();
 
 			const std::shared_ptr<const IndexBuffer>& indexBuffer = staticMesh.GetIndexBuffer();
 			if (indexBuffer)
@@ -61,7 +61,7 @@ namespace Nz
 
 			submeshData.vertexDeclaration = vertexBuffer->GetVertexDeclaration();
 
-			gfxMesh->AddSubMesh(std::move(submeshData));
+			gfxMesh->AddSubmesh(std::move(submeshData));
 		}
 
 		return gfxMesh;

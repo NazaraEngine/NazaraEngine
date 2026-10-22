@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 	material->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "Spaceship/Texture/diffuse.png", { .sRGB = true }));
 
 	std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh));
-	for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
+	for (std::size_t i = 0; i < model->GetSubmeshCount(); ++i)
 		model->SetMaterial(i, material);
 
 	std::shared_ptr<Nz::MaterialInstance> textMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic, Nz::MaterialInstancePreset::AlphaBlended);
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 	std::shared_ptr<Nz::TextSprite> sprite = std::make_shared<Nz::TextSprite>(textMaterial);
 	sprite->Update(Nz::SimpleTextDrawer::Draw("Voix ambiguë d'un cœur qui, au zéphyr, préfère les jattes de kiwis", 72), 0.01f);
 
-	Nz::VertexMapper vertexMapper(*spaceshipMesh->GetSubMesh(0));
+	Nz::VertexMapper vertexMapper(*spaceshipMesh->GetSubmesh(0));
 	Nz::SparsePtr<Nz::Vector3f> vertices = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position);
 
 	Nz::Vector2ui windowSize = window.GetSize();
@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
 		std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
 
 		colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh);
-		for (std::size_t i = 0; i < colliderModel->GetSubMeshCount(); ++i)
+		for (std::size_t i = 0; i < colliderModel->GetSubmeshCount(); ++i)
 			colliderModel->SetMaterial(i, colliderMat);
 	}
 

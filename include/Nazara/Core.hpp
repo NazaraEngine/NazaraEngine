@@ -121,7 +121,7 @@
 #include <Nazara/Core/StdLogger.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/StringExt.hpp>
-#include <Nazara/Core/SubMesh.hpp>
+#include <Nazara/Core/Submesh.hpp>
 #include <Nazara/Core/SystemDirectory.hpp>
 #include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/TaskSchedulerAppComponent.hpp>

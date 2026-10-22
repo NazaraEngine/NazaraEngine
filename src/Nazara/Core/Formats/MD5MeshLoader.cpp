@@ -228,19 +228,19 @@ namespace Nz
 					mesh->SetMaterialData(i, std::move(matData));
 
 					// Submesh
-					std::shared_ptr<SkeletalMesh> subMesh = std::make_shared<SkeletalMesh>(vertexBuffer, indexBuffer);
+					std::shared_ptr<SkeletalMesh> submesh = std::make_shared<SkeletalMesh>(vertexBuffer, indexBuffer);
 
 					if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent::Normal))
 					{
 						if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent::Tangent))
-							subMesh->GenerateNormalsAndTangents();
+							submesh->GenerateNormalsAndTangents();
 						else
-							subMesh->GenerateNormals();
+							submesh->GenerateNormals();
 					}
 
-					subMesh->SetMaterialIndex(i);
+					submesh->SetMaterialIndex(i);
 
-					mesh->AddSubMesh(subMesh);
+					mesh->AddSubmesh(submesh);
 
 					// Animation
 					// Il est peut-être éventuellement possible que la probabilité que l'animation ait le même nom soit non-nulle.
@@ -333,19 +333,19 @@ namespace Nz
 					vertexMapper.Unmap();
 
 					// Submesh
-					std::shared_ptr<StaticMesh> subMesh = std::make_shared<StaticMesh>(vertexBuffer, indexBuffer);
-					subMesh->GenerateAABB();
-					subMesh->SetMaterialIndex(i);
+					std::shared_ptr<StaticMesh> submesh = std::make_shared<StaticMesh>(vertexBuffer, indexBuffer);
+					submesh->GenerateAABB();
+					submesh->SetMaterialIndex(i);
 
 					if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent::Normal))
 					{
 						if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent::Tangent))
-							subMesh->GenerateNormalsAndTangents();
+							submesh->GenerateNormalsAndTangents();
 						else
-							subMesh->GenerateNormals();
+							submesh->GenerateNormals();
 					}
 
-					mesh->AddSubMesh(subMesh);
+					mesh->AddSubmesh(submesh);
 
 					// Material
 					ParameterList matData;

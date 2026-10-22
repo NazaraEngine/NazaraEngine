@@ -9,12 +9,12 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/IndexBuffer.hpp>
-#include <Nazara/Core/SubMesh.hpp>
+#include <Nazara/Core/Submesh.hpp>
 #include <Nazara/Core/VertexBuffer.hpp>
 
 namespace Nz
 {
-	class NAZARA_CORE_API SkeletalMesh final : public SubMesh
+	class NAZARA_CORE_API SkeletalMesh final : public Submesh
 	{
 		public:
 			SkeletalMesh(std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer);

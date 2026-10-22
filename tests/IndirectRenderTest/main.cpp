@@ -266,7 +266,7 @@ int main()
 		if (lod == 0)
 			spaceshipAabb = spaceship->GetAABB();
 
-		std::shared_ptr<Nz::StaticMesh> spaceshipMesh = std::static_pointer_cast<Nz::StaticMesh>(spaceship->GetSubMesh(0));
+		std::shared_ptr<Nz::StaticMesh> spaceshipMesh = std::static_pointer_cast<Nz::StaticMesh>(spaceship->GetSubmesh(0));
 
 		const std::shared_ptr<Nz::VertexBuffer>& meshVB = spaceshipMesh->GetVertexBuffer();
 		const std::shared_ptr<const Nz::IndexBuffer>& meshIB = spaceshipMesh->GetIndexBuffer();

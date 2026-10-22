@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 			std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
 
 			colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh);
-			for (std::size_t i = 0; i < colliderModel->GetSubMeshCount(); ++i)
+			for (std::size_t i = 0; i < colliderModel->GetSubmeshCount(); ++i)
 				colliderModel->SetMaterial(i, colliderMat);
 
 			boxGfx.AttachRenderable(std::move(colliderModel));
@@ -213,10 +213,10 @@ int main(int argc, char* argv[])
 		material->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/Spaceship/Texture/diffuse.png", { .sRGB = true }));
 
 		std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh));
-		for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
+		for (std::size_t i = 0; i < model->GetSubmeshCount(); ++i)
 			model->SetMaterial(i, material);
 
-		Nz::VertexMapper vertexMapper(*spaceshipMesh->GetSubMesh(0));
+		Nz::VertexMapper vertexMapper(*spaceshipMesh->GetSubmesh(0));
 		Nz::SparsePtr<Nz::Vector3f> vertices = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position);
 
 		auto shipCollider = std::make_shared<Nz::ConvexHullCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.1f);
@@ -227,7 +227,7 @@ int main(int argc, char* argv[])
 			std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
 
 			colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh);
-			for (std::size_t i = 0; i < colliderModel->GetSubMeshCount(); ++i)
+			for (std::size_t i = 0; i < colliderModel->GetSubmeshCount(); ++i)
 				colliderModel->SetMaterial(i, colliderMat);
 		}
 

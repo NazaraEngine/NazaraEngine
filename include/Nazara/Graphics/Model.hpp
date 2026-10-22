@@ -61,16 +61,16 @@ namespace Nz
 
 			std::shared_ptr<Model> Clone() const;
 
-			const std::shared_ptr<GpuBuffer>& GetIndexBuffer(std::size_t subMeshIndex) const;
-			std::size_t GetIndexCount(std::size_t subMeshIndex) const;
-			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t subMeshIndex) const override;
+			const std::shared_ptr<GpuBuffer>& GetIndexBuffer(std::size_t submeshIndex) const;
+			std::size_t GetIndexCount(std::size_t submeshIndex) const;
+			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t submeshIndex) const override;
 			std::size_t GetMaterialCount() const override;
-			inline std::size_t GetSubMeshCount() const;
-			const RenderPipelineInfo::VertexInputVector& GetVertexBufferData(std::size_t subMeshIndex) const;
-			const std::shared_ptr<GpuBuffer>& GetVertexBuffer(std::size_t subMeshIndex) const;
+			inline std::size_t GetSubmeshCount() const;
+			const RenderPipelineInfo::VertexInputVector& GetVertexBufferData(std::size_t submeshIndex) const;
+			const std::shared_ptr<GpuBuffer>& GetVertexBuffer(std::size_t submeshIndex) const;
 
-			inline void SetIndexCount(std::size_t subMeshIndex, std::size_t indexCount);
-			inline void SetMaterial(std::size_t subMeshIndex, std::shared_ptr<MaterialInstance> material);
+			inline void SetIndexCount(std::size_t submeshIndex, std::size_t indexCount);
+			inline void SetMaterial(std::size_t submeshIndex, std::shared_ptr<MaterialInstance> material);
 
 			Model& operator=(const Model&) = delete;
 			Model& operator=(Model&&) noexcept = default;
@@ -83,7 +83,7 @@ namespace Nz
 		private:
 			void UpdateAABB();
 
-			struct SubMeshData
+			struct SubmeshData
 			{
 				std::size_t indexCount = 0; //< if != 0 overrides GraphicalMesh index count
 				std::shared_ptr<MaterialInstance> material;
@@ -93,7 +93,7 @@ namespace Nz
 			NazaraSlot(GraphicalMesh, OnInvalidated, m_onInvalidated);
 
 			std::shared_ptr<GraphicalMesh> m_graphicalMesh;
-			HybridVector<SubMeshData, 3> m_submeshes;
+			HybridVector<SubmeshData, 3> m_submeshes;
 	};
 }
 
