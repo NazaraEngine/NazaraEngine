@@ -7,17 +7,18 @@ namespace Nz
 	template<typename T>
 	ThreadLocalData<T>::~ThreadLocalData()
 	{
-		for (auto&& [threadId, entry] : m_data)
-		{
-			NazaraUnused(threadId);
-			entry.watcher->Unregister(this);
-		}
+		Clear();
 	}
 
 	template<typename T>
 	void ThreadLocalData<T>::Clear()
 	{
 		std::unique_lock lock(m_mutex);
+		for (auto&& [threadId, entry] : m_data)
+		{
+			NazaraUnused(threadId);
+			entry.watcher->Unregister(this);
+		}
 		m_data.clear();
 	}
 
