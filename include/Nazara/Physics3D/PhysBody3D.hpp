@@ -8,11 +8,17 @@
 #define NAZARA_PHYSICS3D_PHYSBODY3D_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Math/Quaternion.hpp>
+#include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Export.hpp>
 #include <Nazara/Physics3D/PhysObjectLayer3D.hpp>
+#include <memory>
+#include <utility>
 
 namespace Nz
 {
+	class Collider3D;
+
 	class NAZARA_PHYSICS3D_API PhysBody3D
 	{
 		public:
@@ -21,8 +27,14 @@ namespace Nz
 			PhysBody3D(PhysBody3D&&) = delete;
 			virtual ~PhysBody3D();
 
+			virtual Vector3f GetAngularVelocity() const = 0;
 			virtual UInt32 GetBodyIndex() const = 0;
+			virtual const std::shared_ptr<Collider3D>& GetCollider() const = 0;
+			virtual Vector3f GetLinearVelocity() const = 0;
 			virtual PhysObjectLayer3D GetObjectLayer() const = 0;
+			virtual Vector3f GetPosition() const = 0;
+			virtual std::pair<Vector3f, Quaternionf> GetPositionAndRotation() const = 0;
+			virtual Quaternionf GetRotation() const = 0;
 
 			virtual bool IsTrigger() const = 0;
 

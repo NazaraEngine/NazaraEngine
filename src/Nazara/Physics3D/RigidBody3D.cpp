@@ -196,6 +196,11 @@ namespace Nz
 		return m_bodyIndex;
 	}
 
+	const std::shared_ptr<Collider3D>& RigidBody3D::GetCollider() const
+	{
+		return m_collider;
+	}
+
 	std::pair<Vector3f, Vector3f> RigidBody3D::GetLinearAndAngularVelocity() const
 	{
 		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();

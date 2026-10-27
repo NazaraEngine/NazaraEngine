@@ -50,11 +50,11 @@ namespace Nz
 			inline void DisableSleeping();
 			void EnableSleeping(bool enable);
 
-			Vector3f GetAngularVelocity() const;
+			Vector3f GetAngularVelocity() const override;
 			UInt32 GetBodyIndex() const override;
-			inline const std::shared_ptr<Collider3D>& GetCollider() const;
+			const std::shared_ptr<Collider3D>& GetCollider() const override;
 			inline const std::shared_ptr<PhysCharacter3DImpl>& GetImpl() const;
-			Vector3f GetLinearVelocity() const;
+			Vector3f GetLinearVelocity() const override;
 			std::pair<Vector3f, Vector3f> GetLinearAndAngularVelocity() const;
 			PhysBody3D* GetGroundBody() const;
 			UInt32 GetGroundBodyIndex() const;
@@ -66,9 +66,9 @@ namespace Nz
 			PhysObjectLayer3D GetObjectLayer() const override;
 			inline PhysWorld3D& GetPhysWorld();
 			inline const PhysWorld3D& GetPhysWorld() const;
-			Vector3f GetPosition() const;
-			std::pair<Vector3f, Quaternionf> GetPositionAndRotation() const;
-			Quaternionf GetRotation() const;
+			Vector3f GetPosition() const override;
+			std::pair<Vector3f, Quaternionf> GetPositionAndRotation() const override;
+			Quaternionf GetRotation() const override;
 			Settings GetSettings() const;
 			Vector3f GetUp() const;
 

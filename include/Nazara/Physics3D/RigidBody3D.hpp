@@ -65,21 +65,21 @@ namespace Nz
 
 			Boxf GetAABB() const;
 			float GetAngularDamping() const;
-			Vector3f GetAngularVelocity() const;
+			Vector3f GetAngularVelocity() const override;
 			inline JPH::Body* GetBody();
 			inline const JPH::Body* GetBody() const;
 			UInt32 GetBodyIndex() const override;
-			inline const std::shared_ptr<Collider3D>& GetCollider() const;
+			const std::shared_ptr<Collider3D>& GetCollider() const override;
 			std::pair<Vector3f, Vector3f> GetLinearAndAngularVelocity() const;
 			float GetLinearDamping() const;
-			Vector3f GetLinearVelocity() const;
+			Vector3f GetLinearVelocity() const override;
 			float GetMass() const;
 			Matrix4f GetMatrix() const;
 			PhysMotionQuality3D GetMotionQuality() const;
 			PhysObjectLayer3D GetObjectLayer() const override;
-			Vector3f GetPosition() const;
-			std::pair<Vector3f, Quaternionf> GetPositionAndRotation() const;
-			Quaternionf GetRotation() const;
+			Vector3f GetPosition() const override;
+			std::pair<Vector3f, Quaternionf> GetPositionAndRotation() const override;
+			Quaternionf GetRotation() const override;
 			Settings GetSettings() const;
 			inline PhysWorld3D& GetWorld() const;
 

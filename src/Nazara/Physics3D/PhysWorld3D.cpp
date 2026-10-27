@@ -627,9 +627,9 @@ namespace Nz
 
 		RaycastHit hitInfo;
 		hitInfo.fraction = collector.mHit.GetEarlyOutFraction();
-		hitInfo.hitPosition = Lerp(from, to, hitInfo.fraction);
+		hitInfo.hitPosition = FromJolt(rayCast.GetPointOnRay(hitInfo.fraction));
 		hitInfo.hitBody = IntegerToPointer<PhysBody3D*>(body.GetUserData());
-		hitInfo.hitNormal = FromJolt(body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, rayCast.GetPointOnRay(collector.mHit.GetEarlyOutFraction())));
+		hitInfo.hitNormal = FromJolt(body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, rayCast.GetPointOnRay(hitInfo.fraction)));
 		hitInfo.subShapeID = collector.mHit.mSubShapeID2.GetValue();
 
 		callback(hitInfo);

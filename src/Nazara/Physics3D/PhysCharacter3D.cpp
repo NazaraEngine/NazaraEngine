@@ -93,6 +93,11 @@ namespace Nz
 		return m_bodyIndex;
 	}
 
+	const std::shared_ptr<Collider3D>& PhysCharacter3D::GetCollider() const
+	{
+		return m_collider;
+	}
+
 	Vector3f PhysCharacter3D::GetLinearVelocity() const
 	{
 		return FromJolt(m_character->GetLinearVelocity(false));
