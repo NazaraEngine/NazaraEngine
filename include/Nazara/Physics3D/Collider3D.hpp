@@ -14,6 +14,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Enums.hpp>
 #include <Nazara/Physics3D/Export.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/SparsePtr.hpp>
 #include <memory>
 #include <variant>
@@ -34,6 +35,8 @@ namespace Nz
 	class NAZARA_PHYSICS3D_API Collider3D
 	{
 		public:
+			struct RaycastHit;
+
 			Collider3D();
 			Collider3D(const Collider3D&) = delete;
 			Collider3D(Collider3D&&) = delete;
@@ -51,10 +54,20 @@ namespace Nz
 			const Collider3D* GetSubCollider(UInt32 subShapeID, UInt32& remainder) const;
 			virtual ColliderType3D GetType() const = 0;
 
+			bool RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback) const;
+
 			Collider3D& operator=(const Collider3D&) = delete;
 			Collider3D& operator=(Collider3D&&) = delete;
 
 			static std::shared_ptr<Collider3D> Build(const PrimitiveList& list);
+
+			struct RaycastHit
+			{
+				float fraction;
+				Vector3f hitNormal;
+				Vector3f hitPosition;
+				UInt32 subShapeID;
+			};
 
 		protected:
 			const JPH::Shape* GetShape() const;

@@ -12,8 +12,10 @@
 #include <Nazara/Physics3D/JoltHelper.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <Jolt/Core/Core.h>
+#include <Jolt/Physics/Collision/CastResult.h>
 #include <Jolt/Physics/Collision/CollidePointResult.h>
 #include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
@@ -118,6 +120,36 @@ namespace Nz
 		remainder = joltRemainder.GetValue();
 
 		return IntegerToPointer<const Nz::Collider3D*>(leafShape->GetUserData());
+	}
+
+	bool Collider3D::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback) const
+	{
+		auto result = m_shapeSettings->Create();
+		if (result.HasError())
+			throw std::runtime_error(std::string("shape creation failed: ") + result.GetError().c_str());
+
+		JPH::Shape* shape = result.Get();
+
+		JPH::RayCast rayCast;
+		rayCast.mOrigin = ToJolt(from);
+		rayCast.mDirection = ToJolt(to - from); //< mDirection is Direction * Length
+
+		JPH::RayCastSettings rayCastSettings;
+
+		JPH::ClosestHitCollisionCollector<JPH::CastRayCollector> collector;
+		shape->CastRay(rayCast, JPH::RayCastSettings{}, JPH::SubShapeIDCreator{}, collector);
+
+		if (!collector.HadHit())
+			return false;
+
+		RaycastHit hitInfo;
+		hitInfo.fraction = collector.mHit.GetEarlyOutFraction();
+		hitInfo.hitPosition = FromJolt(rayCast.GetPointOnRay(hitInfo.fraction));
+		hitInfo.hitNormal = FromJolt(shape->GetSurfaceNormal(collector.mHit.mSubShapeID2, rayCast.GetPointOnRay(hitInfo.fraction)));
+		hitInfo.subShapeID = collector.mHit.mSubShapeID2.GetValue();
+		callback(hitInfo);
+
+		return true;
 	}
 
 	void Collider3D::ResetShapeSettings()
