@@ -36,6 +36,7 @@ namespace Nz
 	{
 		public:
 			struct RaycastHit;
+			struct ShapeCollisionInfo;
 
 			Collider3D();
 			Collider3D(const Collider3D&) = delete;
@@ -60,13 +61,24 @@ namespace Nz
 			Collider3D& operator=(Collider3D&&) = delete;
 
 			static std::shared_ptr<Collider3D> Build(const PrimitiveList& list);
-
+			static bool CollideShapes(const Collider3D& collider1, const Matrix4f& collider1Transform, const Collider3D& collider2, const Matrix4f& collider2Transform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback);
+			
 			struct RaycastHit
 			{
 				float fraction;
 				Vector3f hitNormal;
 				Vector3f hitPosition;
 				UInt32 subShapeID;
+			};
+
+			struct ShapeCollisionInfo
+			{
+				Vector3f collisionPosition1;
+				Vector3f collisionPosition2;
+				Vector3f penetrationAxis;
+				UInt32 subShapeID1;
+				UInt32 subShapeID2;
+				float penetrationDepth;
 			};
 
 		protected:

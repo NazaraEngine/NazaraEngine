@@ -151,6 +151,8 @@ namespace Nz
 					hitInfo.collisionPosition2 = FromJolt(result.mContactPointOn2);
 					hitInfo.penetrationAxis = FromJolt(result.mPenetrationAxis);
 					hitInfo.penetrationDepth = result.mPenetrationDepth;
+					hitInfo.subShapeID1 = result.mSubShapeID1.GetValue();
+					hitInfo.subShapeID2 = result.mSubShapeID2.GetValue();
 
 					JPH::BodyLockWrite lock(m_bodyLockInterface, result.mBodyID2);
 					if (!lock.Succeeded())

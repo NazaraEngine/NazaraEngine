@@ -15,6 +15,7 @@
 #include <Jolt/Physics/Collision/CastResult.h>
 #include <Jolt/Physics/Collision/CollidePointResult.h>
 #include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/CollisionDispatch.h>
 #include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
@@ -191,6 +192,58 @@ namespace Nz
 			return CreateGeomFromPrimitive(list.GetPrimitive(0));
 		else
 			return nullptr;// std::make_shared<NullCollider3D>();  //< TODO
+	}
+
+	bool Collider3D::CollideShapes(const Collider3D& collider1, const Matrix4f& collider1Transform, const Collider3D& collider2, const Matrix4f& collider2Transform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback)
+	{
+		class ShapeCallbackHitResult : public JPH::CollideShapeCollector
+		{
+			public:
+				ShapeCallbackHitResult(const decltype(callback)& targetCallback) :
+				m_callback(targetCallback),
+				m_didHit(false)
+				{
+				}
+
+				void AddHit(const JPH::CollideShapeResult& result) override
+				{
+					ShapeCollisionInfo collisionInfo;
+					collisionInfo.collisionPosition1 = FromJolt(result.mContactPointOn1);
+					collisionInfo.collisionPosition2 = FromJolt(result.mContactPointOn2);
+					collisionInfo.penetrationAxis = FromJolt(result.mPenetrationAxis);
+					collisionInfo.penetrationDepth = result.mPenetrationDepth;
+					collisionInfo.subShapeID1 = result.mSubShapeID1.GetValue();
+					collisionInfo.subShapeID2 = result.mSubShapeID2.GetValue();
+
+					if (auto fractionOpt = m_callback(collisionInfo))
+					{
+						float fraction = fractionOpt.value();
+						if (fraction > 0.f)
+						{
+							m_didHit = true;
+							ResetEarlyOutFraction(fraction);
+						}
+						else
+							ForceEarlyOut();
+					}
+				}
+
+				bool DidHit() const
+				{
+					return m_didHit;
+				}
+
+			private:
+				const decltype(callback)& m_callback;
+				bool m_didHit;
+		};
+
+		JPH::CollideShapeSettings collideShapeSettings;
+
+		ShapeCallbackHitResult collector(callback);
+		JPH::CollisionDispatch::sCollideShapeVsShape(collider1.GetShape(), collider2.GetShape(), JPH::Vec3::sOne(), JPH::Vec3::sOne(), ToJolt(collider1Transform), ToJolt(collider2Transform), JPH::SubShapeIDCreator{}, JPH::SubShapeIDCreator{}, collideShapeSettings, collector);
+
+		return collector.DidHit();
 	}
 
 	const JPH::Shape* Collider3D::GetShape() const

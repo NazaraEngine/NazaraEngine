@@ -140,6 +140,8 @@ namespace Nz
 				Vector3f collisionPosition2;
 				Vector3f penetrationAxis;
 				float penetrationDepth;
+				UInt32 subShapeID1;
+				UInt32 subShapeID2;
 			};
 
 		private:
