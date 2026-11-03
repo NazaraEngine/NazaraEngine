@@ -47,8 +47,10 @@ namespace Nz
 
 			bool ApplyBuoyancyImpulse(const Vector3f& surfacePosition, const Vector3f& surfaceNormal, float buoyancy, float linearDrag, float angularDrag, const Vector3f& fluidVelocity, const Vector3f& gravity, float deltaTime);
 
+			inline void DisableSimulation();
 			inline void DisableSleeping();
-			void EnableSleeping(bool enable);
+			void EnableSimulation(bool enable = true);
+			void EnableSleeping(bool enable = true);
 
 			Vector3f GetAngularVelocity() const override;
 			UInt32 GetBodyIndex() const override;
@@ -73,6 +75,7 @@ namespace Nz
 			Vector3f GetUp() const;
 
 			bool IsOnGround() const;
+			bool IsSleeping() const;
 			bool IsTrigger() const override;
 
 			void SetAngularVelocity(const Vector3f& angularVelocity);
@@ -98,6 +101,7 @@ namespace Nz
 				PhysObjectLayer3D objectLayer = 0;
 				Quaternionf rotation = Quaternionf::Identity();
 				Vector3f position = Vector3f::Zero();
+				bool isSimulationEnabled = true;
 			};
 
 		protected:
@@ -115,6 +119,7 @@ namespace Nz
 			std::unique_ptr<JPH::Character> m_character;
 			MovablePtr<PhysWorld3D> m_world;
 			UInt32 m_bodyIndex;
+			bool m_isSimulationEnabled;
 	};
 
 	class NAZARA_PHYSICS3D_API PhysCharacter3DImpl

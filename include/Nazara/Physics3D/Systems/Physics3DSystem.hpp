@@ -11,16 +11,19 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/EnttObserver.hpp>
 #include <Nazara/Core/Time.hpp>
+#include <Nazara/Core/Components/NodeComponent.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
+#include <Nazara/Physics3D/PhysWorld3DBodyListener.hpp>
 #include <Nazara/Physics3D/Components/PhysCharacter3DComponent.hpp>
 #include <Nazara/Physics3D/Components/RigidBody3DComponent.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <NazaraUtils/TypeList.hpp>
 #include <entt/entt.hpp>
 #include <vector>
 
 namespace Nz
 {
-	class NAZARA_PHYSICS3D_API Physics3DSystem
+	class NAZARA_PHYSICS3D_API Physics3DSystem : PhysWorld3DBodyListener
 	{
 		public:
 			static constexpr Int64 ExecutionOrder = 0;
@@ -55,6 +58,9 @@ namespace Nz
 			Physics3DSystem& operator=(const Physics3DSystem&) = delete;
 			Physics3DSystem& operator=(Physics3DSystem&&) = delete;
 
+			NazaraSignal(OnEntityActivated, entt::handle /*entity*/, UInt32 /*bodyIndex*/);
+			NazaraSignal(OnEntityDeactivated, entt::handle /*entity*/, UInt32 /*bodyIndex*/);
+
 			struct NAZARA_PHYSICS3D_API ContactListener
 			{
 				virtual ~ContactListener();
@@ -82,15 +88,25 @@ namespace Nz
 			};
 
 		private:
+			struct RigidBodyData
+			{
+				NazaraSlot(NodeComponent, OnNodeInvalidation, onNodeInvalidation);
+			};
+
+			void OnBodyActivated(UInt32 bodyIndex);
+			void OnBodyDeactivated(UInt32 bodyIndex);
+
 			void OnBodyConstruct(entt::registry& registry, entt::entity entity);
 			void OnBodyDestruct(entt::registry& registry, entt::entity entity);
 			void OnCharacterConstruct(entt::registry& registry, entt::entity entity);
 			void OnCharacterDestruct(entt::registry& registry, entt::entity entity);
 
-			template<typename T> void ReplicateEntities();
+			template<typename T> void ReplicateEntities(entt::storage<void>& activeEntities);
 
 			std::size_t m_stepCount;
 			std::vector<entt::entity> m_bodyIndicesToEntity;
+			entt::storage<void> m_activeBodyEntities;
+			entt::storage<void> m_activeCharacterEntities;
 			entt::registry& m_registry;
 			entt::scoped_connection m_bodyConstructConnection;
 			entt::scoped_connection m_bodyDestructConnection;

@@ -15,6 +15,8 @@ namespace Nz
 	m_rigidBodyObserver(m_registry),
 	m_physWorld(std::move(settings))
 	{
+		m_physWorld.RegisterBodyListener(this);
+
 		m_bodyConstructConnection = registry.on_construct<RigidBody3DComponent>().connect<&Physics3DSystem::OnBodyConstruct>(this);
 		m_bodyDestructConnection = registry.on_destroy<RigidBody3DComponent>().connect<&Physics3DSystem::OnBodyDestruct>(this);
 		m_characterConstructConnection = registry.on_construct<PhysCharacter3DComponent>().connect<&Physics3DSystem::OnCharacterConstruct>(this);
@@ -24,18 +26,42 @@ namespace Nz
 		m_characterObserver.OnEntityAdded.Connect([this](entt::entity entity)
 		{
 			PhysCharacter3DComponent& entityCharacter = m_registry.get<PhysCharacter3DComponent>(entity);
-			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
+			entityCharacter.EnableSimulation();
 
+			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
 			entityCharacter.TeleportTo(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation());
+		});
+		m_characterObserver.OnEntityRemove.Connect([this](entt::entity entity)
+		{
+			if (m_activeCharacterEntities.contains(entity))
+			{
+				PhysCharacter3DComponent& entityCharacter = m_registry.get<PhysCharacter3DComponent>(entity);
+				entityCharacter.DisableSimulation();
+
+				OnEntityDeactivated(entt::handle(m_registry, entity), entityCharacter.GetBodyIndex());
+				m_activeCharacterEntities.erase(entity);
+			}
 		});
 		m_characterObserver.SignalExisting();
 
 		m_rigidBodyObserver.OnEntityAdded.Connect([this](entt::entity entity)
 		{
 			RigidBody3DComponent& entityBody = m_registry.get<RigidBody3DComponent>(entity);
-			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
+			entityBody.EnableSimulation();
 
+			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
 			entityBody.TeleportTo(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation());
+		});
+		m_rigidBodyObserver.OnEntityRemove.Connect([this](entt::entity entity)
+		{
+			if (m_activeBodyEntities.contains(entity))
+			{
+				RigidBody3DComponent& entityBody = m_registry.get<RigidBody3DComponent>(entity);
+				entityBody.DisableSimulation();
+
+				OnEntityDeactivated(entt::handle(m_registry, entity), entityBody.GetBodyIndex());
+				m_activeBodyEntities.erase(entity);
+			}
 		});
 		m_rigidBodyObserver.SignalExisting();
 	}
@@ -180,8 +206,44 @@ namespace Nz
 		if (!m_physWorld.Step(elapsedTime))
 			return; // No physics step took place
 
-		ReplicateEntities<PhysCharacter3DComponent>();
-		ReplicateEntities<RigidBody3DComponent>();
+		ReplicateEntities<PhysCharacter3DComponent>(m_activeCharacterEntities);
+		ReplicateEntities<RigidBody3DComponent>(m_activeBodyEntities);
+	}
+
+	void Physics3DSystem::OnBodyActivated(UInt32 bodyIndex)
+	{
+		assert(bodyIndex <= m_bodyIndicesToEntity.size());
+		entt::entity entity = m_bodyIndicesToEntity[bodyIndex];
+
+		if (m_rigidBodyObserver.Contains(entity))
+		{
+			if (!m_activeBodyEntities.contains(entity))
+				m_activeBodyEntities.emplace(entity);
+		}
+		else if (m_characterObserver.Contains(entity))
+		{
+			if (!m_activeCharacterEntities.contains(entity))
+				m_activeCharacterEntities.emplace(entity);
+		}
+		else
+			return; //< ??
+
+		OnEntityActivated(entt::handle(m_registry, entity), bodyIndex);
+	}
+
+	void Physics3DSystem::OnBodyDeactivated(UInt32 bodyIndex)
+	{
+		assert(bodyIndex <= m_bodyIndicesToEntity.size());
+		entt::entity entity = m_bodyIndicesToEntity[bodyIndex];
+
+		if (m_rigidBodyObserver.Contains(entity))
+			m_activeBodyEntities.remove(entity);
+		else if (m_characterObserver.Contains(entity))
+			m_activeCharacterEntities.remove(entity);
+		else
+			return; //< ??
+
+		OnEntityDeactivated(entt::handle(m_registry, entity), bodyIndex);
 	}
 
 	void Physics3DSystem::OnBodyConstruct(entt::registry& registry, entt::entity entity)
@@ -230,16 +292,15 @@ namespace Nz
 	}
 
 	template<typename T>
-	void Physics3DSystem::ReplicateEntities()
+	void Physics3DSystem::ReplicateEntities(entt::storage<void>& activeEntities)
 	{
-		auto view = m_registry.view<NodeComponent, T>(entt::exclude<DisabledComponent>);
-		for (auto entity : view)
+		for (entt::entity entity : activeEntities)
 		{
-			auto& bodyComponent = view.template get<T>(entity);
-			if (bodyComponent.GetReplicationMode() == PhysicsReplication3D::None || !m_physWorld.IsBodyActive(bodyComponent.GetBodyIndex()))
+			auto& bodyComponent = m_registry.template get<T>(entity);
+			if (bodyComponent.GetReplicationMode() == PhysicsReplication3D::None)
 				continue;
 
-			auto& nodeComponent = view.template get<NodeComponent>(entity);
+			auto& nodeComponent = m_registry.template get<NodeComponent>(entity);
 			auto [position, rotation] = bodyComponent.GetPositionAndRotation();
 
 			switch (bodyComponent.GetReplicationMode())

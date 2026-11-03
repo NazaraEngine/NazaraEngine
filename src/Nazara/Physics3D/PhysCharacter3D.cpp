@@ -25,7 +25,8 @@ namespace Nz
 	m_collider(std::move(character.m_collider)),
 	m_character(std::move(character.m_character)),
 	m_world(std::move(character.m_world)),
-	m_bodyIndex(character.m_bodyIndex)
+	m_bodyIndex(character.m_bodyIndex),
+	m_isSimulationEnabled(character.m_isSimulationEnabled)
 	{
 		character.m_bodyIndex = std::numeric_limits<UInt32>::max();
 
@@ -70,6 +71,19 @@ namespace Nz
 	{
 		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
 		return bodyInterface.ApplyBuoyancyImpulse(m_character->GetBodyID(), ToJolt(surfacePosition), ToJolt(surfaceNormal), buoyancy, linearDrag, angularDrag, ToJolt(fluidVelocity), ToJolt(gravity), deltaTime);
+	}
+
+	void PhysCharacter3D::EnableSimulation(bool enable)
+	{
+		if (m_isSimulationEnabled == enable)
+			return;
+
+		if (enable)
+			m_character->AddToPhysicsSystem();
+		else
+			m_character->RemoveFromPhysicsSystem();
+
+		m_isSimulationEnabled = enable;
 	}
 
 	void PhysCharacter3D::EnableSleeping(bool enable)
@@ -201,6 +215,16 @@ namespace Nz
 		return m_character->GetGroundState() == JPH::Character::EGroundState::OnGround;
 	}
 
+	bool PhysCharacter3D::IsSleeping() const
+	{
+		const JPH::BodyLockInterfaceNoLock& bodyInterface = m_world->GetPhysicsSystem()->GetBodyLockInterfaceNoLock();
+		JPH::BodyLockRead bodyLock(bodyInterface, m_character->GetBodyID());
+		if (!bodyLock.Succeeded())
+			return false;
+
+		return !bodyLock.GetBody().IsActive();
+	}
+
 	bool PhysCharacter3D::IsTrigger() const
 	{
 		const JPH::BodyLockInterfaceNoLock& bodyInterface = m_world->GetPhysicsSystem()->GetBodyLockInterfaceNoLock();
@@ -295,6 +319,7 @@ namespace Nz
 	{
 		m_collider = settings.collider;
 		m_impl = physWorld.GetDefaultCharacterImpl();
+		m_isSimulationEnabled = settings.isSimulationEnabled;
 		m_world = &physWorld;
 
 		auto shapeResult = m_collider->GetShapeSettings()->Create();
@@ -306,7 +331,8 @@ namespace Nz
 		characterSettings.mLayer = settings.objectLayer;
 
 		m_character = std::make_unique<JPH::Character>(&characterSettings, ToJolt(settings.position), ToJolt(settings.rotation), PointerToInteger<UInt64>(this), m_world->GetPhysicsSystem());
-		m_character->AddToPhysicsSystem();
+		if (m_isSimulationEnabled)
+			m_character->AddToPhysicsSystem();
 
 		m_bodyIndex = m_character->GetBodyID().GetIndex();
 
@@ -315,7 +341,7 @@ namespace Nz
 
 	void PhysCharacter3D::Destroy()
 	{
-		if (m_character)
+		if (m_character && m_isSimulationEnabled)
 		{
 			m_character->RemoveFromPhysicsSystem();
 			m_character = nullptr;

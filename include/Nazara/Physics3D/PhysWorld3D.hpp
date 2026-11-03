@@ -14,8 +14,7 @@
 #include <Nazara/Physics3D/Export.hpp>
 #include <Nazara/Physics3D/PhysFilter3D.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
-#include <NazaraUtils/MovablePtr.hpp>
-#include <atomic>
+#include <mutex>
 #include <optional>
 #include <vector>
 
@@ -32,6 +31,7 @@ namespace Nz
 	class PhysBody3D;
 	class PhysCharacter3D;
 	class PhysCharacter3DImpl;
+	class PhysWorld3DBodyListener;
 	class PhysWorld3DStepListener;
 	class RigidBody3D;
 	struct PhysContact3D;
@@ -74,15 +74,17 @@ namespace Nz
 
 			void RefreshBodies();
 
+			inline void RegisterBodyListener(PhysWorld3DBodyListener* stepListener);
 			inline void RegisterStepListener(PhysWorld3DStepListener* stepListener);
 
-			void SetContactListener(std::unique_ptr<ContactListener> contactListener);
+			void SetContactListener(std::unique_ptr<ContactListener>&& contactListener);
 			void SetGravity(const Vector3f& gravity);
 			inline void SetMaxStepCount(std::size_t maxStepCount);
 			void SetStepSize(Time stepSize);
 
 			bool Step(Time timestep);
 
+			inline void UnregisterBodyListener(PhysWorld3DBodyListener* stepListener);
 			inline void UnregisterStepListener(PhysWorld3DStepListener* stepListener);
 
 			PhysWorld3D& operator=(const PhysWorld3D&) = delete;
@@ -173,12 +175,16 @@ namespace Nz
 
 			void UnregisterBody(const JPH::BodyID& bodyID, bool destroy, bool removeFromRegisterList);
 
+			std::mutex m_bodyMutex;
 			std::size_t m_maxStepCount;
 			std::shared_ptr<PhysCharacter3DImpl> m_defaultCharacterImpl;
-			std::unique_ptr<std::atomic_uint64_t[]> m_activeBodies;
+			std::unique_ptr<std::uint64_t[]> m_activeBodies;
 			std::unique_ptr<std::uint64_t[]> m_registeredBodies;
 			std::unique_ptr<JoltWorld> m_world;
+			std::vector<PhysWorld3DBodyListener*> m_bodyListeners;
 			std::vector<PhysWorld3DStepListener*> m_stepListeners;
+			std::vector<UInt32> m_newlyActivatedBodies;
+			std::vector<UInt32> m_newlyDeactivatedBodies;
 			Time m_stepSize;
 			Time m_timestepAccumulator;
 			bool m_isProfilingEnabled;

@@ -154,7 +154,7 @@ namespace Nz
 			return;
 
 		if (enable)
-			m_world->RegisterBody(m_body->GetID(), true, true);
+			m_world->RegisterBody(m_body->GetID(), !IsStatic(), true);
 		else
 			m_world->UnregisterBody(m_body->GetID(), false, true);
 
@@ -522,7 +522,7 @@ namespace Nz
 		JPH::BodyID bodyId = m_body->GetID();
 		m_bodyIndex = bodyId.GetIndex();
 
-		if (settings.isSimulationEnabled)
+		if (m_isSimulationEnabled)
 			m_world->RegisterBody(bodyId, !settings.initiallySleeping, false);
 	}
 
@@ -542,7 +542,7 @@ namespace Nz
 		JPH::BodyID bodyId = m_body->GetID();
 		m_bodyIndex = bodyId.GetIndex();
 
-		if (settings.isSimulationEnabled)
+		if (m_isSimulationEnabled)
 			m_world->RegisterBody(bodyId, false, false); //< static bodies cannot be activated
 	}
 
@@ -553,7 +553,7 @@ namespace Nz
 
 	void RigidBody3D::Destroy(bool worldDestruction)
 	{
-		if (m_body)
+		if (m_body && m_isSimulationEnabled)
 		{
 			m_world->UnregisterBody(m_body->GetID(), true, !worldDestruction);
 			m_body = nullptr;

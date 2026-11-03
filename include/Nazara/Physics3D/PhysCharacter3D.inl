@@ -4,6 +4,11 @@
 
 namespace Nz
 {
+	inline void PhysCharacter3D::DisableSimulation()
+	{
+		return EnableSimulation(false);
+	}
+
 	inline void PhysCharacter3D::DisableSleeping()
 	{
 		return EnableSleeping(false);

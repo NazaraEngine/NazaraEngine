@@ -6,6 +6,7 @@
 #include <Nazara/Physics3D/Collider3D.hpp>
 #include <Nazara/Physics3D/JoltHelper.hpp>
 #include <Nazara/Physics3D/PhysCharacter3D.hpp>
+#include <Nazara/Physics3D/PhysWorld3DBodyListener.hpp>
 #include <Nazara/Physics3D/PhysWorld3DStepListener.hpp>
 #include <Nazara/Physics3D/Physics3D.hpp>
 #include <NazaraUtils/MemoryPool.hpp>
@@ -27,11 +28,27 @@
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <tsl/ordered_set.h>
 #include <cassert>
+#include <concepts>
 
 namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
+		template<std::regular T>
+		void InsertSorted(std::vector<T>& vec, T value)
+		{
+			auto it = std::lower_bound(vec.begin(), vec.end(), value);
+			vec.insert(it, value);
+		}
+
+		template<std::regular T>
+		void EraseSorted(std::vector<T>& vec, T value)
+		{
+			auto it = std::lower_bound(vec.begin(), vec.end(), value);
+			if (it != vec.end() && *it == value)
+				vec.erase(it);
+		}
+
 		class BodyFilterBridge : public JPH::BodyFilter
 		{
 			public:
@@ -244,8 +261,6 @@ namespace Nz
 	class PhysWorld3D::BodyActivationListener : public JPH::BodyActivationListener
 	{
 		public:
-			static constexpr UInt32 BodyPerBlock = 64;
-
 			BodyActivationListener(PhysWorld3D& physWorld) :
 			m_physWorld(physWorld)
 			{
@@ -253,20 +268,22 @@ namespace Nz
 
 			void OnBodyActivated(const JPH::BodyID& inBodyID, UInt64 /*inBodyUserData*/) override
 			{
-				UInt32 bodyIndex = inBodyID.GetIndex();
-				UInt32 blockIndex = bodyIndex / 64;
-				UInt32 localIndex = bodyIndex % 64;
+				NAZARA_USE_ANONYMOUS_NAMESPACE
 
-				m_physWorld.m_activeBodies[blockIndex] |= UInt64(1u) << localIndex;
+				UInt32 bodyIndex = inBodyID.GetIndex();
+
+				std::lock_guard lock(m_physWorld.m_bodyMutex);
+				InsertSorted(m_physWorld.m_newlyActivatedBodies, bodyIndex);
+				EraseSorted(m_physWorld.m_newlyDeactivatedBodies, bodyIndex);
 			}
 
 			void OnBodyDeactivated(const JPH::BodyID& inBodyID, UInt64 /*inBodyUserData*/) override
 			{
 				UInt32 bodyIndex = inBodyID.GetIndex();
-				UInt32 blockIndex = bodyIndex / 64;
-				UInt32 localIndex = bodyIndex % 64;
 
-				m_physWorld.m_activeBodies[blockIndex] &= ~(UInt64(1u) << localIndex);
+				std::lock_guard lock(m_physWorld.m_bodyMutex);
+				InsertSorted(m_physWorld.m_newlyDeactivatedBodies, bodyIndex);
+				EraseSorted(m_physWorld.m_newlyActivatedBodies, bodyIndex);
 			}
 
 		private:
@@ -491,7 +508,7 @@ namespace Nz
 
 		std::size_t blockCount = (m_world->physicsSystem.GetMaxBodies() - 1) / 64 + 1;
 
-		m_activeBodies = std::make_unique<std::atomic_uint64_t[]>(blockCount);
+		m_activeBodies = std::make_unique<std::uint64_t[]>(blockCount);
 		m_registeredBodies = std::make_unique<std::uint64_t[]>(blockCount);
 	}
 
@@ -682,7 +699,7 @@ namespace Nz
 		}
 	}
 
-	void PhysWorld3D::SetContactListener(std::unique_ptr<ContactListener> contactListener)
+	void PhysWorld3D::SetContactListener(std::unique_ptr<ContactListener>&& contactListener)
 	{
 		m_world->contactListenerBridge.emplace(m_world->physicsSystem.GetBodyLockInterfaceNoLock(), std::move(contactListener));
 		m_world->physicsSystem.SetContactListener(&*m_world->contactListenerBridge);
@@ -716,6 +733,30 @@ namespace Nz
 
 			for (PhysWorld3DStepListener* stepListener : m_stepListeners)
 				stepListener->PostSimulate(stepSize);
+
+			for (UInt32 bodyIndex : m_newlyActivatedBodies)
+			{
+				UInt32 blockIndex = bodyIndex / 64;
+				UInt32 localIndex = bodyIndex % 64;
+
+				m_activeBodies[blockIndex] |= UInt64(1u) << localIndex;
+
+				for (PhysWorld3DBodyListener* bodyListener : m_bodyListeners)
+					bodyListener->OnBodyActivated(bodyIndex);
+			}
+			m_newlyActivatedBodies.clear();
+
+			for (UInt32 bodyIndex : m_newlyDeactivatedBodies)
+			{
+				UInt32 blockIndex = bodyIndex / 64;
+				UInt32 localIndex = bodyIndex % 64;
+
+				m_activeBodies[blockIndex] &= ~(UInt64(1u) << localIndex);
+
+				for (PhysWorld3DBodyListener* bodyListener : m_bodyListeners)
+					bodyListener->OnBodyDeactivated(bodyIndex);
+			}
+			m_newlyDeactivatedBodies.clear();
 
 			m_timestepAccumulator -= m_stepSize;
 			stepCount++;

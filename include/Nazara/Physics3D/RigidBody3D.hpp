@@ -58,8 +58,8 @@ namespace Nz
 
 			inline void DisableSimulation();
 			inline void DisableSleeping();
-			void EnableSimulation(bool enable);
-			void EnableSleeping(bool enable);
+			void EnableSimulation(bool enable = true);
+			void EnableSleeping(bool enable = true);
 
 			void FallAsleep();
 
