@@ -51,6 +51,17 @@ namespace Nz
 
 			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
 			entityBody.TeleportTo(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation());
+
+			if (entityBody.IsStatic())
+			{
+				// Teleport static bodies when moved
+				auto& rigidBodyData = m_rigidBodyObserver.Get(entity);
+				rigidBodyData.onNodeInvalidation.Connect(entityNode.OnNodeInvalidation, [this, entity](const Nz::Node* node)
+				{
+					RigidBody3DComponent& entityBody = m_registry.get<RigidBody3DComponent>(entity);
+					entityBody.TeleportTo(node->GetGlobalPosition(), node->GetGlobalRotation());
+				});
+			}
 		});
 		m_rigidBodyObserver.OnEntityRemove.Connect([this](entt::entity entity)
 		{

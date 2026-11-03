@@ -113,7 +113,7 @@ namespace Nz
 			entt::scoped_connection m_characterConstructConnection;
 			entt::scoped_connection m_characterDestructConnection;
 			EnttObserver<TypeList<class PhysCharacter3DComponent, class NodeComponent>, TypeList<class DisabledComponent, class RigidBody3DComponent>> m_characterObserver;
-			EnttObserver<TypeList<class RigidBody3DComponent, class NodeComponent>, TypeList<class DisabledComponent, class PhysCharacter3DComponent>> m_rigidBodyObserver;
+			EnttObserver<TypeList<class RigidBody3DComponent, class NodeComponent>, TypeList<class DisabledComponent, class PhysCharacter3DComponent>, RigidBodyData> m_rigidBodyObserver;
 			PhysWorld3D m_physWorld;
 	};
 }
