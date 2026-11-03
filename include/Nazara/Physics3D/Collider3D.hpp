@@ -131,8 +131,11 @@ namespace Nz
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
-			const std::vector<ChildCollider>& GetGeoms() const;
+			UInt32 GetChildColliderIndexFromID(UInt32 subShapeID, UInt32* remainder = nullptr) const;
+			const std::vector<ChildCollider>& GetChildColliders() const;
 			ColliderType3D GetType() const override;
+
+			bool IsSubshapeIDValid(UInt32 subShapeID) const;
 
 			struct ChildCollider
 			{

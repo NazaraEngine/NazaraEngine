@@ -449,7 +449,23 @@ namespace Nz
 			child.collider->BuildDebugMesh(vertices, indices, offsetMatrix * Matrix4f::Transform(child.offset, child.rotation));
 	}
 
-	auto CompoundCollider3D::GetGeoms() const -> const std::vector<ChildCollider>&
+	UInt32 CompoundCollider3D::GetChildColliderIndexFromID(UInt32 subShapeID, UInt32* remainder) const
+	{
+		JPH::SubShapeID joltSubShapeID;
+		joltSubShapeID.SetValue(subShapeID);
+
+		const JPH::CompoundShape* shape = GetShapeAs<JPH::CompoundShape>();
+
+		JPH::SubShapeID subshapeRemainder;
+		UInt32 index = shape->GetSubShapeIndexFromID(joltSubShapeID, subshapeRemainder);
+
+		if (remainder)
+			*remainder = subshapeRemainder.GetValue();
+
+		return index;
+	}
+
+	auto CompoundCollider3D::GetChildColliders() const -> const std::vector<ChildCollider>&
 	{
 		return m_childs;
 	}
@@ -457,6 +473,15 @@ namespace Nz
 	ColliderType3D CompoundCollider3D::GetType() const
 	{
 		return ColliderType3D::Compound;
+	}
+
+	bool CompoundCollider3D::IsSubshapeIDValid(UInt32 subShapeID) const
+	{
+		JPH::SubShapeID joltSubShapeID;
+		joltSubShapeID.SetValue(subShapeID);
+
+		const JPH::CompoundShape* shape = GetShapeAs<JPH::CompoundShape>();
+		return shape->IsSubShapeIDValid(joltSubShapeID);
 	}
 
 	/******************************** ConvexHullCollider3D *********************************/
