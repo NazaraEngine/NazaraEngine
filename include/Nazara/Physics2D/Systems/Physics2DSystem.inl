@@ -81,9 +81,9 @@ namespace Nz
 		return hitInfos->size() != originalSize;
 	}
 
-	inline bool Physics2DSystem::RaycastQueryFirst(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, RaycastHit* hitInfo)
+	inline bool Physics2DSystem::RaycastQueryClosest(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, RaycastHit* hitInfo)
 	{
-		if (!m_physWorld.RaycastQueryFirst(from, to, radius, collisionGroup, categoryMask, collisionMask, hitInfo))
+		if (!m_physWorld.RaycastQueryClosest(from, to, radius, collisionGroup, categoryMask, collisionMask, hitInfo))
 			return false;
 
 		if (hitInfo)

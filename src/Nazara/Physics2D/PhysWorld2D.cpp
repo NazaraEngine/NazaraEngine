@@ -251,7 +251,7 @@ namespace Nz
 		return hitInfos->size() != previousSize;
 	}
 
-	bool PhysWorld2D::RaycastQueryFirst(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, RaycastHit* hitInfo)
+	bool PhysWorld2D::RaycastQueryClosest(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, RaycastHit* hitInfo)
 	{
 		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
 

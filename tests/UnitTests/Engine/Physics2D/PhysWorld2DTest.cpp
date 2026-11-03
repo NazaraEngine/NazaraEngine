@@ -55,7 +55,7 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 			Nz::Vector2f origin = -Nz::Vector2f::UnitY() * 2.f;
 			Nz::Vector2f end = (numberOfBodiesPerLign + 1) * 10.f * Nz::Vector2f::UnitY();
 			Nz::PhysWorld2D::RaycastHit result;
-			REQUIRE(world.RaycastQueryFirst(origin, end, 1.f, collisionGroup, categoryMask, collisionMask, &result));
+			REQUIRE(world.RaycastQueryClosest(origin, end, 1.f, collisionGroup, categoryMask, collisionMask, &result));
 
 			THEN("It should be the one on the origin")
 			{
