@@ -70,7 +70,7 @@ namespace Nz
 			inline bool IsBodyRegistered(UInt32 bodyIndex) const;
 
 			bool RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
-			bool RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
+			bool RaycastQueryClosest(const Vector3f& from, const Vector3f& to, RaycastHit* hitInfo, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
 
 			void RefreshBodies();
 

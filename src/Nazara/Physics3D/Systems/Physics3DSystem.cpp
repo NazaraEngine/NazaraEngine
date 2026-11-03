@@ -111,22 +111,19 @@ namespace Nz
 		}, broadphaseFilter, objectLayerFilter, bodyFilter);
 	}
 
-	bool Physics3DSystem::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
+	bool Physics3DSystem::RaycastQueryClosest(const Vector3f& from, const Vector3f& to, RaycastHit* hitInfo, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
-		return m_physWorld.RaycastQueryFirst(from, to, [&](const PhysWorld3D::RaycastHit& hitInfo)
+		if (!m_physWorld.RaycastQueryClosest(from, to, hitInfo, broadphaseFilter, objectLayerFilter, bodyFilter))
+			return false;
+
+		if (hitInfo->hitBody)
 		{
-			RaycastHit extendedHitInfo;
-			static_cast<PhysWorld3D::RaycastHit&>(extendedHitInfo) = hitInfo;
+			std::size_t bodyIndex = hitInfo->hitBody->GetBodyIndex();
+			if (bodyIndex < m_bodyIndicesToEntity.size())
+				hitInfo->hitEntity = entt::handle(m_registry, m_bodyIndicesToEntity[bodyIndex]);
+		}
 
-			if (extendedHitInfo.hitBody)
-			{
-				std::size_t bodyIndex = extendedHitInfo.hitBody->GetBodyIndex();
-				if (bodyIndex < m_bodyIndicesToEntity.size())
-					extendedHitInfo.hitEntity = entt::handle(m_registry, m_bodyIndicesToEntity[bodyIndex]);
-			}
-
-			callback(extendedHitInfo);
-		}, broadphaseFilter, objectLayerFilter, bodyFilter);
+		return true;
 	}
 
 	void Physics3DSystem::SetContactListener(std::unique_ptr<ContactListener> contactListener)

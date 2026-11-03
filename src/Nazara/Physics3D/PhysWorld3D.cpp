@@ -595,7 +595,7 @@ namespace Nz
 		return collector.DidHit();
 	}
 
-	bool PhysWorld3D::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
+	bool PhysWorld3D::RaycastQueryClosest(const Vector3f& from, const Vector3f& to, RaycastHit* hitInfo, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -625,14 +625,11 @@ namespace Nz
 
 		JPH::Body& body = lock.GetBody();
 
-		RaycastHit hitInfo;
-		hitInfo.fraction = collector.mHit.GetEarlyOutFraction();
-		hitInfo.hitPosition = FromJolt(rayCast.GetPointOnRay(hitInfo.fraction));
-		hitInfo.hitBody = IntegerToPointer<PhysBody3D*>(body.GetUserData());
-		hitInfo.hitNormal = FromJolt(body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, rayCast.GetPointOnRay(hitInfo.fraction)));
-		hitInfo.subShapeID = collector.mHit.mSubShapeID2.GetValue();
-
-		callback(hitInfo);
+		hitInfo->fraction = collector.mHit.GetEarlyOutFraction();
+		hitInfo->hitPosition = FromJolt(rayCast.GetPointOnRay(hitInfo->fraction));
+		hitInfo->hitBody = IntegerToPointer<PhysBody3D*>(body.GetUserData());
+		hitInfo->hitNormal = FromJolt(body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, rayCast.GetPointOnRay(hitInfo->fraction)));
+		hitInfo->subShapeID = collector.mHit.mSubShapeID2.GetValue();
 		return true;
 	}
 
