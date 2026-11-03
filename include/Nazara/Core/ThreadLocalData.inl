@@ -31,8 +31,8 @@ namespace Nz
 	}
 
 	template<typename T>
-	template<typename ...Args>
-	T& ThreadLocalData<T>::GetOrCreate(bool& created, Args && ...args)
+	template<typename... Args>
+	T& ThreadLocalData<T>::GetOrCreate(bool& created, Args&&... args)
 	{
 		std::thread::id threadId = std::this_thread::get_id();
 

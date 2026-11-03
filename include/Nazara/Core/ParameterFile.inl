@@ -192,7 +192,7 @@ namespace Nz
 	{
 	}
 
-	template<typename ...Args>
+	template<typename... Args>
 	void ParameterFileSection::Block(Args&&... args)
 	{
 		using Types = TypeListTransform<TypeList<Args...>, std::decay>;
