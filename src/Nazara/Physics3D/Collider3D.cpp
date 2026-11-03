@@ -191,7 +191,7 @@ namespace Nz
 		else if (primitiveCount > 0)
 			return CreateGeomFromPrimitive(list.GetPrimitive(0));
 		else
-			return nullptr;// std::make_shared<NullCollider3D>();  //< TODO
+			return EmptyCollider3D::Get();
 	}
 
 	bool Collider3D::CollideShapes(const Collider3D& collider1, const Matrix4f& collider1Transform, const Collider3D& collider2, const Matrix4f& collider2Transform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback)
