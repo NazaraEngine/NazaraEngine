@@ -167,13 +167,15 @@ namespace Nz
 			class StepListener;
 			friend StepListener;
 
+			void DestroyBody(const JPH::BodyID& bodyID, bool worldDestruction);
+
 			std::shared_ptr<PhysCharacter3DImpl> GetDefaultCharacterImpl();
 
 			void OnPreStep(float deltatime);
 
 			void RegisterBody(const JPH::BodyID& bodyID, bool activate, bool removeFromDeactivationList);
 
-			void UnregisterBody(const JPH::BodyID& bodyID, bool destroy, bool removeFromRegisterList);
+			void UnregisterBody(const JPH::BodyID& bodyID, bool removeFromRegisterList);
 
 			std::mutex m_bodyMutex;
 			std::size_t m_maxStepCount;

@@ -156,7 +156,7 @@ namespace Nz
 		if (enable)
 			m_world->RegisterBody(m_body->GetID(), !IsStatic(), true);
 		else
-			m_world->UnregisterBody(m_body->GetID(), false, true);
+			m_world->UnregisterBody(m_body->GetID(), true);
 
 		m_isSimulationEnabled = enable;
 	}
@@ -492,7 +492,7 @@ namespace Nz
 
 		m_body                = std::move(body.m_body);
 		m_bodyIndex           = body.m_bodyIndex;
-		m_collider                = std::move(body.m_collider);
+		m_collider            = std::move(body.m_collider);
 		m_world               = std::move(body.m_world);
 		m_isSimulationEnabled = body.m_isSimulationEnabled;
 		m_isTrigger           = body.m_isTrigger;
@@ -553,9 +553,9 @@ namespace Nz
 
 	void RigidBody3D::Destroy(bool worldDestruction)
 	{
-		if (m_body && m_isSimulationEnabled)
+		if (m_body)
 		{
-			m_world->UnregisterBody(m_body->GetID(), true, !worldDestruction);
+			m_world->DestroyBody(m_body->GetID(), worldDestruction);
 			m_body = nullptr;
 		}
 

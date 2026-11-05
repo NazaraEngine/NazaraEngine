@@ -834,6 +834,45 @@ namespace Nz
 		return settings;
 	}
 
+	void PhysWorld3D::DestroyBody(const JPH::BodyID& bodyID, bool worldDestruction)
+	{
+		auto& bodyInterface = m_world->physicsSystem.GetBodyInterface();
+
+		UInt32 bodyIndex = bodyID.GetIndex();
+		if (IsBodyRegistered(bodyIndex))
+		{
+			UInt32 blockIndex = bodyIndex / 64;
+			UInt32 localIndex = bodyIndex % 64;
+
+			m_registeredBodies[blockIndex] &= ~(UInt64(1u) << localIndex);
+
+			bodyInterface.RemoveBody(bodyID);
+		}
+
+		if (!worldDestruction)
+		{
+			m_world->pendingAdditionActivate.erase(bodyID);
+			m_world->pendingAdditionNoActivate.erase(bodyID);
+			m_world->pendingDeactivations.erase(bodyID);
+		}
+
+		bodyInterface.DestroyBody(bodyID); //< this invalidate the bodyID reference!
+	}
+
+	std::shared_ptr<PhysCharacter3DImpl> PhysWorld3D::GetDefaultCharacterImpl()
+	{
+		if (!m_defaultCharacterImpl)
+			m_defaultCharacterImpl = std::make_shared<PhysCharacter3DImpl>();
+
+		return m_defaultCharacterImpl;
+	}
+
+	void PhysWorld3D::OnPreStep(float deltatime)
+	{
+		for (PhysWorld3DStepListener* stepListener : m_stepListeners)
+			stepListener->PreSimulate(deltatime);
+	}
+
 	void PhysWorld3D::RegisterBody(const JPH::BodyID& bodyID, bool activate, bool removeFromDeactivationList)
 	{
 		assert(removeFromDeactivationList || !m_world->pendingDeactivations.contains(bodyID));
@@ -850,47 +889,13 @@ namespace Nz
 		}
 	}
 
-	void PhysWorld3D::UnregisterBody(const JPH::BodyID& bodyID, bool destroy, bool removeFromActivationList)
+	void PhysWorld3D::UnregisterBody(const JPH::BodyID& bodyID, bool removeFromActivationList)
 	{
-		// Remove from list first as bodyID may be invalidated by destruction
+		m_world->pendingDeactivations.insert(bodyID);
 		if (removeFromActivationList)
 		{
 			m_world->pendingAdditionActivate.erase(bodyID);
 			m_world->pendingAdditionNoActivate.erase(bodyID);
 		}
-
-		if (destroy)
-		{
-			auto& bodyInterface = m_world->physicsSystem.GetBodyInterface();
-
-			UInt32 bodyIndex = bodyID.GetIndex();
-			if (IsBodyRegistered(bodyIndex))
-			{
-				UInt32 blockIndex = bodyIndex / 64;
-				UInt32 localIndex = bodyIndex % 64;
-
-				m_registeredBodies[blockIndex] &= ~(UInt64(1u) << localIndex);
-
-				bodyInterface.RemoveBody(bodyID);
-			}
-
-			bodyInterface.DestroyBody(bodyID); //< this invalidate the bodyID reference!
-		}
-		else
-			m_world->pendingDeactivations.insert(bodyID);
-	}
-
-	std::shared_ptr<PhysCharacter3DImpl> PhysWorld3D::GetDefaultCharacterImpl()
-	{
-		if (!m_defaultCharacterImpl)
-			m_defaultCharacterImpl = std::make_shared<PhysCharacter3DImpl>();
-
-		return m_defaultCharacterImpl;
-	}
-
-	void PhysWorld3D::OnPreStep(float deltatime)
-	{
-		for (PhysWorld3DStepListener* stepListener : m_stepListeners)
-			stepListener->PreSimulate(deltatime);
 	}
 }
