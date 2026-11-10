@@ -14,6 +14,7 @@
 #include <mutex>
 #include <thread>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace Nz
@@ -52,6 +53,12 @@ namespace Nz
 				std::mutex m_mutex;
 				std::vector<ThreadLocalDataBase*> m_dataList;
 		};
+
+		template<typename T> struct IsSmartPtr_t : std::false_type {};
+		template<typename T> struct IsSmartPtr_t<std::shared_ptr<T>> : std::true_type {};
+		template<typename T> struct IsSmartPtr_t<std::unique_ptr<T>> : std::true_type {};
+
+		template<typename T> constexpr bool IsSmartPtr_v = IsSmartPtr_t<T>::value;
 	}
 
 	template<typename T>
@@ -74,10 +81,12 @@ namespace Nz
 		private:
 			void OnThreadExit(std::thread::id threadId) override;
 
+			using StoredType = std::conditional_t<Detail::IsSmartPtr_v<T>, T, std::unique_ptr<T>>;
+
 			struct DataEntry
 			{
 				MovablePtr<Detail::ThreadLocalDataWatcher> watcher;
-				std::unique_ptr<T> data;
+				StoredType data;
 			};
 
 			std::mutex m_mutex;

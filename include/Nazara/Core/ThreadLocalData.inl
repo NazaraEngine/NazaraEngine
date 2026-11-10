@@ -41,7 +41,11 @@ namespace Nz
 		if (it == m_data.end())
 		{
 			it = m_data.emplace(threadId, DataEntry{}).first;
-			it->second.data = std::make_unique<T>(std::forward<Args>(args)...);
+			if constexpr (Detail::IsSmartPtr_v<T>)
+				it->second.data = T{ std::forward<Args>(args)... };
+			else
+				it->second.data = std::make_unique<T>(std::forward<Args>(args)...);
+
 			it->second.watcher = &Detail::ThreadLocalDataWatcher::GetThreadWatcher();
 			it->second.watcher->Register(this);
 			created = true;
@@ -49,7 +53,10 @@ namespace Nz
 		else
 			created = false;
 
-		return *it->second.data;
+		if constexpr (Detail::IsSmartPtr_v<T>)
+			return it->second.data;
+		else
+			return *it->second.data;
 	}
 
 	template<typename T>
