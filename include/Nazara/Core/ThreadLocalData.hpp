@@ -71,6 +71,7 @@ namespace Nz
 			~ThreadLocalData();
 
 			void Clear();
+			template<typename F> void Iterate(F&& functor);
 
 			template<typename... Args> T& GetOrCreate(Args&&... args);
 			template<typename... Args> T& GetOrCreate(bool& created, Args&&... args);

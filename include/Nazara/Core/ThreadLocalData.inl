@@ -23,6 +23,15 @@ namespace Nz
 	}
 
 	template<typename T>
+	template<typename F>
+	void ThreadLocalData<T>::Iterate(F&& functor)
+	{
+		std::unique_lock lock(m_mutex);
+		for (auto&& [threadId, entry] : m_data)
+			functor(threadId, entry.data);
+	}
+
+	template<typename T>
 	template<typename... Args>
 	T& ThreadLocalData<T>::GetOrCreate(Args&&... args)
 	{
