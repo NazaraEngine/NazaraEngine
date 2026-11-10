@@ -403,22 +403,32 @@ namespace Nz
 		return false;
 	}
 
-	void OpenGLDevice::SubmitAsyncCommands(std::unique_ptr<GpuAsyncCommands>&& transfer, bool waitForCompletion)
+	void OpenGLDevice::SubmitAsyncCommands(std::span<std::unique_ptr<GpuAsyncCommands>> transferCommands, bool waitForCompletion)
 	{
 		// TODO: Implement multiple queues using multiple contexts
-		std::unique_ptr<OpenGLAsyncCommands> asyncTransfer = StaticUniquePointerCast<OpenGLAsyncCommands>(std::move(transfer));
-		asyncTransfer->Execute();
+		for (std::size_t i = 0; i < transferCommands.size(); ++i)
+		{
+			OpenGLAsyncCommands& asyncTransfer = SafeCast<OpenGLAsyncCommands&>(*transferCommands[i]);
+			asyncTransfer.Execute();
+		}
 
 		if (waitForCompletion)
 		{
 			m_referenceContext->glFinish();
-			asyncTransfer->TriggerCallbacks();
+			for (std::size_t i = 0; i < transferCommands.size(); ++i)
+			{
+				OpenGLAsyncCommands& asyncTransfer = SafeCast<OpenGLAsyncCommands&>(*transferCommands[i]);
+				asyncTransfer.TriggerCallbacks();
+			}
 		}
 		else
 		{
 			ActiveAsyncTransfer& activeTransfer = m_activeAsyncTransfer.emplace_back();
-			activeTransfer.asyncTransfer = std::move(asyncTransfer);
 			activeTransfer.completionFence = m_referenceContext->glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+
+			activeTransfer.asyncTransfers.reserve(transferCommands.size());
+			for (std::size_t i = 0; i < transferCommands.size(); ++i)
+				activeTransfer.asyncTransfers.push_back(StaticUniquePointerCast<OpenGLAsyncCommands>(std::move(transferCommands[i])));
 		}
 	}
 
@@ -436,7 +446,8 @@ namespace Nz
 			}
 			m_referenceContext->glDeleteSync(transfer.completionFence);
 
-			transfer.asyncTransfer->TriggerCallbacks();
+			for (auto& asyncCommandPtr : transfer.asyncTransfers)
+				asyncCommandPtr->TriggerCallbacks();
 
 			it = m_activeAsyncTransfer.erase(it);
 		}

@@ -61,7 +61,7 @@ namespace Nz
 			inline void NotifySamplerDestruction(GLuint sampler) const;
 			inline void NotifyTextureDestruction(GLuint texture) const;
 
-			void SubmitAsyncCommands(std::unique_ptr<GpuAsyncCommands>&& transfer, bool waitForCompletion = false) override;
+			void SubmitAsyncCommands(std::span<std::unique_ptr<GpuAsyncCommands>> transferCommands, bool waitForCompletion = false) override;
 
 			void UpdateAsyncTransfer();
 
@@ -75,7 +75,7 @@ namespace Nz
 
 			struct ActiveAsyncTransfer
 			{
-				std::unique_ptr<OpenGLAsyncCommands> asyncTransfer;
+				std::vector<std::unique_ptr<OpenGLAsyncCommands>> asyncTransfers; //< TODO: Nz::HybridVector
 				GLsync completionFence;
 			};
 

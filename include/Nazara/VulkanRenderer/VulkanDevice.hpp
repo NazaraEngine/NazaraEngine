@@ -46,7 +46,7 @@ namespace Nz
 
 			bool IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const override;
 
-			void SubmitAsyncCommands(std::unique_ptr<GpuAsyncCommands>&& transfer, bool waitForCompletion) override;
+			void SubmitAsyncCommands(std::span<std::unique_ptr<GpuAsyncCommands>> transferCommands, bool waitForCompletion) override;
 			void SubmitAsyncCommandsAndWait(VulkanAsyncCommands& transfer);
 
 			void UpdateAsyncTransfer();
@@ -59,7 +59,7 @@ namespace Nz
 		private:
 			struct ActiveAsyncTransfer
 			{
-				std::unique_ptr<VulkanAsyncCommands> asyncTransfer;
+				std::vector<std::unique_ptr<VulkanAsyncCommands>> asyncTransfers; //< TODO: Nz::HybridVector
 				Vk::Fence completionFence;
 			};
 

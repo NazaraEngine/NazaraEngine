@@ -28,6 +28,7 @@
 #include <NZSL/BackendParameters.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <memory>
+#include <span>
 #include <string>
 
 namespace Nz
@@ -65,7 +66,8 @@ namespace Nz
 
 			virtual bool IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const = 0;
 
-			virtual void SubmitAsyncCommands(std::unique_ptr<GpuAsyncCommands>&& transfer, bool waitForCompletion = false) = 0;
+			inline void SubmitAsyncCommands(std::unique_ptr<GpuAsyncCommands>&& transfer, bool waitForCompletion = false);
+			virtual void SubmitAsyncCommands(std::span<std::unique_ptr<GpuAsyncCommands>> transferCommands, bool waitForCompletion = false) = 0;
 
 			virtual void WaitForIdle() = 0;
 

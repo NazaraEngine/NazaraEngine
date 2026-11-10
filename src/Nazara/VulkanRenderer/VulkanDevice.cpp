@@ -160,26 +160,44 @@ namespace Nz
 		return formatProperties.optimalTilingFeatures & flags; //< Assume optimal tiling
 	}
 
-	void VulkanDevice::SubmitAsyncCommands(std::unique_ptr<GpuAsyncCommands>&& transfer, bool waitForCompletion)
+	void VulkanDevice::SubmitAsyncCommands(std::span<std::unique_ptr<GpuAsyncCommands>> transferCommands, bool waitForCompletion)
 	{
-		std::unique_ptr<VulkanAsyncCommands> asyncTransfer = StaticUniquePointerCast<VulkanAsyncCommands>(std::move(transfer));
+		NazaraAssert(!transferCommands.empty());
+		NazaraAssert(transferCommands.size() < 128);
+
+		QueueType queueType = SafeCast<VulkanAsyncCommands&>(*transferCommands.front()).GetQueueType();
+		Vk::QueueHandle queue = GetQueue(GetDefaultFamilyIndex(queueType), 0);
 
 		Vk::Fence completionFence;
 		completionFence.Create(*this);
 
-		Vk::QueueHandle queue = GetQueue(GetDefaultFamilyIndex(asyncTransfer->GetQueueType()), 0);
-		queue.Submit(asyncTransfer->PrepareForSubmit(), completionFence); //< TODO: Handle error
+		StackArray<VkCommandBuffer> commandBuffers = NazaraStackArrayNoInit(VkCommandBuffer, transferCommands.size());
+		for (std::size_t i = 0; i < transferCommands.size(); ++i)
+		{
+			VulkanAsyncCommands& asyncTransfer = SafeCast<VulkanAsyncCommands&>(*transferCommands[i]);
+			commandBuffers[i] = asyncTransfer.PrepareForSubmit();
+		}
+
+		queue.Submit(SafeCaster(commandBuffers.size()), commandBuffers.data(), VK_NULL_HANDLE, 0, VK_NULL_HANDLE, completionFence); //< TODO: Handle error
 
 		if (waitForCompletion)
 		{
 			completionFence.Wait();
-			asyncTransfer->TriggerCallbacks();
+
+			for (std::size_t i = 0; i < transferCommands.size(); ++i)
+			{
+				VulkanAsyncCommands& asyncTransfer = SafeCast<VulkanAsyncCommands&>(*transferCommands[i]);
+				asyncTransfer.TriggerCallbacks();
+			}
 		}
 		else
 		{
 			ActiveAsyncTransfer& activeTransfer = m_activeAsyncTransfer.emplace_back();
-			activeTransfer.asyncTransfer = std::move(asyncTransfer);
 			activeTransfer.completionFence = std::move(completionFence);
+
+			activeTransfer.asyncTransfers.reserve(transferCommands.size());
+			for (std::size_t i = 0; i < transferCommands.size(); ++i)
+				activeTransfer.asyncTransfers.push_back(StaticUniquePointerCast<VulkanAsyncCommands>(std::move(transferCommands[i])));
 		}
 	}
 
@@ -207,7 +225,8 @@ namespace Nz
 				continue;
 			}
 
-			transfer.asyncTransfer->TriggerCallbacks();
+			for (auto& asyncCommandPtr : transfer.asyncTransfers)
+				asyncCommandPtr->TriggerCallbacks();
 
 			it = m_activeAsyncTransfer.erase(it);
 		}
