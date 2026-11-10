@@ -341,9 +341,11 @@ namespace Nz
 
 	void PhysCharacter3D::Destroy()
 	{
-		if (m_character && m_isSimulationEnabled)
+		if (m_character)
 		{
-			m_character->RemoveFromPhysicsSystem();
+			if (m_isSimulationEnabled)
+				m_character->RemoveFromPhysicsSystem();
+
 			m_character = nullptr;
 		}
 
