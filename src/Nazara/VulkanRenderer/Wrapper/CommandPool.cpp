@@ -19,6 +19,8 @@ namespace Nz::Vk
 		};
 
 		VkCommandBuffer handle = VK_NULL_HANDLE;
+
+		std::unique_lock lock(m_mutex);
 		m_lastErrorCode = m_device->vkAllocateCommandBuffers(*m_device, &createInfo, &handle);
 
 		return CommandBuffer(*this, handle);
@@ -36,13 +38,15 @@ namespace Nz::Vk
 		};
 
 		std::vector<VkCommandBuffer> handles(commandBufferCount, VK_NULL_HANDLE);
+
+		std::unique_lock lock(m_mutex);
 		m_lastErrorCode = m_device->vkAllocateCommandBuffers(*m_device, &createInfo, handles.data());
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
-			return std::vector<CommandBuffer>();
+			return {};
 
 		std::vector<CommandBuffer> commandBuffers;
 		for (UInt32 i = 0; i < commandBufferCount; ++i)
-			commandBuffers.emplace_back(CommandBuffer(*this, handles[i]));
+			commandBuffers.emplace_back(*this, handles[i]);
 
 		return commandBuffers;
 	}

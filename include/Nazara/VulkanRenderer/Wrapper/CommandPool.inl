@@ -20,6 +20,11 @@ namespace Nz::Vk
 		return Create(device, createInfo, allocator);
 	}
 
+	inline std::mutex& CommandPool::GetMutex()
+	{
+		return m_mutex;
+	}
+
 	inline bool CommandPool::Reset(VkCommandPoolResetFlags flags)
 	{
 		m_lastErrorCode = m_device->vkResetCommandPool(*m_device, m_handle, flags);

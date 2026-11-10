@@ -399,6 +399,7 @@ namespace Nz::Vk
 		if (m_handle)
 		{
 			assert(m_pool);
+			std::unique_lock lock(m_pool->GetMutex());
 			m_pool->GetDevice()->vkFreeCommandBuffers(*m_pool->GetDevice(), *m_pool, 1, &m_handle);
 		}
 	}

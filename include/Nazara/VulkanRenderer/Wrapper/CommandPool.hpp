@@ -9,6 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
+#include <mutex>
 
 namespace Nz::Vk
 {
@@ -30,6 +31,8 @@ namespace Nz::Vk
 			using DeviceObject::Create;
 			inline bool Create(Device& device, UInt32 queueFamilyIndex, VkCommandPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
+			inline std::mutex& GetMutex();
+
 			inline bool Reset(VkCommandPoolResetFlags flags = 0);
 
 			CommandPool& operator=(const CommandPool&) = delete;
@@ -38,6 +41,8 @@ namespace Nz::Vk
 		private:
 			static inline VkResult CreateHelper(Device& device, const VkCommandPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkCommandPool* handle);
 			static inline void DestroyHelper(Device& device, VkCommandPool handle, const VkAllocationCallbacks* allocator);
+
+			std::mutex m_mutex;
 	};
 }
 
