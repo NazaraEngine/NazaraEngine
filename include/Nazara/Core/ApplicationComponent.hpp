@@ -31,9 +31,10 @@ namespace Nz
 			ApplicationComponent& operator=(const ApplicationComponent&) = delete;
 			ApplicationComponent& operator=(ApplicationComponent&&) = delete;
 
-		private:
+		protected:
 			virtual void Update(Time elapsedTime);
 
+		private:
 			ApplicationBase& m_app;
 	};
 }
