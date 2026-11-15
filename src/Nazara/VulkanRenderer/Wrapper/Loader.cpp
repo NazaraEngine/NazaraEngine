@@ -127,17 +127,13 @@ namespace Nz
 					NazaraError("Failed to query device function: {0}", e.what());
 					return false;
 				}
+
+				s_lastErrorCode = VkResult::VK_SUCCESS;
+				return true;
 			}
 
-			if (!s_vulkanLib.IsLoaded())
-			{
-				NazaraError("failed to open vulkan library");
-				return false;
-			}
-
-			s_lastErrorCode = VkResult::VK_SUCCESS;
-
-			return true;
+			NazaraError("failed to load vulkan library");
+			return false;
 		}
 
 		PFN_vkGetInstanceProcAddr Loader::vkGetInstanceProcAddr = nullptr;
