@@ -93,8 +93,8 @@ namespace Nz
 				NazaraSlot(NodeComponent, OnNodeInvalidation, onNodeInvalidation);
 			};
 
-			void OnBodyActivated(UInt32 bodyIndex);
-			void OnBodyDeactivated(UInt32 bodyIndex);
+			void OnBodyActivated(UInt32 bodyIndex) override;
+			void OnBodyDeactivated(UInt32 bodyIndex) override;
 
 			void OnBodyConstruct(entt::registry& registry, entt::entity entity);
 			void OnBodyDestruct(entt::registry& registry, entt::entity entity);
