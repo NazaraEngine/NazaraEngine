@@ -279,6 +279,8 @@ namespace Nz
 
 			void OnBodyDeactivated(const JPH::BodyID& inBodyID, UInt64 /*inBodyUserData*/) override
 			{
+				NAZARA_USE_ANONYMOUS_NAMESPACE
+
 				UInt32 bodyIndex = inBodyID.GetIndex();
 
 				std::lock_guard lock(m_physWorld.m_bodyMutex);
