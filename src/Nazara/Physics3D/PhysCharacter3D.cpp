@@ -297,6 +297,7 @@ namespace Nz
 		m_character = std::move(character.m_character);
 		m_bodyIndex = character.m_bodyIndex;
 		m_world = std::move(character.m_world);
+		m_isSimulationEnabled = character.m_isSimulationEnabled;
 
 		if (m_world)
 		{
