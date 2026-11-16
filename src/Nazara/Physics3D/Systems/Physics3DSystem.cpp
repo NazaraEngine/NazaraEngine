@@ -33,11 +33,11 @@ namespace Nz
 		});
 		m_characterObserver.OnEntityRemove.Connect([this](entt::entity entity)
 		{
+			PhysCharacter3DComponent& entityCharacter = m_registry.get<PhysCharacter3DComponent>(entity);
+			entityCharacter.DisableSimulation();
+
 			if (m_activeCharacterEntities.contains(entity))
 			{
-				PhysCharacter3DComponent& entityCharacter = m_registry.get<PhysCharacter3DComponent>(entity);
-				entityCharacter.DisableSimulation();
-
 				OnEntityDeactivated(entt::handle(m_registry, entity), entityCharacter.GetBodyIndex());
 				m_activeCharacterEntities.erase(entity);
 			}
@@ -65,11 +65,11 @@ namespace Nz
 		});
 		m_rigidBodyObserver.OnEntityRemove.Connect([this](entt::entity entity)
 		{
+			RigidBody3DComponent& entityBody = m_registry.get<RigidBody3DComponent>(entity);
+			entityBody.DisableSimulation();
+
 			if (m_activeBodyEntities.contains(entity))
 			{
-				RigidBody3DComponent& entityBody = m_registry.get<RigidBody3DComponent>(entity);
-				entityBody.DisableSimulation();
-
 				OnEntityDeactivated(entt::handle(m_registry, entity), entityBody.GetBodyIndex());
 				m_activeBodyEntities.erase(entity);
 			}
