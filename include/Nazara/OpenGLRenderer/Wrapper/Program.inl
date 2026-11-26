@@ -196,8 +196,8 @@ namespace Nz::GL
 	{
 		assert(m_objectId);
 		const Context& context = EnsureDeviceContext();
-		assert(context.glGetProgramResourceiv);
 
+		NazaraAssert(context.glGetProgramResourceiv);
 		context.glGetProgramResourceiv(m_objectId, programInterface, index, propCount, props, bufSize, length, params);
 	}
 
@@ -205,18 +205,28 @@ namespace Nz::GL
 	{
 		assert(m_objectId);
 		const Context& context = EnsureDeviceContext();
-		assert(context.glGetProgramResourceIndex);
 
+		NazaraAssert(context.glGetProgramResourceIndex);
 		return context.glGetProgramResourceIndex(m_objectId, programInterface, name);
+	}
+
+	inline GLuint Program::GetResourceIndex(GLenum programInterface, const std::string& name) const
+	{
+		return GetResourceIndex(programInterface, name.c_str());
 	}
 
 	inline GLint Program::GetResourceLocation(GLenum programInterface, const char* name) const
 	{
 		assert(m_objectId);
 		const Context& context = EnsureDeviceContext();
-		assert(context.glGetProgramResourceiv);
 
+		NazaraAssert(context.glGetProgramResourceiv);
 		return context.glGetProgramResourceLocation(m_objectId, programInterface, name);
+	}
+
+	inline GLint Program::GetResourceLocation(GLenum programInterface, const std::string& name) const
+	{
+		return GetResourceLocation(programInterface, name.c_str());
 	}
 
 	inline std::string Program::GetResourceName(GLenum programInterface, GLuint index) const
@@ -238,8 +248,8 @@ namespace Nz::GL
 	{
 		assert(m_objectId);
 		const Context& context = EnsureDeviceContext();
-		assert(context.glGetProgramResourceName);
 
+		NazaraAssert(context.glGetProgramResourceName);
 		context.glGetProgramResourceName(m_objectId, programInterface, index, bufSize, length, name);
 	}
 
@@ -275,6 +285,15 @@ namespace Nz::GL
 
 		const Context& context = EnsureDeviceContext();
 		context.glLinkProgram(m_objectId);
+	}
+
+	inline void Program::ShaderStorageBlockBinding(GLuint storageBlockIndex, GLuint storageBlockBinding) const
+	{
+		assert(m_objectId);
+
+		const Context& context = EnsureDeviceContext();
+		NazaraAssert(context.glShaderStorageBlockBinding);
+		context.glShaderStorageBlockBinding(m_objectId, storageBlockIndex, storageBlockBinding);
 	}
 
 	inline void Program::Uniform(GLint uniformLocation, float value) const

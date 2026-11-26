@@ -129,26 +129,34 @@ namespace Nz
 
 					if (explicitBindings)
 					{
-						explicitBindings->reserve(explicitBindings->size() + output.explicitTextureBinding.size() + output.explicitUniformBlockBinding.size());
+						explicitBindings->reserve(explicitBindings->size() + output.explicitStorageBlockBinding.size() + output.explicitTextureBinding.size() + output.explicitUniformBlockBinding.size());
+						for (const auto& [name, bindingPoint] : output.explicitStorageBlockBinding)
+						{
+							auto& explicitBinding = explicitBindings->emplace_back();
+							explicitBinding.type = ExplicitBinding::Type::StorageBlock;
+							explicitBinding.name = name;
+							explicitBinding.binding = bindingPoint;
+						}
+
 						for (const auto& [name, bindingPoint] : output.explicitTextureBinding)
 						{
 							auto& explicitBinding = explicitBindings->emplace_back();
+							explicitBinding.type = ExplicitBinding::Type::Texture;
 							explicitBinding.name = name;
 							explicitBinding.binding = bindingPoint;
-							explicitBinding.isBlock = false;
 						}
 
 						for (const auto& [name, bindingPoint] : output.explicitUniformBlockBinding)
 						{
 							auto& explicitBinding = explicitBindings->emplace_back();
+							explicitBinding.type = ExplicitBinding::Type::UniformBlock;
 							explicitBinding.name = name;
 							explicitBinding.binding = bindingPoint;
-							explicitBinding.isBlock = true;
 						}
 					}
 				}
 				else
-					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+					static_assert(AlwaysFalse<T>(), "non-exhaustive visitor");
 
 			}, shaderEntry.shader);
 
@@ -168,6 +176,54 @@ namespace Nz
 	void OpenGLShaderModule::UpdateDebugName(std::string_view name)
 	{
 		m_debugName = name;
+	}
+
+	void OpenGLShaderModule::ApplyExplicitBindings(GL::Program& program, const std::vector<ExplicitBinding>& bindings)
+	{
+		const GL::Context& context = program.EnsureDeviceContext();
+
+		for (const auto& explicitBinding : bindings)
+		{
+			switch (explicitBinding.type)
+			{
+				case OpenGLShaderModule::ExplicitBinding::Type::StorageBlock:
+				{
+					if NAZARA_UNLIKELY(!context.glShaderStorageBlockBinding)
+					{
+						// This is not supposed to happen: SSBO support on OpenGL comes with glShaderStorageBlockBinding (4.3+) and OpenGL ES (3.1+) supports explicit binding at generation
+						NazaraError("Explicit binding for a storage block is required but glShaderStorageBlockBinding is not supported");
+						break;
+					}
+
+					GLuint storageBlockIndex = program.GetResourceIndex(GL_SHADER_STORAGE_BLOCK, explicitBinding.name);
+					if (storageBlockIndex == GL_INVALID_INDEX)
+						continue;
+
+					program.ShaderStorageBlockBinding(storageBlockIndex, explicitBinding.binding);
+					break;
+				}
+
+				case OpenGLShaderModule::ExplicitBinding::Type::Texture:
+				{
+					int location = program.GetUniformLocation(explicitBinding.name);
+					if (location == -1)
+						continue;
+
+					program.Uniform(location, SafeCast<int>(explicitBinding.binding));
+					break;
+				}
+
+				case OpenGLShaderModule::ExplicitBinding::Type::UniformBlock:
+				{
+					GLuint blockIndex = program.GetUniformBlockIndex(explicitBinding.name);
+					if (blockIndex == GL_INVALID_INDEX)
+						continue;
+
+					program.UniformBlockBinding(blockIndex, explicitBinding.binding);
+					break;
+				}
+			}
+		}
 	}
 
 	void OpenGLShaderModule::Create(OpenGLDevice& /*device*/, nzsl::ShaderStageTypeFlags shaderStages, nzsl::Ast::ModulePtr&& shaderModule, const nzsl::BackendParameters& parameters)

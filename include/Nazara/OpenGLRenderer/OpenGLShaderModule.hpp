@@ -34,11 +34,20 @@ namespace Nz
 
 			void UpdateDebugName(std::string_view name) override;
 
+			static void ApplyExplicitBindings(GL::Program& program, const std::vector<ExplicitBinding>& bindings);
+
 			struct ExplicitBinding
 			{
+				enum class Type
+				{
+					StorageBlock,
+					Texture,
+					UniformBlock
+				};
+
+				Type type;
 				std::string name;
 				unsigned int binding;
-				bool isBlock;
 			};
 
 		private:

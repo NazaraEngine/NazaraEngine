@@ -3,13 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLComputePipeline.hpp>
-#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderModule.hpp>
-#include <Nazara/OpenGLRenderer/Utils.hpp>
-#include <NZSL/GlslWriter.hpp>
-#include <NZSL/ShaderBuilder.hpp>
-#include <NZSL/Ast/Module.hpp>
 #include <cassert>
 #include <stdexcept>
 
@@ -41,25 +36,7 @@ namespace Nz
 		if (!m_program.GetLinkStatus(&errLog))
 			throw std::runtime_error("failed to link program: " + errLog);
 
-		for (const auto& explicitBinding : explicitBindings)
-		{
-			if (explicitBinding.isBlock)
-			{
-				GLuint blockIndex = m_program.GetUniformBlockIndex(explicitBinding.name);
-				if (blockIndex == GL_INVALID_INDEX)
-					continue;
-
-				m_program.UniformBlockBinding(blockIndex, explicitBinding.binding);
-			}
-			else
-			{
-				int location = m_program.GetUniformLocation(explicitBinding.name);
-				if (location == -1)
-					continue;
-
-				m_program.Uniform(location, SafeCast<int>(explicitBinding.binding));
-			}
-		}
+		OpenGLShaderModule::ApplyExplicitBindings(m_program, explicitBindings);
 	}
 
 	void OpenGLComputePipeline::Apply(const GL::Context& context) const

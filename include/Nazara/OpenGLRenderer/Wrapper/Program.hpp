@@ -41,7 +41,9 @@ namespace Nz::GL
 			inline void GetResource(GLenum programInterface, GLuint index, GLenum property, GLsizei bufSize, GLsizei* length, GLint* params) const;
 			inline void GetResource(GLenum programInterface, GLuint index, GLsizei propCount, const GLenum* props, GLsizei bufSize, GLsizei* length, GLint* params) const;
 			inline GLuint GetResourceIndex(GLenum programInterface, const char* name) const;
+			inline GLuint GetResourceIndex(GLenum programInterface, const std::string& name) const;
 			inline GLint GetResourceLocation(GLenum programInterface, const char* name) const;
+			inline GLint GetResourceLocation(GLenum programInterface, const std::string& name) const;
 			inline std::string GetResourceName(GLenum programInterface, GLuint index) const;
 			inline void GetResourceName(GLenum programInterface, GLuint index, GLsizei bufSize, GLsizei* length, char* name) const;
 			inline GLuint GetUniformBlockIndex(const char* uniformBlockName) const;
@@ -50,6 +52,8 @@ namespace Nz::GL
 			inline GLint GetUniformLocation(const std::string& uniformName) const;
 
 			inline void Link();
+
+			inline void ShaderStorageBlockBinding(GLuint storageBlockIndex, GLuint storageBlockBinding) const;
 
 			inline void Uniform(GLint uniformLocation, float value) const;
 			inline void Uniform(GLint uniformLocation, int value) const;
