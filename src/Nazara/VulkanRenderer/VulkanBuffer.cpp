@@ -139,7 +139,7 @@ namespace Nz
 			VmaAllocationInfo allocationInfo;
 			vmaGetAllocationInfo(m_device.GetMemoryAllocator(), m_allocation, &allocationInfo);
 
-			return allocationInfo.pMappedData;
+			return static_cast<UInt8*>(allocationInfo.pMappedData) + offset;
 		}
 		else
 		{
