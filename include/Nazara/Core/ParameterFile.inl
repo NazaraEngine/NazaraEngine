@@ -95,6 +95,16 @@ namespace Nz
 			return Read<Identifier>();
 		else if constexpr (std::is_same_v<T, ParameterFileSection>)
 			return ParameterFileSection{ *this };
+		else if constexpr (std::is_integral_v<T> || std::is_floating_point_v<T>)
+		{
+			T value;
+
+			std::string str = Read<String>().value;
+			if (std::from_chars(str.data(), str.data() + str.size(), value).ec != std::errc{})
+				throw std::runtime_error(Format("failed to parse \"{}\" as a number on line {}", str, m_currentLine));
+
+			return value;
+		}
 		else
 			static_assert(AlwaysFalse<T>(), "unsupported type");
 	}
