@@ -34,7 +34,7 @@ namespace Nz
 		const GL::Context* currentContext = GL::Context::GetCurrentContext();
 		if (!currentContext)
 		{
-			currentContext = &m_device.GetReferenceContext();
+			currentContext = &m_device.GetThreadContext();
 			GL::Context::SetCurrentContext(currentContext);
 		}
 
@@ -46,7 +46,7 @@ namespace Nz
 		const GL::Context* currentContext = GL::Context::GetCurrentContext();
 		if (!currentContext)
 		{
-			currentContext = &m_device.GetReferenceContext();
+			currentContext = &m_device.GetThreadContext();
 			GL::Context::SetCurrentContext(currentContext);
 		}
 

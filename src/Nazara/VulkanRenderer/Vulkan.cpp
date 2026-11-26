@@ -63,6 +63,7 @@ namespace Nz
 		deviceInfo.features.drawIndirectCount = physDevice.features12.drawIndirectCount;
 		deviceInfo.features.drawIndirectFirstInstance = physDevice.features10.drawIndirectFirstInstance;
 		deviceInfo.features.multiDrawIndirect = physDevice.features10.multiDrawIndirect;
+		deviceInfo.features.multiThreading = true;
 		deviceInfo.features.nonSolidFaceFilling = physDevice.features10.fillModeNonSolid;
 		deviceInfo.features.persistentMapping = true;
 		deviceInfo.features.storageBuffers = true;

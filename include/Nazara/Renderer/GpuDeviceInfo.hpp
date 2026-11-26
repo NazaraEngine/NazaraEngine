@@ -24,6 +24,7 @@ namespace Nz
 		bool drawIndirectCount = false;
 		bool drawIndirectFirstInstance = false;
 		bool multiDrawIndirect = false;
+		bool multiThreading = false;
 		bool nonSolidFaceFilling = false;
 		bool persistentMapping = false;
 		bool storageBuffers = false;

@@ -8,6 +8,7 @@
 #define NAZARA_OPENGLRENDERER_OPENGLDEVICE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/ThreadLocalData.hpp>
 #include <Nazara/OpenGLRenderer/Export.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
@@ -39,6 +40,7 @@ namespace Nz
 			const GpuDeviceInfo& GetDeviceInfo() const override;
 			const GpuDeviceFeatures& GetEnabledFeatures() const override;
 			inline const GL::Context& GetReferenceContext() const;
+			const GL::Context& GetThreadContext() const;
 
 			std::unique_ptr<GpuAsyncCommands> InstantiateAsyncCommands(QueueType queueType) override;
 			std::shared_ptr<GpuBuffer> InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData = nullptr) override;
@@ -82,6 +84,7 @@ namespace Nz
 			std::shared_ptr<GL::Context> m_referenceContext;
 			std::vector<ActiveAsyncTransfer> m_activeAsyncTransfer;
 			mutable std::unordered_set<const GL::Context*> m_contexts;
+			mutable ThreadLocalData<std::shared_ptr<GL::Context>> m_threadContexts;
 			GpuDeviceInfo m_deviceInfo;
 			GL::Loader& m_loader;
 	};

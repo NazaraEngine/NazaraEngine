@@ -86,7 +86,7 @@ namespace Nz
 
 	nzsl::ShaderStageTypeFlags OpenGLShaderModule::Attach(GL::Program& program, const nzsl::GlslWriter::Parameters& glslParameters, std::vector<ExplicitBinding>* explicitBindings) const
 	{
-		const auto& context = m_device.GetReferenceContext();
+		const auto& context = m_device.GetThreadContext();
 		const auto& contextParams = context.GetParams();
 
 		nzsl::GlslWriter::Environment env;

@@ -107,6 +107,7 @@ namespace Nz
 		enabledFeatures.drawIndirectCount = !config.forceDisableFeatures.drawIndirectCount && renderDeviceInfo[bestGpuDeviceIndex].features.drawIndirectCount;
 		enabledFeatures.drawIndirectFirstInstance = true; //< required
 		enabledFeatures.multiDrawIndirect = !config.forceDisableFeatures.multiDrawIndirect && renderDeviceInfo[bestGpuDeviceIndex].features.multiDrawIndirect;
+		enabledFeatures.multiThreading = !config.forceDisableFeatures.multiThreading && renderDeviceInfo[bestGpuDeviceIndex].features.multiThreading;
 		enabledFeatures.nonSolidFaceFilling = !config.forceDisableFeatures.nonSolidFaceFilling && renderDeviceInfo[bestGpuDeviceIndex].features.nonSolidFaceFilling;
 		enabledFeatures.persistentMapping = !config.forceDisableFeatures.persistentMapping && renderDeviceInfo[bestGpuDeviceIndex].features.persistentMapping;
 		enabledFeatures.storageBuffers = true; //< required

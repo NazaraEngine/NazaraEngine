@@ -61,7 +61,7 @@ namespace Nz::GL
 		const Context* activeContext = Context::GetCurrentContext();
 		if (!activeContext || activeContext->GetDevice() != m_device)
 		{
-			const Context& referenceContext = m_device->GetReferenceContext();
+			const Context& referenceContext = m_device->GetThreadContext();
 			if (!Context::SetCurrentContext(&referenceContext))
 				throw std::runtime_error("failed to activate context");
 

@@ -63,6 +63,9 @@ namespace Nz
 
 		m_deviceInfo.type = GpuDeviceType::Unknown; //< TODO: Try to extract from device name pattern
 
+		// Multithreading with OpenGL is complicated and technically supported by heavily depends on the driver
+		m_deviceInfo.features.multiThreading = false;
+
 		// Features
 		const auto& contextParams = m_referenceContext->GetParams();
 
@@ -211,6 +214,16 @@ namespace Nz
 	{
 		//FIXME
 		return m_deviceInfo.features;
+	}
+
+	const GL::Context& OpenGLDevice::GetThreadContext() const
+	{
+		bool created;
+		auto& threadContext = m_threadContexts.GetOrCreate(created);
+		if (created)
+			threadContext = CreateContext({});
+
+		return *threadContext;
 	}
 
 	std::unique_ptr<GpuAsyncCommands> OpenGLDevice::InstantiateAsyncCommands(QueueType /*queueType*/)

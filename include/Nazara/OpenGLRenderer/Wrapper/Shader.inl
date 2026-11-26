@@ -69,14 +69,14 @@ namespace Nz::GL
 	{
 		assert(m_objectId);
 
-		m_device->GetReferenceContext().glShaderBinary(1U, &m_objectId.Get(), binaryFormat, binary, length);
+		m_device->GetThreadContext().glShaderBinary(1U, &m_objectId.Get(), binaryFormat, binary, length);
 	}
 
 	inline void Shader::SetSource(const char* source, GLint length)
 	{
 		assert(m_objectId);
 
-		m_device->GetReferenceContext().glShaderSource(m_objectId, 1U, &source, &length);
+		m_device->GetThreadContext().glShaderSource(m_objectId, 1U, &source, &length);
 	}
 
 	inline void Shader::SetSource(std::string_view source)
