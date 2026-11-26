@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
+#include <Nazara/Renderer/RenderStates.hpp>
 
 namespace Nz
 {
@@ -25,8 +26,10 @@ namespace Nz
 	class NAZARA_GRAPHICS_API PostProcessPipelinePass : public FramePipelinePass
 	{
 		public:
+			struct Params;
+
 			PostProcessPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters);
-			PostProcessPipelinePass(PassData& passData, std::string passName, std::string shaderName, UInt32 inputCount = 1);
+			PostProcessPipelinePass(PassData& passData, std::string passName, Params params);
 			PostProcessPipelinePass(const PostProcessPipelinePass&) = delete;
 			PostProcessPipelinePass(PostProcessPipelinePass&&) = delete;
 			~PostProcessPipelinePass() = default;
@@ -38,8 +41,20 @@ namespace Nz
 			PostProcessPipelinePass& operator=(const PostProcessPipelinePass&) = delete;
 			PostProcessPipelinePass& operator=(PostProcessPipelinePass&&) = delete;
 
-			static UInt32 GetInputCount(const ParameterList& parameters);
-			static std::string GetShaderName(const ParameterList& parameters);
+			static Params BuildParams(const ParameterList& parameters);
+
+			struct Params
+			{
+				std::string shaderName;
+				UInt32 inputCount = 1;
+				bool blending = false;
+				BlendEquation modeAlpha = BlendEquation::Add;
+				BlendEquation modeColor = BlendEquation::Add;
+				BlendFunc dstAlpha = BlendFunc::Zero;
+				BlendFunc dstColor = BlendFunc::Zero;
+				BlendFunc srcAlpha = BlendFunc::One;
+				BlendFunc srcColor = BlendFunc::One;
+			};
 
 		private:
 			void BuildPipeline();
@@ -50,9 +65,9 @@ namespace Nz
 			std::shared_ptr<GpuRenderPipeline> m_renderPipeline;
 			std::shared_ptr<GpuRenderPipeline> m_nextRenderPipeline;
 			std::string m_passName;
+			Params m_params;
 			ShaderBindingPtr m_shaderBinding;
 			UberShader m_shader;
-			UInt32 m_inputCount;
 			bool m_rebuildFramePass;
 	};
 }

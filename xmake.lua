@@ -112,7 +112,7 @@ local modules = {
 	Graphics = {
 		Option = "graphics",
 		Deps = {"NazaraRenderer", "NazaraTextRenderer"},
-		Packages = {"entt", "fast_float"}
+		Packages = {"entt", "fast_float", "frozen"}
 	},
 	Physics2D = {
 		Option = "physics2d",

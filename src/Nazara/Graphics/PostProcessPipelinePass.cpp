@@ -6,17 +6,19 @@
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <NazaraUtils/StackArray.hpp>
+#include <frozen/string.h>
+#include <frozen/unordered_map.h>
 #include <charconv>
 
 namespace Nz
 {
-	PostProcessPipelinePass::PostProcessPipelinePass(PassData& /*passData*/, std::string passName, std::string shaderName, UInt32 inputCount) :
+	PostProcessPipelinePass::PostProcessPipelinePass(PassData& /*passData*/, std::string passName, Params params) :
 	m_passName(std::move(passName)),
-	m_shader(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, std::move(shaderName)),
-	m_inputCount(inputCount)
+	m_params(std::move(params)),
+	m_shader(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, std::move(m_params.shaderName))
 	{
 		GpuPipelineLayoutInfo layoutInfo;
-		for (UInt32 inputIndex = 0; inputIndex < m_inputCount; ++inputIndex)
+		for (UInt32 inputIndex = 0; inputIndex < m_params.inputCount; ++inputIndex)
 		{
 			layoutInfo.bindings.push_back(GpuPipelineLayoutInfo::Binding{
 				0, inputIndex, 1,
@@ -51,8 +53,8 @@ namespace Nz
 
 	FramePass& PostProcessPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		if (inputOuputs.inputAttachments.size() != m_inputCount)
-			throw std::runtime_error("one input expected");
+		if (inputOuputs.inputAttachments.size() != m_params.inputCount)
+			throw std::runtime_error(Format("{} input(s) expected", m_params.inputCount));
 
 		if (inputOuputs.outputAttachments.size() != 1)
 			throw std::runtime_error("one output expected");
@@ -65,8 +67,8 @@ namespace Nz
 
 		FramePass& postProcess = frameGraph.AddPass(m_passName);
 
-		Nz::HybridVector<std::size_t, 2> inputIndices(m_inputCount);
-		for (std::size_t i = 0; i < m_inputCount; ++i)
+		Nz::HybridVector<std::size_t, 2> inputIndices(m_params.inputCount);
+		for (std::size_t i = 0; i < m_params.inputCount; ++i)
 		{
 			inputIndices[i] = inputOuputs.inputAttachments[i].attachmentIndex;
 			postProcess.AddInput(inputIndices[i]);
@@ -118,8 +120,76 @@ namespace Nz
 		return postProcess;
 	}
 
-	UInt32 PostProcessPipelinePass::GetInputCount(const ParameterList& parameters)
+	auto PostProcessPipelinePass::BuildParams(const ParameterList& parameters) -> Params
 	{
+		auto DecodeBlendFunc = [&](std::string_view parameterName, BlendFunc defaultBlendFunc) -> BlendFunc
+		{
+			constexpr auto s_blendFunc = frozen::make_unordered_map<frozen::string, BlendFunc>({
+				{ "ConstantColor", BlendFunc::ConstantColor },
+				{ "ConstantAlpha", BlendFunc::ConstantAlpha },
+				{ "DstAlpha", BlendFunc::DstAlpha },
+				{ "DstColor", BlendFunc::DstColor },
+				{ "SrcAlpha", BlendFunc::SrcAlpha },
+				{ "SrcColor", BlendFunc::SrcColor },
+				{ "InvConstantColor", BlendFunc::InvConstantColor },
+				{ "InvConstantAlpha", BlendFunc::InvConstantAlpha },
+				{ "InvDstAlpha", BlendFunc::InvDstAlpha },
+				{ "InvDstColor", BlendFunc::InvDstColor },
+				{ "InvSrcAlpha", BlendFunc::InvSrcAlpha },
+				{ "InvSrcColor", BlendFunc::InvSrcColor },
+				{ "One", BlendFunc::One },
+				{ "Zero", BlendFunc::Zero }
+			});
+
+			Result<std::string_view, ParameterList::Error> result = parameters.GetStringViewParameter(parameterName);
+			if (result.IsOk())
+			{
+				auto it = s_blendFunc.find(result.GetValue());
+				if (it == s_blendFunc.end())
+					throw std::runtime_error(Format("PostProcessPipelinePass {} has invalid BlendFunc \"{}\"", parameterName, result.GetValue()));
+
+				return it->second;
+			}
+
+			return defaultBlendFunc;
+		};
+
+		auto DecodeBlendEquation = [&](std::string_view parameterName, BlendEquation defaultBlendEquation) -> BlendEquation
+		{
+			constexpr auto s_blendEq = frozen::make_unordered_map<frozen::string, BlendEquation>({
+				{ "Add", BlendEquation::Add },
+				{ "Max", BlendEquation::Max },
+				{ "Min", BlendEquation::Min },
+				{ "ReverseSubtract", BlendEquation::ReverseSubtract },
+				{ "Subtract", BlendEquation::Subtract }
+			});
+
+			Result<std::string_view, ParameterList::Error> result = parameters.GetStringViewParameter(parameterName);
+			if (result.IsOk())
+			{
+				auto it = s_blendEq.find(result.GetValue());
+				if (it == s_blendEq.end())
+					throw std::runtime_error(Format("PostProcessPipelinePass {} has invalid BlendEquation \"{}\"", parameterName, result.GetValue()));
+
+				return it->second;
+			}
+
+			return defaultBlendEquation;
+		};
+
+		Params params;
+		params.dstAlpha = DecodeBlendFunc("DstAlpha", params.dstAlpha);
+		params.dstColor = DecodeBlendFunc("DstColor", params.dstColor);
+		params.srcAlpha = DecodeBlendFunc("SrcAlpha", params.srcAlpha);
+		params.srcColor = DecodeBlendFunc("SrcColor", params.srcColor);
+		params.modeAlpha = DecodeBlendEquation("ModeAlpha", params.modeAlpha);
+		params.modeColor = DecodeBlendEquation("ModeColor", params.modeColor);
+
+		Result<bool, ParameterList::Error> blendingResult = parameters.GetBooleanParameter("Blending"); //< will convert
+		if (blendingResult.IsOk())
+			params.blending = blendingResult.GetValue();
+
+		// InputCount
 		Result<std::string_view, ParameterList::Error> inputCountResult = parameters.GetStringViewParameter("InputCount");
 		if (inputCountResult.IsOk())
 		{
@@ -130,28 +200,29 @@ namespace Nz
 			if (auto pidParse = std::from_chars(inputCountStr.data(), inputCountStr.data() + inputCountStr.size(), inputCount); pidParse.ec != std::errc())
 				throw std::runtime_error("PostProcessPipelinePass InputCount is invalid");
 
-			return SafeCaster(inputCount);
+			params.inputCount = SafeCaster(inputCount);
 		}
 
-		// TODO: Log error if key is present but not of the right type
-		return 1;
-	}
-
-	std::string PostProcessPipelinePass::GetShaderName(const ParameterList& parameters)
-	{
+		// Shader
 		Result<std::string, ParameterList::Error> shaderResult = parameters.GetStringParameter("Shader");
 		if (shaderResult.IsOk())
-			return std::move(shaderResult).GetValue();
-		// TODO: Log error if key is present but not of the right type
+			params.shaderName = std::move(shaderResult).GetValue();
 
-		throw std::runtime_error("PostProcessPipelinePass expect a Shader parameter");
+		return params;
 	}
 
 	void PostProcessPipelinePass::BuildPipeline()
 	{
-		std::shared_ptr<GpuDevice> renderDevice = Graphics::Instance()->GetGpuDevice();
+		const std::shared_ptr<GpuDevice>& renderDevice = Graphics::Instance()->GetGpuDevice();
 
 		RenderPipelineInfo pipelineInfo;
+		pipelineInfo.blending = m_params.blending;
+		pipelineInfo.blend.dstAlpha = m_params.dstAlpha;
+		pipelineInfo.blend.dstColor = m_params.dstColor;
+		pipelineInfo.blend.modeAlpha = m_params.modeAlpha;
+		pipelineInfo.blend.modeColor = m_params.modeColor;
+		pipelineInfo.blend.srcAlpha = m_params.srcAlpha;
+		pipelineInfo.blend.srcColor = m_params.srcColor;
 		pipelineInfo.pipelineLayout = m_renderPipelineLayout;
 		pipelineInfo.shaderModules.push_back(m_shader.Get({}));
 
