@@ -109,9 +109,13 @@ namespace Nz::Loaders
 				void HandleAttachment(ParameterFileSection section, std::string attachmentName)
 				{
 					std::string format;
+					double height = 1.0;
+					double width = 1.0;
 
 					section.Block(
-						"format", &format
+						"format", &format,
+						"height", &height,
+						"width",  &width
 					);
 
 					if (format.empty())
@@ -128,8 +132,10 @@ namespace Nz::Loaders
 					}
 
 					std::size_t attachmentId = m_current->passList->AddAttachment({
-						attachmentName,
-						attachmentFormat
+						.name = attachmentName,
+						.format = attachmentFormat,
+						.width = static_cast<unsigned int>(width * 100'000.0),
+						.height = static_cast<unsigned int>(height * 100'000.0)
 					});
 
 					m_current->attachmentsByName.emplace(std::move(attachmentName), attachmentId);
