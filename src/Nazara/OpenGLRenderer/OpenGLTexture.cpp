@@ -228,7 +228,7 @@ namespace Nz
 
 			case ImageType::Cubemap:
 			{
-				std::size_t faceSize = PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, m_textureInfo.width, m_textureInfo.height, 1);
+				std::size_t faceSize = PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, 1);
 				const UInt8* facePtr = static_cast<const UInt8*>(ptr);
 
 				for (GL::TextureTarget face : { GL::TextureTarget::CubemapPositiveX, GL::TextureTarget::CubemapNegativeX, GL::TextureTarget::CubemapPositiveY, GL::TextureTarget::CubemapNegativeY, GL::TextureTarget::CubemapPositiveZ, GL::TextureTarget::CubemapNegativeZ })
