@@ -38,7 +38,7 @@ namespace Nz
 			});
 
 			if (bindingIt == layoutInfo.bindings.end())
-				throw std::runtime_error("invalid binding index");
+				return;
 
 			const auto& bindingInfo = *bindingIt;
 
