@@ -46,6 +46,19 @@ namespace Nz
 				bitfield |= GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
 
 			m_buffer.Storage(target, size, initialData, bitfield);
+
+			if (usage.Test(BufferUsage::PersistentMapping))
+			{
+				GLbitfield accessBit = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT;
+				if (usage.Test(BufferUsage::MapSequentialWrite))
+					accessBit |= GL_MAP_UNSYNCHRONIZED_BIT;
+				else
+					accessBit |= GL_MAP_READ_BIT;
+
+				m_persistentMappedPtr = m_buffer.MapRange(0, SafeCaster(GetSize()), accessBit);
+			}
+			else
+				m_persistentMappedPtr = nullptr;
 		}
 		else
 		{
@@ -76,24 +89,26 @@ namespace Nz
 
 	void OpenGLBuffer::Flush(UInt64 /*offset*/, UInt64 /*size*/)
 	{
-		// When should we flush explicitly (since GL_MAP_FLUSH_EXPLICIT is set for persistent mapping)?
+		// When should we flush explicitly (since GL_MAP_FLUSH_EXPLICIT isn't set for persistent mapping)?
 	}
 
 	void* OpenGLBuffer::Map(UInt64 offset, UInt64 size)
 	{
-		GLbitfield accessBit = GL_MAP_WRITE_BIT;
-		if (GetUsageFlags() & BufferUsage::MapSequentialWrite)
-			accessBit |= GL_MAP_UNSYNCHRONIZED_BIT;
-		else
-			accessBit |= GL_MAP_READ_BIT;
-
 		if (GetUsageFlags() & BufferUsage::PersistentMapping)
-			accessBit |= GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+			return static_cast<UInt8*>(m_persistentMappedPtr) + offset;
+		else
+		{
+			GLbitfield accessBit = GL_MAP_WRITE_BIT;
+			if (GetUsageFlags() & BufferUsage::MapSequentialWrite)
+				accessBit |= GL_MAP_UNSYNCHRONIZED_BIT;
+			else
+				accessBit |= GL_MAP_READ_BIT;
 
-		if (size == WholeSize)
-			size = GetSize();
+			if (size == WholeSize)
+				size = GetSize();
 
-		return m_buffer.MapRange(offset, size, accessBit);
+			return m_buffer.MapRange(offset, size, accessBit);
+		}
 	}
 
 	bool OpenGLBuffer::Unmap()

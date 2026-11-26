@@ -42,6 +42,7 @@ namespace Nz
 
 		private:
 			GL::Buffer m_buffer;
+			void* m_persistentMappedPtr;
 	};
 }
 
