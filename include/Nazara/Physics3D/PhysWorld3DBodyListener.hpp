@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PHYSICS3D_PhysWorld3DBodyListener_HPP
-#define NAZARA_PHYSICS3D_PhysWorld3DBodyListener_HPP
+#ifndef NAZARA_PHYSICS3D_PHYSWORLD3DBODYLISTENER_HPP
+#define NAZARA_PHYSICS3D_PHYSWORLD3DBODYLISTENER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Physics3D/Export.hpp>
@@ -30,4 +30,4 @@ namespace Nz
 
 #include <Nazara/Physics3D/PhysWorld3DBodyListener.inl>
 
-#endif // NAZARA_PHYSICS3D_PhysWorld3DBodyListener_HPP
+#endif // NAZARA_PHYSICS3D_PHYSWORLD3DBODYLISTENER_HPP

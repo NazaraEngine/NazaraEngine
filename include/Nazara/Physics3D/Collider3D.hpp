@@ -62,7 +62,7 @@ namespace Nz
 
 			static std::shared_ptr<Collider3D> Build(const PrimitiveList& list);
 			static bool CollideShapes(const Collider3D& collider1, const Matrix4f& collider1Transform, const Collider3D& collider2, const Matrix4f& collider2Transform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback);
-			
+
 			struct RaycastHit
 			{
 				float fraction;

@@ -28,7 +28,7 @@ namespace Nz::ImageCompressor
 				for (std::size_t y = 0; y < BlockSize; ++y)
 					std::memcpy(&output[y * BlockSize * 1], &input[y * sourcePitch], BlockSize * 1);
 			}
-			
+
 			template<UInt32 BlockSize>
 			static void ExtractClamped(const UInt8* input, std::size_t sourcePitch, std::size_t remainingWidth, std::size_t remainingHeight, std::span<UInt8, BlockSize * BlockSize * TargetBpp> output)
 			{
